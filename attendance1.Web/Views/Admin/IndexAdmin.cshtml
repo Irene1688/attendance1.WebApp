@@ -1,0 +1,448 @@
+﻿@model attendance1.Web.Models.PageModels.ProgrammePageMdl
+@{
+    Layout = "/Pages/Shared/_Layout.cshtml";
+    @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+    var counter = 1;
+    var adminCounter = 1;
+    var classCounter = 1;
+}
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>Programme Page</title>
+
+        <!--Modal css-->
+        <link href="~/plugins/custombox/css/custombox.min.css" rel="stylesheet">
+
+        <!--google icon source-->
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+
+        <style>
+            .sortable {
+                cursor: pointer;
+                font-style: italic;
+            }
+
+            .search-container {
+                display: flex; 
+                justify-content: flex-start; 
+                position: relative; 
+                align-content: center; 
+                width: 350px; 
+                max-width: 50%;
+            }
+
+            .search-icon {
+                color: #555; 
+                background-color: #eee; 
+                font-size: 15px; 
+                min-height: 38px; 
+                min-width: 45px; 
+                border: 1px solid #e3e3e3;
+                border-radius: 4px 0 0 4px;
+                border-right: none;
+                display: flex; 
+                justify-content: center; 
+                align-items: center;
+            }
+
+            .search-container:focus-within #search-icon-div {
+                border-color: #aaaaaa !important;
+            }
+
+            .search-input {
+                border-top-left-radius: 0; 
+                border-bottom-left-radius: 0; 
+            }
+
+            .clear-search-icon {
+                display: none; 
+                position: absolute; 
+                right: 10px; 
+                min-height: 100%; 
+                align-items: center; 
+                cursor: pointer;
+            }
+
+            .search-no-found {
+                display: none; 
+                border: 2px solid #eee; 
+                border-top: transparent;
+            }
+
+            .class-details-content {
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.3s ease, opacity 0.3s ease;
+                opacity: 0;
+            }
+
+            .class-details-content.expanded {
+                max-height: 100000px;
+                opacity: 1;
+            }
+
+            .admin-details-content {
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.3s ease, opacity 0.3s ease;
+                opacity: 0;
+            }
+
+            .admin-details-content.expanded {
+                max-height: 100000px;
+                opacity: 1;
+            }
+
+            .click-to-display {
+                cursor: pointer;
+            }
+
+            .click-to-display:hover {
+                background-color: #f7f5f5;
+            }
+
+            .info {
+                cursor: pointer;
+                position: relative;
+            }
+
+            .info:hover .info-content {
+                visibility: visible;
+                opacity: 1;
+            }
+
+            .info-content {
+                visibility: hidden;
+                width: max-content;
+                background-color: #333;
+                color: #fff;
+                border-radius: 5px;
+                padding: 10px;
+                position: absolute;
+                z-index: 2;
+                bottom: 150%;
+                right: 50%;
+                margin-right: -100px;
+                opacity: 0;
+                transition: opacity 0.3s;
+                text-align: left;
+                font-weight: normal;
+                font-family: 'Varela Round', sans-serif;
+                font-size: 14px;
+            }
+
+            
+            .info-content::after {
+                content: "";
+                position: absolute;
+                bottom: 0px;
+                right: 50%;
+                margin-right: -100px;
+                border-width: 10px;
+                border-style: solid;
+                border-color: transparent transparent #333 transparent;
+            }
+
+        </style>
+    </head>
+
+    <body>
+        <div class="page-title-box">
+            <h4 class="page-title">All Programme</h4>
+            <ol class="breadcrumb p-0 m-0">
+                <li>
+                    <a href="#">Attendance Management System</a>
+                </li>
+                <li class="active">
+                    ~
+                </li>
+            </ol>
+            <div class="clearfix"></div>
+        </div>
+
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-icon alert-success alert-dismissible fade in" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <i class="mdi mdi-emoticon"></i>
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-icon alert-danger alert-dismissible fade in" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <i class="mdi mdi-emoticon-sad"></i>
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
+        <!--search and add programme button-->
+        <div class="in-a-row m-b-10">
+            <div class="search-container">
+                <i class="mdi mdi-magnify search-icon" id="search-icon-div"></i>
+                <input type="text" id="search-programme-input" class="form-control search-input m-b-0" placeholder="Search by Programme Name" onkeyup="searchTable()">
+                <span id="clear-input" class="clear-search clear-search-icon" onclick="clearSearch()"><i class="mdi mdi-close"></i></span>
+            </div>
+
+            <button href="#custom-modal-add-programme" class="btn btn-inverse waves-effect waves-light m-t-5 in-a-row" style="gap: 10px;" data-animation="fadein" data-plugin="custommodal" data-overlaySpeed="200" data-overlayColor="#36404a">
+                <i class="mdi mdi-plus"></i>
+                Add Programme
+            </button>
+        </div>
+
+        <!--programme table-->
+        <table class="table table-colored table-inverse table-bordered m-b-0" id="programme-table">
+            <thead>
+                <tr>
+                    <th class="text-center" style="vertical-align: middle;">#</th>
+                    <th class="text-center sortable" style="vertical-align: middle;" data-sort-column="1" title="Click to sort the column">
+                        <i class="mdi mdi-sort"></i>
+                        Programme Name
+                    </th>
+                    <th class="text-center" style="vertical-align: middle;">Admin Number</th>
+                    <th class="text-center" style="vertical-align: middle;">Class Number</th>
+                    <th class="text-center" style="vertical-align: middle;">
+                        <div class="in-a-row" style="justify-content: center; gap: 10px;" >
+                            Actions
+                            <div class="info">
+                                <i class="mdi mdi-information-outline" style="font-size: 18px;"></i>
+                                <div class="info-content">
+                                    <p>Edit: Edit the programme name</p>
+                                    <p>Delete: Programme can only be deleted when it is no class or admin anymore</p>
+                                </div>
+                            </div>
+                        </div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="programme-table-tbody">
+                @foreach (var programme in Model.ProgrammeList) 
+                {
+                    <tr id="row-programme-@programme.ProgrammeId" data-original-index="@counter">
+                        <td class="text-center" style="vertical-align: middle;">@counter</td>
+                            
+                        <td style="vertical-align: middle;">
+                            <span class="programme-name">@programme.Programme</span>
+                            <!--Edit programme form-->
+                            <form asp-controller="Admin" asp-action="EditProgramme" id="edit-programme-form-@programme.ProgrammeId" method="post" style="width: 100%;">
+                                <input type="text" class="programme-name-input form-control" value="@programme.Programme" name="newProgrammeName" data-original-value="@programme.Programme" style="display:none; width: 100%;" />
+                                <div id="programme-name-empty" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> Programme name cannot be empty.</div>
+                                <div id="programme-name-error" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> Programme name must contain alphabet letter, accept number and bracket, no special character accepted.</div>
+                                <div id="programme-name-no-change" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> New programme name cannot same as the original programme name.</div>
+                                <div id="programme-name-existed" class="text-danger prompt-text" style="display: none;"><i class="mdi mdi-alert-circle-outline"></i>The programme is existed already. You cannot use same programme name.</div>
+                            </form>
+                        </td>
+
+                       <td class="click-to-display" style="vertical-align: middle;" title="Click to expand details table" onclick="toggleAdminDetails('@programme.ProgrammeId', this)">
+                           @{
+                               int adminCount = Model.AdminGroupedByProgrammeName.ContainsKey(programme.Programme) ? Model.AdminGroupedByProgrammeName[programme.Programme].Count : 0;
+                           }
+                           <div class="admin-count text-center expandable">
+                               <i class="mdi mdi-chevron-down" style="font-size: 14px;"></i>
+                               @adminCount
+                           </div>
+                       </td> 
+
+                       <td class="click-to-display" style="vertical-align: middle;" title="Click to expand details table" onclick="toggleClassDetails('@programme.ProgrammeId', this)">
+                           @{
+                               int classCount = Model.ClassGroupedByProgrammeId.ContainsKey(programme.ProgrammeId) ? Model.ClassGroupedByProgrammeId[programme.ProgrammeId].Count : 0;
+                           }
+                           <div class="class-count text-center expandable">
+                               <i class="mdi mdi-chevron-down" style="font-size: 14px;"></i>
+                               @classCount
+                           </div>
+                       </td> 
+
+                            
+                        <td class="text-center" style="vertical-align: middle;">
+                            <div class="in-a-row" style="justify-content: center; gap: 20px;">
+                                <button class="edit-btn btn btn-inverse waves-effect waves-light in-a-row" style="gap: 5px;" onclick="editRow('@programme.ProgrammeId')">
+                                    <i class="material-symbols-outlined" style="font-size: 14px;">edit_square</i>
+                                    Edit
+                                </button>
+                                <button class="delete-btn btn btn-danger waves-effect waves-light in-a-row" style="gap: 5px;" onclick="confirmDelete('@programme.ProgrammeId')">
+                                    <i class="material-symbols-outlined" style="font-size: 14px;">delete</i>
+                                    Delete
+                                </button>
+                            </div>
+                            
+                            <!--Edit Mode buttons-->
+                            <div class="in-a-row" style="justify-content: center; gap: 20px;">
+                                <button type="submit" id="submit-edit-programme-button" class="save-btn btn btn-inverse waves-effect waves-light in-a-row" style="display:none; gap: 5px; vertical-align: middle;" onclick="saveRow('@programme.ProgrammeId')" >
+                                    <i class="material-symbols-outlined" style="font-size: 14px;">save</i>
+                                    Save
+                                </button>
+                                <button class="cancel-btn btn waves-effect waves-light in-a-row" style="display: none; background-color: #eee; gap: 5px;" onclick="cancelEdit('@programme.ProgrammeId')">
+                                    <i class="material-symbols-outlined" style="font-size: 14px;">cancel</i>
+                                    Cancel
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr id="admin-details-row-@programme.ProgrammeId" class="admin-details-row" style="display: none; border: 2px solid #d1d1d1; ">
+                        <td colspan="5" style="padding: 0px; ">
+                            <div class="admin-details-content">
+                                <table class="table table-colored table-gray table-striped table-bordered m-b-0" id="class-details-table" style="width: 100%;">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="4">Admin Table</th>
+                                        </tr>
+                                        <tr>
+                                            <th class="text-center">#</th>
+                                            <th class="text-center">Admin ID / Staff ID</th>
+                                            <th class="text-center">Admin Name</th>
+                                            <th class="text-center">Email</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (Model.AdminGroupedByProgrammeName.ContainsKey(programme.Programme))
+                                        {
+                                            adminCounter = 1;
+                                            var adminList = Model.AdminGroupedByProgrammeName[programme.Programme];
+                                            foreach (var admin in adminList)
+                                            {
+                                                <tr>
+                                                    <td class="text-center">@adminCounter</td>
+                                                    <td class="text-center">@admin.StaffId</td>
+                                                    <td>@admin.StaffName</td>
+                                                    <td>@admin.StaffEmail</td>
+                                                </tr>
+                                                adminCounter++;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <tr>
+                                                <td colspan="4" class="text-center">No admin available for this programme.</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr id="class-details-row-@programme.ProgrammeId" class="admin-details-row" style="display: none; border: 2px solid #d1d1d1; ">
+                        <td colspan="5" style="padding: 0px; ">
+                            <div class="class-details-content">
+                                <table class="table table-colored table-gray table-striped table-bordered m-b-0" id="class-details-table" style="width: 100%;">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="6">Classes Table</th>
+                                        </tr>
+                                        <tr>
+                                            <th class="text-center">#</th>
+                                            <th class="text-center">Session</th>
+                                            <th class="text-center">Course Code</th>
+                                            <th class="text-center">Class Name</th>
+                                            <th class="text-center">Lecturer ID</th>
+                                            <th class="text-center">Lecturer Name</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (Model.ClassGroupedByProgrammeId.ContainsKey(programme.ProgrammeId))
+                                        {
+                                            classCounter = 1;
+                                            var classList = Model.ClassGroupedByProgrammeId[programme.ProgrammeId];
+                                            foreach (var classItem in classList)
+                                            {
+                                                <tr>
+                                                    <td class="text-center">@classCounter</td>
+                                                    <td class="text-center">@classItem.ClassSession</td>
+                                                    <td class="text-center">@classItem.CourseCode</td>
+                                                    <td>@classItem.ClassName</td>
+                                                    <td class="text-center">@classItem.LecturerId</td>
+                                                    <td>@classItem.LecturerName</td>
+                                                </tr>
+                                                classCounter++;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <tr>
+                                                <td colspan="6" class="text-center">No class available for this programme.</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                    counter++;
+                }
+            </tbody>
+        </table>
+
+        <div id="no-found-row" class="search-no-found p-b-10 p-t-10">
+            <div class="text-danger text-center" >
+                <i class="mdi mdi-alert-outline"></i>
+                <b>
+                    No found.
+                </b>
+            </div>
+        </div>
+
+        <!--Delete Programme form -->
+        <form id="delete-programme-form" asp-controller="Admin" asp-action="DeleteProgramme" method="post" style="display:none;">
+            <input type="hidden" name="programmeId" id="delete-programme-id" />
+        </form>
+
+        <!--modal content: add programme-->
+        <div id="custom-modal-add-programme" class="modal-demo">
+            <button type="button" class="close close-button" data-dismiss="modal" onclick="Custombox.close();">
+                <span>&times;</span><span class="sr-only">Close</span>
+            </button>
+            <h4 class="custom-modal-title">Add Programme</h4>
+
+            <form asp-controller="Admin" asp-action="AddProgramme" id="add-programme-form" method="post">
+                <div class="modal-body" style="text-align: left;">
+                    <div class="form-group direction-column">
+                        <label class="col-md-3 control-label m-t-10">Programme Name</label>
+                        <div style="width: 100%; padding: 10px;">
+                            <input type="text" name="programmeName" class="form-control" placeholder="Enter Programme Name" id="new-programme-name-fill-space" required>
+                            <div id="new-programme-name-empty" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i>The field is required.</div>
+                            <div id="new-programme-name-error" class="text-danger prompt-text" style="display: none;"><i class="mdi mdi-alert-circle-outline"></i>Programme name must contain alphabet letter, accept number and bracket, no special character accepted.</div>
+                            <div id="new-programme-name-existed" class="text-danger prompt-text" style="display: none;"><i class="mdi mdi-alert-circle-outline"></i>The programme is existed already. You cannot add same programme name.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default waves-effect close-button" data-dismiss="modal" onclick="Custombox.close();">Cancel</button>
+                        <button type="submit" id="add-programme-submit-button" class="btn btn-inverse waves-effect waves-light">Add</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!--View js-->
+        <script src="~/js/IndexAdmin.js"></script>
+
+        <!--jQuery-->
+        <script src="~/assets/js/jquery.min.js"></script>
+        <script src="~/assets/js/bootstrap.min.js"></script>
+        <script src="~/assets/js/detect.js"></script>
+        <script src="~/assets/js/fastclick.js"></script>
+        <script src="~/assets/js/jquery.blockUI.js"></script>
+        <script src="~/assets/js/waves.js"></script>
+        <script src="~/assets/js/jquery.slimscroll.js"></script>
+        <script src="~/assets/js/jquery.scrollTo.min.js"></script>
+        <script src="~/assets/js/switchery.min.js"></script>
+
+        <!--Modal js-->
+        <script src="~/assets/js/custombox.min.js"></script>
+        <script src="~/assets/js/legacy.min.js"></script>
+
+        <!--App js-->
+        <script src="~/assets/js/jquery.core.js"></script>
+        <script src="~/assets/js/jquery.app.js"></script> 
+    </body>
+</html>
+
+

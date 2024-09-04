@@ -1,0 +1,377 @@
+﻿@{
+    Layout = "/Pages/Shared/_Layout.cshtml";
+    @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+}
+@{
+    var today = DateTime.Today.DayOfWeek;
+}
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>Home Page</title>
+
+        <!--Modal css-->
+        <link href="~/plugins/custombox/css/custombox.min.css" rel="stylesheet">
+
+        <style>
+        
+
+        </style>
+
+    </head>
+
+    <body>
+        @foreach (var item in Model)
+        {
+            <div id="data-class-days" style="display: none;">@Html.Raw(Json.Serialize(Model))</div>
+        }
+        <div class="page-title-box">
+            <h4 class="page-title">Classes</h4>
+            <ol class="breadcrumb p-0 m-0">
+                <li>
+                    <a href="#">Student Management System</a>
+                </li>
+                <li class="active">
+                    Take Attendance
+                </li>
+            </ol>
+            <div class="clearfix"></div>
+        </div>
+
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-icon alert-success alert-dismissible fade in" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <i class="mdi mdi-emoticon"></i>
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-icon alert-danger alert-dismissible fade in" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <i class="mdi mdi-emoticon-sad"></i>
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
+        @if (TempData["PromptMessage"] != null)
+        {
+            <div class="alert alert-icon alert-info alert-dismissible fade in" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <i class="mdi mdi-emoticon-cool"></i>
+                @TempData["PromptMessage"]
+            </div>
+        }
+
+        <!--Class Card-->
+        <div class="row m-b-25" id="today-classes-container">
+            <p class="text-muted">
+                <strong>Today Classes</strong>
+            </p>
+
+            <div>
+                @foreach (var item in Model)
+                {
+                    if (item.ClassDays.Contains(((int)today).ToString()) && item.IsActive == true)
+                    {
+                        <div class="col-lg-4 col-md-6 col-sm-6" id="today-classes">
+                            <a href="#custom-modal-@item.CourseId" data-id="@item.CourseId" data-animation="fadein" data-plugin="custommodal" data-overlaySpeed="200" data-overlayColor="#36404a">
+                                <div class="class-box">
+                                    <div class="up-box">
+                                        <p class="m-0 text-uppercase font-600 font-secondary text-overflow" title="ClassSession">@item.CourseCode</p>
+                                        <h3 class="title-block">@item.ClassName</h3>
+                                    </div>
+                                    <div class="">
+                                        <p class="text-muted m-0">@item.ClassSession</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </div> 
+                    }
+                }
+            </div>
+            <div class="text-muted text-center" id="no-class-message" style="display: none; width: 100%;">No class for today</div>
+        </div>
+
+        <div class="row" id="other-classes-conntainer">
+            <p class="text-muted">
+                <strong>
+                    Other Classes
+                </strong>
+            </p>
+
+            <div>
+                @foreach (var item in Model)
+                {
+                    if (!item.ClassDays.Contains(((int)today).ToString()) && item.IsActive == true)
+                    {
+                        <div class="col-lg-4 col-md-6 col-sm-6" id="other-classes">
+                            <a href="#custom-modal-@item.CourseId" data-id="@item.CourseId" data-animation="fadein" data-plugin="custommodal" data-overlaySpeed="200" data-overlayColor="#36404a">
+                                <div class="class-box">
+                                    <div class="up-box">
+                                        <p class="m-0 text-uppercase font-600 font-secondary text-overflow" title="ClassSession">@item.CourseCode</p>
+                                        <h3 class="title-block">@item.ClassName</h3>
+                                    </div>
+                                    <div class="">
+                                        <p class="text-muted m-0">@item.ClassSession</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </div> 
+                    }
+                }
+            </div>
+        </div>
+
+        <!--Add Class button-->
+        <a asp-controller="Class" asp-action="AddClass" class="add-btn" style="position: fixed; right: 3vw; bottom: 4vh;">
+            <div class="svgWrapper">
+                <i class="mdi mdi-plus" style="color: white;" fill="none" viewBox="0 0 42 42">
+                    <path stroke-width="5" stroke="#fff" d="M9.14073 2.5H32.8593C33.3608 2.5 33.8291 2.75065 34.1073 3.16795L39.0801 10.6271C39.3539 11.0378 39.5 11.5203 39.5 12.0139V21V37C39.5 38.3807 38.3807 39.5 37 39.5H5C3.61929 39.5 2.5 38.3807 2.5 37V21V12.0139C2.5 11.5203 2.6461 11.0378 2.91987 10.6271L7.89266 3.16795C8.17086 2.75065 8.63921 2.5 9.14073 2.5Z"></path>
+                    <rect stroke-width="3" stroke="#fff" rx="2" height="4" width="11" y="18.5" x="15.5"></rect>
+                    <path stroke-width="5" stroke="#fff" d="M1 12L41 12"></path>
+                </i>
+                <div class="text">Add Class</div>
+            </div>
+        </a>
+
+    
+        <!-- Modal content -->
+        @foreach (var item in Model)
+        {
+            <div id="custom-modal-@item.CourseId" class="modal-demo">
+                <button type="button" class="close" data-dismiss="modal" onclick="Custombox.close();">
+                    <span>&times;</span><span class="sr-only">Close</span>
+                </button>
+                <h4 class="custom-modal-title">@item.CourseCode @item.ClassName</h4>
+
+                <form asp-controller="Attendance" asp-action="GenerateCode" method="post">
+                    <input type="hidden" name="courseId" value="@item.CourseId" /> 
+                    <div class="modal-body" style="text-align: left;">
+                        <div class="row">
+                            <h3 style="text-align: center;">Generate Attendance Code</h3>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="padding-left: 15px;">
+                                <label>Code Valid Time:</label>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="radio">
+                                            <input type="radio" name="CodeValidTime" id="ThirtySec-@item.CourseId" value="30 sec" required>
+                                            <label for="ThirtySec-@item.CourseId">
+                                                30 seconds
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <div class="radio">
+                                            <input type="radio" name="CodeValidTime" id="OneMin-@item.CourseId" value="1 Min">
+                                            <label for="OneMin-@item.CourseId">
+                                                1 minute
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <div class="radio">
+                                            <input type="radio" name="CodeValidTime" id="ThreeMin-@item.CourseId" value="3 Min">
+                                            <label for="ThreeMin-@item.CourseId">
+                                                3 minutes
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <div class="radio">
+                                            <input type="radio" name="CodeValidTime" id="FiveMin-@item.CourseId" value="5 Min">
+                                            <label for="FiveMin-@item.CourseId">
+                                                5 minute
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default waves-effect" data-dismiss="modal" onclick="Custombox.close();">Close</button>
+                            <button type="submit" class="btn btn-inverse waves-effect waves-light">Generate</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        }
+
+         <!--View js-->
+        <script src="~/js/IndexLec.js"></script>
+
+        <!--jQuery-->
+        <script src="~/assets/js/jquery.min.js"></script>
+        <script src="~/assets/js/bootstrap.min.js"></script>
+        <script src="~/assets/js/detect.js"></script>
+        <script src="~/assets/js/fastclick.js"></script>
+        <script src="~/assets/js/jquery.blockUI.js"></script>
+        <script src="~/assets/js/waves.js"></script>
+        <script src="~/assets/js/jquery.slimscroll.js"></script>
+        <script src="~/assets/js/jquery.scrollTo.min.js"></script>
+        <script src="~/assets/js/switchery.min.js"></script>
+
+        <!--Modal js-->
+        <script src="~/assets/js/custombox.min.js"></script>
+        <script src="~/assets/js/legacy.min.js"></script>
+
+        <!--App js-->
+        <script src="~/assets/js/jquery.core.js"></script>
+        <script src="~/assets/js/jquery.app.js"></script> 
+    </body>
+</html>
+@* <head>
+    <title>Home Page</title>
+</head>
+
+<div class="page-title-box">
+    <h4 class="page-title">Classes</h4>
+    <ol class="breadcrumb p-0 m-0">
+        <li>
+            <a href="#">Student Management System</a>
+        </li>
+        <li class="active">
+            Take Attendance
+        </li>
+    </ol>
+    <div class="clearfix"></div>
+</div>
+
+
+@foreach (var item in @Model)
+{
+    <div class="col-lg-4 col-md-4 col-sm">
+        <a href="#custom-modal" data-animation="fadein" data-plugin="custommodal" data-overlaySpeed="200" data-overlayColor="#36404a">
+            <div class="card-box widget-box-one class-box">
+                <div class="wigdet-one-content">
+                    <p class="m-0 text-uppercase font-600 font-secondary text-overflow" title="ClassSession">@item.CourseCode</p>
+                    <h3>@item.ClassName</h3>
+                    <p class="text-muted m-0">@item.ClassSession</p>
+                </div>
+            </div>
+        </a>
+    </div>
+}
+
+<!-- Modal content -->
+<div id="custom-modal" class="modal-demo">
+    <button type="button" class="close" data-dismiss="modal" onclick="Custombox.close();">
+        <span>&times;</span><span class="sr-only">Close</span>
+    </button>
+    @foreach (var item in @Model)
+    {
+        <h4 class="custom-modal-title">@item.CourseCode @item.ClassName</h4>
+    }
+
+    <form asp-controller="Attendance" asp-action="GenerateCode" method="post">
+        @foreach (var item in @Model)
+        {
+            <input type="hidden" name="courseId" value="@item.CourseId" />
+        } 
+        <div class="modal-body" style="text-align: left;">
+            <div class="row">
+                <h3 style="text-align: center;">Generate Attendance Code</h3>
+            </div>
+            <div class="row">
+                <div class="form-group" style="padding-left: 15px;">
+                    <label>Code Valid Time:</label>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="radio">
+                                <input type="radio" name="CodeValidTime" id="ThirtySec" value="30 sec" required="">
+                                <label for="ThirtySec">
+                                    30 seconds
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="radio">
+                                <input type="radio" name="CodeValidTime" id="OneMin" value="1 Min">
+                                <label for="OneMin">
+                                    1 minute
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="radio">
+                                <input type="radio" name="CodeValidTime" id="ThreeMin" value="3 Min">
+                                <label for="ThreeMin">
+                                    3 minutes
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="radio">
+                                <input type="radio" name="CodeValidTime" id="FiveMin" value="5 Min">
+                                <label for="FiveMin">
+                                    5 minute
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default waves-effect" data-dismiss="modal" onclick="Custombox.close();">Close</button>
+                <button type="submit" class="btn btn-inverse waves-effect waves-light">Generate</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+
+<!-- jQuery  -->
+    <script src="~/assets/js/jquery.min.js"></script>
+    <script src="~/assets/js/bootstrap.min.js"></script>
+    <script src="~/assets/js/detect.js"></script>
+    <script src="~/assets/js/fastclick.js"></script>
+    <script src="~/assets/js/jquery.blockUI.js"></script>
+    <script src="~/assets/js/waves.js"></script>
+    <script src="~/assets/js/jquery.slimscroll.js"></script>
+    <script src="~/assets/js/jquery.scrollTo.min.js"></script>
+    <script src="~/assets/js/switchery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    
+    <!-- Counter js  -->
+    <script src="~/assets/js/jquery.waypoints.min.js"></script>
+    <script src="~/assets/js/jquery.counterup.min.js"></script>
+
+    <!--Morris Chart-->
+    <script src="~/assets/js/morris.min.js"></script>
+    <script src="~/assets/js/raphael-min.js"></script>
+
+    <!-- Dashboard init -->
+    <script src="~/assets/pages/jquery.dashboard.js"></script>
+
+    <!-- Modal-Effect -->
+<script src="~/assets/js/custombox.min.js"></script>
+<script src="~/assets/js/legacy.min.js"></script>
+<link rel="stylesheet" href="~/assets/css/custombox.min.css">
+
+    <!-- App js -->
+    <script src="~/assets/js/jquery.core.js"></script>
+    <script src="~/assets/js/jquery.app.js"></script> 
+ *@
+
+
+
+
+

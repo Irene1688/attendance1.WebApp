@@ -1,0 +1,591 @@
+﻿@model attendance1.Web.Models.PageModels.StudentPageMdl
+@{
+    Layout = "/Pages/Shared/_Layout.cshtml";
+    @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+    var counter = 1; 
+    //int deviceCounter = 0;
+    var classCounter = 1;
+}
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>Student Page</title>
+
+        <!--Modal css-->
+        <link href="~/plugins/custombox/css/custombox.min.css" rel="stylesheet">
+
+        <!--google icon source-->
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+
+        <style>
+            .sortable {
+                cursor: pointer;
+                font-style: italic;
+            }
+
+            .search-container {
+                display: flex; 
+                justify-content: flex-start; 
+                position: relative; 
+                align-content: center; 
+                width: 350px; 
+                max-width: 50%;
+            }
+
+            .search-icon {
+                color: #555; 
+                background-color: #eee; 
+                font-size: 15px; 
+                min-height: 38px; 
+                min-width: 45px; 
+                border: 1px solid #e3e3e3;
+                border-radius: 4px 0 0 4px;
+                border-right: none;
+                display: flex; 
+                justify-content: center; 
+                align-items: center;
+            }
+
+            .search-container:focus-within #search-icon-div {
+                border-color: #aaaaaa !important;
+            }
+
+            .search-input {
+                border-top-left-radius: 0; 
+                border-bottom-left-radius: 0; 
+            }
+
+            .clear-search-icon {
+                display: none; 
+                position: absolute; 
+                right: 10px; 
+                min-height: 100%; 
+                align-items: center; 
+                cursor: pointer;
+            }
+
+            .search-no-found {
+                display: none; 
+                border: 2px solid #eee; 
+                border-top: transparent;
+            }
+
+            .add-lecturer-input-container {
+                position: relative;
+            }
+
+            .clear-add-lecturer-input {
+                display: none;
+                position: absolute;
+                right: 10px;
+                top: 50%;
+                transform: translateY(-50%);
+                cursor: pointer;
+            }
+
+            .clearable:focus + .clear-add-lecturer-input,
+            .clearable:not(:placeholder-shown) + .clear-add-lecturer-input {
+                display: inline;
+            }
+
+            .class-details-content {
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.3s ease, opacity 0.3s ease;
+                opacity: 0;
+            }
+
+            .class-details-content.expanded {
+                max-height: 100000px;
+                opacity: 1;
+            }
+
+            .device-details-content {
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.3s ease, opacity 0.3s ease;
+                opacity: 0;
+            }
+
+            .device-details-content.expanded {
+                max-height: 100000px;
+                opacity: 1;
+            }
+
+            .click-to-display {
+                cursor: pointer;
+            }
+
+            .click-to-display:hover {
+                background-color: #f7f5f5;
+            }
+
+            .info {
+                cursor: pointer;
+                position: relative;
+            }
+
+            .info:hover .info-content {
+                visibility: visible;
+                opacity: 1;
+            }
+
+            .info-content {
+                visibility: hidden;
+                width: max-content;
+                background-color: #333;
+                color: #fff;
+                border-radius: 5px;
+                padding: 10px;
+                position: absolute;
+                z-index: 2;
+                bottom: 150%;
+                right: 50%;
+                margin-right: -100px;
+                opacity: 0;
+                transition: opacity 0.3s;
+                text-align: left;
+                font-weight: normal;
+                font-family: 'Varela Round', sans-serif;
+                font-size: 14px;
+            }
+
+            
+            .info-content::after {
+                content: "";
+                position: absolute;
+                bottom: 0px;
+                right: 50%;
+                margin-right: -100px;
+                border-width: 10px;
+                border-style: solid;
+                border-color: transparent transparent #333 transparent;
+            }
+
+            .device-code {
+                white-space: normal;
+                word-wrap: break-word;
+                word-break: break-all;
+            }
+            /* .info-content-nested {
+                bottom: -150%;
+                left: 50%;
+                margin-left: -475px;
+            }
+            
+            .info-content-nested::after {
+                bottom: 0px;
+                left: 50%;
+            } */
+
+
+        </style>
+    </head>
+
+    <body>
+        <div class="page-title-box">
+            <h4 class="page-title">All Student</h4>
+            <ol class="breadcrumb p-0 m-0">
+                <li>
+                    <a href="#">Attendance Management System</a>
+                </li>
+                <li class="active">
+                    ~
+                </li>
+            </ol>
+            <div class="clearfix"></div>
+        </div>
+
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-icon alert-success alert-dismissible fade in" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <i class="mdi mdi-emoticon"></i>
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-icon alert-danger alert-dismissible fade in" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <i class="mdi mdi-emoticon-sad"></i>
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
+        <!--search Student-->
+        <div class="in-a-row m-b-10">
+            <div class="search-container">
+                <i class="mdi mdi-magnify search-icon" id="search-icon-div"></i>
+                <input type="text" id="search-student-input" class="form-control search-input m-b-0" placeholder="Search by Student Name or Student ID" onkeyup="searchTable()">
+                <span id="clear-search-input" class="clear-search clear-search-icon" onclick="clearSearch()"><i class="mdi mdi-close"></i></span>
+            </div>
+
+            @* <button href="#custom-modal-add-lecturer" class="btn btn-inverse waves-effect waves-light m-t-5 in-a-row" style="gap: 10px;" data-animation="fadein" data-plugin="custommodal" data-overlaySpeed="200" data-overlayColor="#36404a">
+                <i class="mdi mdi-plus"></i>
+                Add Lecturer
+            </button> *@
+        </div>
+
+        <!--Student table-->
+        <table class="table table-colored table-inverse table-bordered m-b-0" id="student-table">
+            <thead>
+                <tr>
+                    <th class="text-center"  style="vertical-align: middle;">#</th>
+                    <th class="text-center sortable" data-sort-column="1" style="vertical-align: middle;" title="Click to sort the column">
+                        <i class="mdi mdi-sort"></i>
+                        Student ID
+                    </th>
+                    <th class="text-center sortable" data-sort-column="2" style="vertical-align: middle;" title="Click to sort the column">
+                        <i class="mdi mdi-sort"></i>
+                        Name
+                    </th>
+                    <th class="text-center" style="vertical-align: middle;">Enrolled Class Number</th>
+                    @* <th class="text-center">Binded Device(s) Number</th> *@
+                    <th class="text-center" style="vertical-align: middle;">Device Type</th>
+                    <th class="text-center" style="vertical-align: middle;">Bind Date</th>
+                    <th class="text-center" style="vertical-align: middle;">Device Code</th>
+                    @* <th class="text-center">Device Type</th>
+                    <th class="text-center">Device O/S</th>
+                    <th class="text-center">Browser Used</th> *@
+                    <th class="text-center" style="vertical-align: middle;">
+                        <div class="in-a-row" style="justify-content: center; gap: 10px;" >
+                            Actions
+                            <div class="info">
+                                <i class="mdi mdi-information-outline" style="font-size: 18px;"></i>
+                                <div class="info-content">
+                                    <p>Edit: Edit the student ID. Student need re-login with new student ID</p>
+                                    <p>Remove Device: Unbind the device from the student ID. Student need at least one device to take attendance.</p>
+                                    <p>Delete: Delete the student account and all related record</p>
+                                </div>
+                            </div>
+                        </div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="student-table-tbody">
+                @foreach (var student in Model.StudentList) 
+                {
+                    <tr id="row-student-@student.StudentID" data-original-index="@counter">
+                        <td class="text-center" style="vertical-align: middle;">@counter</td>
+
+                        <!--Edit student form-->
+                         <form asp-controller="Admin" asp-action="EditStudent" id="edit-student-form-@student.StudentID" method="post" style="width: 100%;">
+                            <td style="vertical-align: middle;">
+                                <span class="student-id">@student.StudentID</span>
+
+                                <input type="text" class="student-id-input form-control" value="@student.StudentID" name="newStudentId" data-original-value="@student.StudentID" style="display:none; width: 100%;" />
+                                <input type="hidden" name="oldStudentId" value="@student.StudentID" />
+                                <div id="student-id-empty" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> The Student ID cannot be empty.</div>
+                                <div id="student-id-error" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> Student ID format should be ABC12345678.</div>
+                                <div id="student-id-existed" class="text-danger prompt-text" style="display: none;"><i class="mdi mdi-alert-circle-outline"></i>The Student ID is existed already. You cannot use same Student ID.</div>
+                            </td>
+                        </form>
+
+                        <td style="vertical-align: middle;">
+                            <span class="student-name">@student.Name</span>
+                        </td>
+
+                        <td class="click-to-display" style="vertical-align: middle;" title="Click to expand details table" onclick="toggleClassDetails('@student.StudentID', this)">
+                            @{
+                                int classCount = Model.EnrolledClasses.ContainsKey(student.StudentID) ? Model.EnrolledClasses[student.StudentID].Count : 0;
+                            }
+                            <div class="student-device-count text-center expandable">
+                                <i class="mdi mdi-chevron-down" style="font-size: 14px;"></i>
+                                @classCount
+                            </div>
+                        </td> 
+
+                        @if (Model.BindingDevices.ContainsKey(student.StudentID))
+                        {
+                            var device = Model.BindingDevices[student.StudentID];
+                            if (device.EncodeDeviceCodeWithoutUUID == "default-device-code") {
+                                <td colspan="3" class="text-center no-device-row" style="vertical-align: middle;">No device available for this student.</td>
+                            }
+                            else 
+                            {
+                                <td class="text-center" style="vertical-align: middle;">
+                                    <span class="device-type">@device.DeviceType</span>
+                                    <span class="device-id-@student.StudentID" hidden>@device.DeviceId</span>
+                                </td>
+                                <td class="text-center" style="vertical-align: middle;">
+                                    <span class="sdevice-bind-date">@device.BindDate.ToShortDateString()</span>
+                                </td>
+                                <td style="vertical-align: middle;">
+                                    <span class="device-code">@device.EncodeDeviceCodeWithoutUUID</span>
+                                </td>
+                            }
+                        }
+                        else {
+                            <td colspan="3" class="text-center no-device-row" style="vertical-align: middle;">No device available for this student.</td>
+                        }
+
+                        @* <td class="click-to-display" style="vertical-align: middle;" title="Click to expand details table" onclick="toggleDeviceDetails('@student.StudentID', this)">
+                            @{
+                                int deviceCount = Model.BindingDevices.ContainsKey(student.StudentID) ? Model.BindingDevices[student.StudentID].Count : 0;
+                            }
+                            <div class="student-device-count text-center expandable">
+                                <i class="mdi mdi-chevron-down" style="font-size: 14px;"></i>
+                                @deviceCount
+                            </div>
+                        </td> *@
+                        
+
+                        <td class="text-center" style="vertical-align: middle;">
+                            <div class="in-a-row" style="justify-content: center; gap: 20px;">
+                                <button class="edit-btn btn btn-inverse waves-effect waves-light in-a-row" style="gap: 5px;" onclick="editRow('@student.StudentID')">
+                                    <i class="material-symbols-outlined" style="font-size: 14px;">edit_square</i>
+                                    Edit
+                                </button>
+                                <button class="remove-device-btn btn btn-inverse waves-effect waves-light in-a-row" style="gap: 5px;" onclick="confirmRemove('@student.StudentID')">
+                                    <i class="material-symbols-outlined" style="font-size: 14px;">phonelink_erase</i>
+                                    Remove Device
+                                </button>
+                                <button class="delete-btn btn btn-danger waves-effect waves-light in-a-row" style="gap: 5px;" onclick="confirmDelete('@student.StudentID')">
+                                    <i class="material-symbols-outlined" style="font-size: 14px;">delete</i>
+                                    Delete
+                                </button>
+
+                                <!--Edit Mode buttons-->
+                                <button type="submit" class="save-btn btn btn-inverse waves-effect waves-light in-a-row" style="display:none; gap: 5px; vertical-align: middle;" onclick="saveRow('@student.StudentID')" >
+                                    <i class="material-symbols-outlined" style="font-size: 14px;">save</i>
+                                    Save
+                                </button>
+                                <button class="cancel-btn btn waves-effect waves-light in-a-row" style="display: none; background-color: #eee; gap: 5px;" onclick="cancelEdit('@student.StudentID')">
+                                    <i class="material-symbols-outlined" style="font-size: 14px;">cancel</i>
+                                    Cancel
+                                </button>
+                            </div>
+                           
+                            <div id="form-data-no-change-error" class="text-danger prompt-text" style="display: none;"><i class="mdi mdi-alert-circle-outline"></i> You do not make any change.</div>
+                        </td>
+                    </tr>
+                    
+                    <tr id="class-details-row-@student.StudentID" class="class-details-row" style="display: none; border: 2px solid #d1d1d1; ">
+                        <td colspan="8" style="padding: 0px; ">
+                            <div class="class-details-content">
+                                <table class="table table-colored table-gray table-striped table-bordered m-b-0" id="class-details-table" style="width: 100%;">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="5">Enrolled Classses Table</th>
+                                        </tr>
+                                        <tr>
+                                            <th class="text-center">#</th>
+                                            <th class="text-center">Programme</th>
+                                            <th class="text-center">Course Code</th>
+                                            <th class="text-center">Class Name</th>
+                                            <th class="text-center">Session</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (Model.EnrolledClasses.ContainsKey(student.StudentID))
+                                        {
+                                            classCounter = 1;
+                                            var classList = Model.EnrolledClasses[student.StudentID];
+                                            foreach (var classitem in classList)
+                                            {
+                                                <tr>
+                                                    <td class="text-center">@classCounter</td>
+                                                    <td>@classitem.Programme</td>
+                                                    <td class="text-center">@classitem.CourseCode</td>
+                                                    <td>@classitem.ClassName</td>
+                                                    <td>@classitem.ClassSession</td>
+                                                </tr>
+                                                classCounter++;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <tr>
+                                                <td colspan="7" class="text-center">No classes available for this student.</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+
+                    @* <tr id="device-details-row-@student.StudentID" class="device-details-row" style="display: none; border: 2px solid #d1d1d1;">
+                        <td colspan="6" style="padding: 0px;">
+                            <div class="device-details-content">
+                                <table class="table table-colored table-gray table-striped table-bordered m-b-0" id="device-details-table" style="width: 100%;">
+                                    <thead style="overflow: visible;">
+                                        <tr>
+                                            <th colspan="4">Binded Devices Table</th>
+                                        </tr>
+                                        <tr>
+                                            <th class="text-center">#</th>
+                                            <th class="text-center">Device Type</th>
+                                            <th class="text-center">Device O/S</th>
+                                            <th class="text-center">
+                                                <div class="in-a-row" style="justify-content: center; gap: 10px;" >
+                                                    Actions
+                                                    <div class="info">
+                                                        <i class="mdi mdi-information-outline" style="font-size: 18px;"></i>
+                                                        <div class="info-content info-content-nested">
+                                                            <p>Remove: Unbind the device to this student id.</p>
+                                                            <p>Note: Student need at least one binded device to take attendance.</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (Model.BindingDevices.ContainsKey(student.StudentID))
+                                        {
+                                            deviceCounter = 1;
+                                            var deviceList = Model.BindingDevices[student.StudentID];
+                                            foreach (var device in deviceList)
+                                            {
+                                                <tr>
+                                                    <td class="text-center"  style="vertical-align: middle;">
+                                                        @deviceCounter
+                                                    </td>
+                                                    <td  style="vertical-align: middle;">
+                                                        @device.DeviceType
+                                                    </td>
+                                                    <td style="vertical-align: middle;">
+                                                        @device.DeviceOS
+                                                    </td>
+                                                    <td class="in-a-row" style="justify-content: center;">
+                                                        <button class="cancel-btn btn btn-inverse waves-effect waves-light in-a-row" style="gap: 5px;" onclick="confirmRemove('@student.StudentID', '@device.DeviceId')">
+                                                            <i class="material-symbols-outlined" style="font-size: 14px;">phonelink_erase</i>
+                                                            Remove
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                deviceCounter++;
+                                            }
+                                        }
+                                        @if (deviceCounter == 1)
+                                        {
+                                            <tr>
+                                                <td colspan="4" class="text-center">No device available for this student.</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
+                    </tr> *@
+                    counter++;
+                }
+            </tbody>
+        </table>
+
+        <div id="no-found-row" class="search-no-found p-b-10 p-t-10">
+            <div class="text-danger text-center" >
+                <i class="mdi mdi-alert-outline"></i>
+                <b>
+                    No found.
+                </b>
+            </div>
+        </div>
+
+        <!--Delete Student form -->
+        <form id="delete-student-form" asp-controller="Admin" asp-action="DeleteStudent" method="post" style="display:none;">
+            <input type="hidden" name="deleteStudentId" id="delete-student-id" />
+        </form>
+
+        <!--Remove Device form -->
+        <form id="remove-device-form" asp-controller="Admin" asp-action="RemoveDevice" method="post" style="display:none;">
+            <input type="hidden" name="removeDeviceId" id="remove-device-id" />
+            <input type="hidden" name="relatedStudentId" id="related-student-id" />
+        </form>
+
+       @* <!--modal content: add admin-->
+        <div id="custom-modal-add-lecturer" class="modal-demo">
+            <button type="button" class="close close-button" data-dismiss="modal" onclick="Custombox.close();">
+                <span>&times;</span><span class="sr-only">Close</span>
+            </button>
+            <h4 class="custom-modal-title">Create Lecturer Account</h4>
+
+            <form asp-controller="Admin" asp-action="AddLecturer" id="add-lecturer-form" method="post">
+                <div class="modal-body" style="text-align: left;">
+                    <div class="direction-column">
+                        <div class="form-group direction-column">
+                            <label class="control-label m-t-10">Lecturer ID</label>
+                            <div style="width: 100%; padding: 10px;">
+                                <div class="add-lecturer-input-container">
+                                    <input type="text" name="lecturerId" class="form-control clearable" placeholder="Enter lecturer ID or Staff ID" id="new-lecturer-id-fill-space" required>
+                                    <i class="mdi mdi-close clear-add-lecturer-input" onclick="clearInput(this)"></i>
+                                </div>
+                                <div id="new-lecturer-id-empty" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i>The lecturer ID is required.</div>
+                                <div id="new-lecturer-id-error" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> Lecturer ID can only contain alphabet letter and number, no special character accepted, including white space.</div>
+                                <div id="new-lecturer-id-existed" class="text-danger prompt-text" style="display: none;"><i class="mdi mdi-alert-circle-outline"></i>The lecturer ID is existed already. You cannot use same lecturer ID.</div>
+                            </div>
+                        </div>
+                        <div class="form-group direction-column">
+                            <label class="control-label m-t-10">Lecturer Name</label>
+                            <div style="width: 100%; padding: 10px;">
+                                <div class="add-lecturer-input-container">
+                                    <input type="text" name="lecturerName" class="form-control clearable" placeholder="Enter Lecturer Name" id="new-lecturer-name-fill-space" oninput="updatePassword()" required>
+                                    <i class="mdi mdi-close clear-add-lecturer-input" onclick="clearInput(this)"></i>
+                                </div>
+                                <div id="new-lecturer-name-empty" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i>Lecturer name cannot be empty.</div>
+                                <div id="new-lecturer-name-error" class="text-danger prompt-text" style="display: none;"><i class="mdi mdi-alert-circle-outline"></i>Lecturer name can only contain alphabet letter and number, no special character accepted.</div>
+                            </div>
+                        </div>
+                        <div class="form-group direction-column">
+                            <label class="control-label m-t-10">UTS Email</label>
+                            <div style="width: 100%; padding: 10px;">
+                                <div class="add-lecturer-input-container">
+                                    <input type="text" name="lecturerEmail" class="form-control clearable" placeholder="Enter UTS Email" id="new-lecturer-email-fill-space" required>
+                                <i class="mdi mdi-close clear-add-lecturer-input" onclick="clearInput(this)"></i>
+                                </div>
+                                
+                                <div id="new-lecturer-email-empty" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> Lecturer email cannot be empty.</div>
+                                <div id="new-lecturer-email-error" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> Lecturer email must contain '@@uts.edu.my'.</div>
+                                <div id="new-lecturer-email-existed" class="text-danger prompt-text" style="display: none;"><i class="mdi mdi-alert-circle-outline"></i>The email has been used. You cannot use the same email.</div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group direction-column">
+                            <label class="control-label m-t-10 in-a-row" style="justify-content: flex-start;">Default Password:&nbsp;<div style="color: #d64545;">Lecturer Name first word (lowercase) + 1234</div></label>
+                            <div style="width: 100%; padding: 10px;">
+                                <input type="text" readonly class="form-control" value="name + 1234" name="password" id="default-password-input">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default waves-effect close-button" data-dismiss="modal" onclick="Custombox.close();">Cancel</button>
+                        <button type="submit" id="add-lecturer-submit-button" class="btn btn-inverse waves-effect waves-light">Create</button>
+                    </div>
+                </div>
+            </form>
+        </div> *@
+
+        <!--View js-->
+        <script src="~/js/StudentPage.js"></script> 
+
+        <!--jQuery-->
+        <script src="~/assets/js/jquery.min.js"></script>
+        <script src="~/assets/js/bootstrap.min.js"></script>
+        <script src="~/assets/js/detect.js"></script>
+        <script src="~/assets/js/fastclick.js"></script>
+        <script src="~/assets/js/jquery.blockUI.js"></script>
+        <script src="~/assets/js/waves.js"></script>
+        <script src="~/assets/js/jquery.slimscroll.js"></script>
+        <script src="~/assets/js/jquery.scrollTo.min.js"></script>
+        <script src="~/assets/js/switchery.min.js"></script>
+
+        <!--Modal js-->
+        <script src="~/assets/js/custombox.min.js"></script>
+        <script src="~/assets/js/legacy.min.js"></script>
+
+        <!--App js-->
+        <script src="~/assets/js/jquery.core.js"></script>
+        <script src="~/assets/js/jquery.app.js"></script> 
+    </body>
+</html>
+
+

@@ -1,0 +1,14 @@
+﻿@model List<attendance1.Web.Models.ClassMdl>
+@{
+    @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+}
+
+<ul class="list-unstyled" id="classes-sidemenu">
+    @foreach (var activeClass in Model)
+    {
+        @* <li><a href="@Url.Action("ClassAttendance", "Class", new { id = classes.CourseId })">@classes.CourseCode @classes.ClassName</a></li> *@
+        <li>
+            <a asp-controller ="Class" asp-action="ClassAttendance" asp-route-id="@activeClass.CourseId">@activeClass.ClassName</a>
+        </li>
+    }
+</ul>

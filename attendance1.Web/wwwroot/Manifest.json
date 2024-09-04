@@ -1,0 +1,32 @@
+{
+  "lang": "en-us",
+  "name": "UTS Attendance App",
+  "short_name": "UTS Attendance",
+  "description": "Make attendance easy in your life.",
+  "start_url": "/",
+  "background_color": "#2f3d58",
+  "theme_color": "#2f3d58",
+  "orientation": "portrait-primary", // any
+  "display": "fullscreen",
+  "icons": [
+    {
+      "src": "/assets/images/UTSlogo3.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+  //"screenshots": [
+  //  {
+  //    "src": "/path/to/your/desktop-screenshot.png",
+  //    "sizes": "1920x1080",
+  //    "type": "image/png",
+  //    "form_factor": "wide"
+  //  },
+  //  {
+  //    "src": "/path/to/your/mobile-screenshot.png",
+  //    "sizes": "1080x1920",
+  //    "type": "image/png",
+  //    "form_factor": "narrow"
+  //  }
+  //]
+}

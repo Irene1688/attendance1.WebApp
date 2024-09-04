@@ -1,0 +1,103 @@
+body {
+    background-color: #212121;
+}
+
+/* card and container */
+.container {
+    color: white;
+}
+
+    .container .box {
+        border: 2px solid rgba(153,179,204, 0.222);
+        box-shadow: 0 4px 8px 0 rgba(153, 179, 204, 0.1), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        background-color: rgba(153,179,204, 0.011);
+    }
+
+/*submit attendance card*/
+.form-control-two input {
+    border-bottom: 2px #99b3cc solid;
+}
+
+.submit-attendance-btn {
+    background-color: #606f8a;
+}
+
+/*date card*/
+.selected {
+    border: 2px solid rgba(153, 179, 204, 0.555) !important;
+    box-shadow: 0px 0px 0.5rem 1px #52578bc4 !important;
+}
+
+/*attendance record card*/
+.icon-container {
+    background-color: rgba(255, 255, 255, 0.35);
+}
+
+.check-icon {
+    color: #fff !important;
+}
+
+.sub-text {
+    color: #98a6ad;
+}
+
+/* theme toggle */
+.st-sunMoonThemeToggleBtn svg {
+    fill: #FFCC33;
+}
+
+/*toolkit*/
+.menu-btn {
+    background-color: #5f6f88;
+}
+
+.example-2 .icon-content a {
+    background-color: #5f6f88;
+}
+
+    .example-2 .icon-content a[data-social="black"] .filled,
+    .example-2 .icon-content a[data-social="black"] ~ .tooltip {
+        background-color: #464f60;
+    }
+
+/*modal*/
+.seperate-line {
+    background-color: white;
+}
+
+.container .contact-admin-card {
+    margin-bottom: 10rem;
+    padding: 2.2rem;
+    -webkit-backdrop-filter: blur(80px);
+    backdrop-filter: blur(80px);
+}
+
+.admin-card-body {
+    background-color: rgba(200, 200, 200, 0.2);
+}
+
+/*.admin-detail {
+    background-color: rgba(200, 200, 200, 0.2);
+}*/
+
+.container .feedback-form-card {
+    margin-bottom: 10rem; 
+    padding: 2.2rem;
+    -webkit-backdrop-filter: blur(80px);
+    backdrop-filter: blur(80px);
+}
+
+.feedback-form-textarea {
+    color: white;
+}
+
+.feedback-form-button-submit {
+    background-color: #93a5c7 !important;
+}
+
+
+
+/* History Page */
+.back-button-container {
+    color: white;
+}

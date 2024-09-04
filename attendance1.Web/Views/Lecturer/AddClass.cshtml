@@ -1,0 +1,355 @@
+﻿@model attendance1.Web.Models.ClassMdl
+@{
+    Layout = "/Pages/Shared/_Layout.cshtml";
+    @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+}
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>Add Class</title>
+
+        <!-- Form css-->
+        <link href="~/plugins/bootstrap-tagsinput/css/bootstrap-tagsinput.css" rel="stylesheet" />
+        <link href="~/plugins/multiselect/css/multi-select.css" rel="stylesheet" type="text/css" />
+        <link href="~/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+        <link href="~/plugins/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" />
+        <link href="~/plugins/bootstrap-touchspin/css/jquery.bootstrap-touchspin.min.css" rel="stylesheet" />
+    </head>
+
+    <body>
+        <div class="page-title-box">
+            <h4 class="page-title">Add Class</h4>
+            <ol class="breadcrumb p-0 m-0">
+                <li>
+                    <a href="#">Student Management System</a>
+                </li>
+                <li class="active">
+                    Add Class
+                </li>
+            </ol>
+            <div class="clearfix"></div>
+        </div>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-icon alert-success alert-dismissible fade in" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <i class="mdi mdi-emoticon"></i>
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-icon alert-danger alert-dismissible fade in" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <i class="mdi mdi-emoticon-sad"></i>
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
+        <div class="row">
+            <div class="col-xs-12">
+                <h4 class="m-t-0 header-title" style="margin-bottom: 30px;"><b>Register your class here to manage attendance.</b></h4>
+
+                <form id="add-class" asp-controller="Class" asp-action="CreateClass" method="post" enctype="multipart/form-data">
+                    <div class="form-group row">
+                        <label class="col-md-2 control-label">Programme</label>
+	                    <div class="col-md-8">
+                            <select asp-for="ProgrammeId" class="form-control" data-style="btn-default" id="programme-select" required>
+                                <option value="" disabled selected style="display:none;">Select Programme</option>
+                                @foreach (var programme in Model.ProgrammeDropDownMenu)
+                                {
+                                    <option value="@programme.ProgrammeId">@programme.Programme</option>
+                                }
+                            </select>
+                            <div id="programme-empty" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> Please select a programme.</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-md-2 control-label">Session</label>
+	                    <div class="col-md-4">
+                            <label class="col-md-2 control-label">Month</label>
+                            <select asp-for="SessionMonth" class="form-control" data-style="btn-default" id="session-month-select" required>
+                                <option value="" disabled selected style="display:none;">Select Month</option>
+                                <option>FEB</option>
+                                <option>JUL</option>
+                                <option>SEP</option>
+                            </select>
+                            <div id="session-month-empty" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> Please select a month for session.</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="col-md-2 control-label">Year</label>
+                            <select asp-for="SessionYear" id="session-year-select" class="form-control" data-style="btn-default" required>
+                                <option value="" disabled selected style="display:none;">Select Year</option>
+                            </select>
+                            <div id="session-year-empty" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> Please select the year for session.</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-md-2 control-label">Course Code</label>
+	                    <div class="col-md-10">
+	                        <input asp-for="CourseCode" type="text" class="form-control" placeholder="e.g. CSS3423" id="course-code-fill" required>
+                            <div id="course-code-empty" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> Please fill in the course code.</div>
+                            <div id="course-code-error" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> Course code only accept three uppercase letters followed by 4 numbers. E.g. CSS1234 or CSS 1234</div>
+	                    </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-md-2 control-label">Course Name</label>
+	                    <div class="col-md-10">
+	                        <input asp-for="ClassName" type="text" class="form-control" placeholder="e.g. Computer and Cyber Security" id="course-name-fill" required>
+                            <div id="course-name-empty" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> Please fill in the course name.</div>
+                            <div id="course-name-error" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> Course name cannnot involve special character except letter and number.</div>
+	                    </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-md-2 control-label">Class Date Range</label>
+                        <div class="col-md-10">
+                            <div class="input-daterange input-group" id="date-range">
+                                <input asp-for="StartDate" type="date" class="form-control" name="StartDate" id="start-date-select" required>
+                                <span class="input-group-addon bg-inverse text-white b-0">to</span>
+                                <input asp-for="EndDate" type="date" class="form-control" name="EndDate" id="end-date-select" required>
+                            </div>
+                            <div id="date-empty" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> Please fill in the date range.</div>
+                            <div id="date-error" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> The end date cannot be before the start date.</div>
+                            <div id="date-gap-error" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> The date range must be at least 7 weeks.</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-md-2 control-label">Class Day(s)</label>
+                        <div class="col-md-10">
+                                <div class="row">
+                                    <div class="col-md-2">
+                                    <div class="checkbox checkbox-inverse">
+                                        <input id="ClassDay-Mon" type="checkbox" value="1">
+                                        <label for="ClassDay-Mon"> Monday</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="checkbox checkbox-inverse">
+                                        <input id="ClassDay-Tue" type="checkbox" value="2">
+                                        <label for="ClassDay-Tue"> Tuesday </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="checkbox checkbox-inverse">
+                                        <input id="ClassDay-Wed" type="checkbox" value="3">
+                                        <label for="ClassDay-Wed"> Wednesday </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="checkbox checkbox-inverse">
+                                        <input id="ClassDay-Thu" type="checkbox" value="4">
+                                        <label for="ClassDay-Thu"> Thursday </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="checkbox checkbox-inverse">
+                                        <input id="ClassDay-Fri" type="checkbox" value="5">
+                                        <label for="ClassDay-Fri"> Friday </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <input asp-for="ClassDays" type="hidden" id="classDaysHidden" />
+                            <div id="class-day-empty" class="text-danger" style="display: none;"><i class="mdi mdi-alert-circle-outline"></i> Please at least select one day.</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-md-2 control-label">Student Name List</label>
+                        <div class="col-md-10">
+                            <input asp-for="CsvFile" type="file" class="filestyle" accept=".csv" id="csv-file-input" data-placeholder="Upload a csv file with columns 'StudentID' and 'Name'.">
+                            <div id="csv-file-empty" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> Please upload a csv file.</div>
+                            <div id="file-error" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> Please select a valid CSV file.</div>
+                            <div id="file-column-error" class="text-danger prompt-text" style="display: none;"><i class="mdi mdi-alert-circle-outline"></i> CSV content must contain 'StudentID' and 'Name' columns. Please check again.</div>
+                            <div id="studentid-error" class="text-danger prompt-text" style="display: none;"><i class="mdi mdi-alert-circle-outline"></i> Content in column 'StudentID' must be in format ABC12345678. Please check again.</div>
+                            <div id="name-error" class="text-danger prompt-text" style="display: none;"><i class="mdi mdi-alert-circle-outline"></i> Content in column 'Name' must contain at least one letter. Please check again.</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-md-10 col-sm-12" style="margin-left:50%;margin-top:25px;">
+                            <button type="submit" class="btn btn-inverse waves-effect waves-light" id="submit-button">Add</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+
+        <!--View js-->
+        <script src="~/js/AddClass.js"></script>
+
+        <!--jQuery-->
+        <script src="~/assets/js/jquery.min.js"></script>
+        <script src="~/assets/js/bootstrap.min.js"></script>
+        <script src="~/assets/js/detect.js"></script>
+        <script src="~/assets/js/fastclick.js"></script>
+        <script src="~/assets/js/jquery.blockUI.js"></script>
+        <script src="~/assets/js/waves.js"></script>
+        <script src="~/assets/js/jquery.slimscroll.js"></script>
+        <script src="~/assets/js/jquery.scrollTo.min.js"></script>
+        <script src="~/assets/js/switchery.min.js"></script>
+
+        <!--Form js-->
+        <script src="~/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
+        <script src="~/plugins/bootstrap-filestyle/js/bootstrap-filestyle.min.js" type="text/javascript"></script>
+
+        <script type="text/javascript" src="~/plugins/autocomplete/jquery.mockjax.js"></script>
+        <script type="text/javascript" src="~/plugins/autocomplete/jquery.autocomplete.min.js"></script>
+        <script type="text/javascript" src="~/plugins/autocomplete/countries.js"></script>
+        <script type="text/javascript" src="~/assets/pages/jquery.autocomplete.init.js"></script>
+
+        <!--Init js-->
+        <script type="text/javascript" src="assets/pages/jquery.form-advanced.init.js"></script>
+
+        <!--App js-->
+        <script src="~/assets/js/jquery.core.js"></script>
+        <script src="~/assets/js/jquery.app.js"></script> 
+    </body>
+</html>
+
+@* <!--generate year for session-->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var yearSelect = document.getElementById("session-year-select");
+        var currentYear = new Date().getFullYear();
+
+        var option1 = document.createElement("option");
+        option1.text = (currentYear - 1) + "/" + currentYear;
+        option1.value = (currentYear - 1) + "/" + currentYear;
+        yearSelect.add(option1);
+
+        var option2 = document.createElement("option");
+        option2.text = currentYear + "/" + (currentYear + 1);
+        option2.value = currentYear + "/" + (currentYear + 1);
+        yearSelect.add(option2);
+    });
+</script>
+
+<!--validation for csv file type-->
+<script>
+    document.getElementById('csv-file-input').addEventListener('change', function(event) {
+    var fileInput = event.target;
+    var file = fileInput.files[0];
+    var errorDiv = document.getElementById('file-error');
+
+    if (file) {
+        var fileType =  file.name.split('.').pop().toLowerCase();
+
+        if (fileType !== 'csv' && file.type !== 'text/csv') {
+            errorDiv.style.display = 'block';
+            fileInput.value = '';
+        } else {
+            errorDiv.style.display = 'none';
+        }
+    }
+});
+</script>
+
+<!--Check validation-->
+<script>
+    function checkEmpty(elementId, errorId) {
+        var element = document.getElementById(elementId);
+        var errorElement = document.getElementById(errorId);
+        if (element.value === '') {
+            errorElement.style.display = 'block';
+            return false;
+        } else {
+            errorElement.style.display = 'none';
+            return true;
+        }
+    }
+
+    function checkCourseCode() {
+        var courseCode = document.getElementById('course-code-fill').value;
+        var courseCodePattern = /^[A-Z]{3}\s?\d{4}$/;
+        var courseCodeError = document.getElementById('course-code-error');
+
+        if (courseCode !== '' && !courseCodePattern.test(courseCode)) {
+            courseCodeError.style.display = 'block';
+            return false;
+        } else if (courseCode == '') {
+            courseCodeError.style.display = 'none';
+            return false;
+        } else {
+            courseCodeError.style.display = 'none';
+            return true;
+        }
+    }
+
+    function checkCourseName() {
+        var courseName = document.getElementById('course-name-fill').value;
+        var courseNamePattern = /^(?=.*[A-Za-z])[A-Za-z\d\s]+$/;
+        var courseNameError = document.getElementById('course-name-error');
+
+        if (courseName !== '' && !courseNamePattern.test(courseName)) {
+            courseNameError.style.display = 'block';
+            return false;
+        } else if (courseName == '') {
+            courseCodeError.style.display = 'none';
+            return false;
+        } else {
+            courseNameError.style.display = 'none';
+            return true;
+        }
+    }
+
+    function checkDateRange() {
+        var startDateInput = document.getElementById('start-date-select');
+        var endDateInput = document.getElementById('end-date-select');
+        var startDate = new Date(startDateInput.value);
+        var endDate = new Date(endDateInput.value);
+        var dateEmpty = document.getElementById('date-empty');
+        var dateError = document.getElementById('date-error');
+        var dateGapError = document.getElementById('date-gap-error');
+
+        if (startDateInput.value && endDateInput.value) {
+            dateEmpty.style.display = 'none';
+            if (endDate < startDate) {
+                dateError.style.display = 'block';
+                return false; //if end date is before start date
+            } else if ((endDate - startDate) < (46 * 24 * 60 * 60 * 1000)) {
+                dateError.style.display = 'none';
+                dateGapError.style.display = 'block';
+                return false;
+            } else {
+                dateError.style.display = 'none';
+                dateGapError.style.display = 'none';
+                return true;
+            }
+        }
+
+        dateEmpty.style.display = 'block';
+        return false; //if any of these two date is empty
+    }
+
+    document.getElementById('submit-button').addEventListener('click', function(event) {
+        event.preventDefault();
+
+        var valid = true;
+
+        valid &= checkEmpty('programme-select', 'programme-empty');
+        valid &= checkEmpty('session-month-select', 'session-month-empty');
+        valid &= checkEmpty('session-year-select', 'session-year-empty');
+        valid &= checkEmpty('course-code-fill', 'course-code-empty');
+        valid &= checkEmpty('course-name-fill', 'course-name-empty');
+        valid &= checkEmpty('csv-file-input', 'csv-file-empty');
+
+        valid &= checkCourseCode();
+        valid &= checkCourseName();
+        valid &= checkDateRange()
+
+        if (valid) {
+            document.getElementById('yourFormId').submit();
+        }
+    });
+</script> *@

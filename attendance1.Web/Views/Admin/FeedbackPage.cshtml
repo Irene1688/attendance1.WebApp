@@ -1,0 +1,163 @@
+﻿@model attendance1.Web.Models.PageModels.FeedbackPageMdl
+@{
+    Layout = "/Pages/Shared/_Layout.cshtml";
+    @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+}
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>Feedback Collection</title>
+
+        <style>
+            .search-container:focus-within #search-icon-div {
+                border-color: #aaaaaa !important;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="page-title-box">
+            <h4 class="page-title">Feedback Collection (@Model.FeedbackList.Count())</h4>
+            <ol class="breadcrumb p-0 m-0">
+                <li>
+                    <a href="#">Attendance Management System</a>
+                </li>
+                <li class="active">
+                    ~
+                </li>
+            </ol>
+            <div class="clearfix"></div>
+        </div>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-icon alert-success alert-dismissible fade in" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <i class="mdi mdi-emoticon"></i>
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-icon alert-danger alert-dismissible fade in" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <i class="mdi mdi-emoticon-sad"></i>
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
+        @if (TempData["PromptMessage"] != null) 
+        {
+            <div class="text-muted">
+                @TempData["PromptMessage"]
+            </div>
+        }
+        else 
+        {
+            <div class="in-a-row m-b-10">
+                <div class="in-a-block" style="justify-content: flex-start; gap: 15px;">
+                    Sort by:
+                    <div class="in-a-row in-a-block" style="gap: 2rem;">
+                        <div class="radio m-t-0 m-b-0">
+                            <input type="radio" name="sort-option" id="sort-by-date" value="date" onclick="sortFeedbacks()" checked>
+                            <label for="sort-by-date">
+                                Latest Submitted
+                            </label>
+                        </div>
+                        <div class="radio m-b-0">
+                            <input type="radio" name="sort-option" id="sort-by-rate" value="rating" onclick="sortFeedbacks()">
+                            <label for="sort-by-rate">
+                                Highiest Rate
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="search-container in-a-row" style="position: relative;">
+                    <div id="search-icon-div" style="border: 1px solid #e3e3e3; position: absolute; min-height: 100%; left: -18%; border-radius: 4px 0 0 4px; border-right: none; background: #f3f3f3;">
+                        <i class="mdi mdi-magnify search-icon" style="font-size: 20px; margin: 8px;"></i>
+                    </div>
+                    
+                    <input type="text" id="search-input" class="form-control search-input m-b-0" placeholder="Search..." oninput="searchFeedbacks()">
+                    <span id="clear-search-input" class="clear-search clear-search-icon" onclick="clearSearch()" style="display: none; position: absolute; right: 4%; cursor: pointer;"><i class="mdi mdi-close"></i></span>
+                </div>
+            </div>
+            
+           
+            <div id="feedback-list">
+                @foreach (var feedback in Model.FeedbackList) 
+                {
+                    <div class="panel panel-color panel-inverse feedback-item" data-rating="@feedback.Rate" data-date="@feedback.Date" data-studentid="@feedback.StudentId" data-studentname="@feedback.StudentName" data-feedbackcontent="@feedback.FeedbackContent">
+                        <div class="panel-heading in-a-row">
+                            <h3 class="panel-title">
+                                    Rating: 
+                                @for (int i = 0; i < @feedback.Rate; i++)
+                                {
+                                    <i class="mdi mdi-star"></i>
+                                }
+                            </h3>
+                        
+                            <div class="in-a-block" style="gap: 10px;">
+                                @* <a asp-controller ="Class" asp-action="EditClass" asp-route-id="@Model.ClassDetails.CourseId" class="button-edit-class waves-effect w-md m-r-10" style="padding: 4px 0px; color: white;"><i class="mdi mdi-pencil" style="padding-right: 10px; font-size: 15px;"></i>
+                                     EDIT
+                                </a> *@
+                                <button class="button-edit-class waves-effect w-md" type="button" style="padding: 4px 0px;" onclick="contactStudent('@feedback.StudentId.ToLower()')">
+                                    <i class="mdi mdi-email-outline" style="padding-right: 7px; font-size: 15px;"></i>
+                                    Contact
+                                </button>
+
+                                <button class="button-edit-class waves-effect w-md" type="button" style="padding: 4px 0px;" onclick="confirmDelete('@feedback.FeedbackId')">
+                                    <i class="mdi mdi-delete" style="padding-right: 7px; font-size: 15px;"></i>
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <div class="in-a-row">
+                                <p><b> Stduent ID: </b> @feedback.StudentId</p>
+                                <div> @feedback.Date</div>
+                            </div>
+                        
+                            <p class="p-t-10"><b> Name: </b> @feedback.StudentName</p>
+                            <p><b> Email: </b> @feedback.StudentId.ToLower()@@student.uts.edu.my</p>
+                            <p><b> Feedback: </b></p>
+                            <p>@feedback.FeedbackContent</p>
+                        </div>
+                    </div>
+
+                    <!--delete feedback form-->
+                    <form id="delete-feedback-form" asp-controller="Admin" asp-action="DeleteFeedback" method="post" style="display:none;">
+                        <input type="hidden" name="deleteFeedbackId" id="delete-feedback-id" />
+                    </form>
+                }
+            </div>
+            
+        }
+
+        <!--View js-->
+        <script src="~/js/FeedbackPage.js"></script>
+
+        <script>
+            var resizefunc = [];
+        </script>
+
+        <!--jQuery-->
+        <script src="~/assets/js/jquery.min.js"></script>
+        <script src="~/assets/js/bootstrap.min.js"></script>
+        <script src="~/assets/js/detect.js"></script>
+        <script src="~/assets/js/fastclick.js"></script>
+        <script src="~/assets/js/jquery.blockUI.js"></script>
+        <script src="~/assets/js/waves.js"></script>
+        <script src="~/assets/js/jquery.slimscroll.js"></script>
+        <script src="~/assets/js/jquery.scrollTo.min.js"></script>
+        <script src="~/assets/js/switchery.min.js"></script>
+
+        <!--App js-->
+        <script src="~/assets/js/jquery.core.js"></script>
+        <script src="~/assets/js/jquery.app.js"></script> 
+    </body>
+</html>
+

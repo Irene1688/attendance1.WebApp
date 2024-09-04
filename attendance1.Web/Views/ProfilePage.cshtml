@@ -1,0 +1,180 @@
+﻿@model attendance1.Web.Models.StaffMdl
+@{
+    Layout = "/Pages/Shared/_Layout.cshtml";
+    @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+}
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>Admin Page</title>
+
+        <!--Modal css-->
+        <link href="~/plugins/custombox/css/custombox.min.css" rel="stylesheet">
+
+        <!--google icon source-->
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+
+        <style>
+            .edit-profile-input-container {
+                position: relative;
+            }
+
+            .clear-edit-profile-input {
+                display: none;
+                position: absolute;
+                right: 10px;
+                top: 50%;
+                transform: translateY(-50%);
+                cursor: pointer;
+            }
+
+            .clearable:focus + .clear-edit-profile-input,
+            .clearable:not(:placeholder-shown) + .clear-edit-profile-input {
+                display: inline;
+            }
+
+            label {
+                vertical-align: middle;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="page-title-box">
+            <h4 class="page-title">Profile</h4>
+            <ol class="breadcrumb p-0 m-0">
+                <li>
+                    <a href="#">Attendance Management System</a>
+                </li>
+                <li class="active">
+                    ~
+                </li>
+            </ol>
+            <div class="clearfix"></div>
+            <form id="logout-form" asp-controller="Account" asp-action="Logout" method="post">
+                <button type="submit">Logout</button>
+            </form>
+        </div>
+
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-icon alert-success alert-dismissible fade in" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <i class="mdi mdi-emoticon"></i>
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-icon alert-danger alert-dismissible fade in" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <i class="mdi mdi-emoticon-sad"></i>
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
+        <div class="row">
+            <div class="col-xs-12">
+                <h4 class="m-t-0 header-title text-muted" style="margin-bottom: 30px;"><b>Your personal profile.</b></h4>
+
+                <div id="no-change-error" class="text-danger prompt-text m-b-10" style="display: none; margin-top: -20px;"><i class=" mdi mdi-alert-circle-outline"></i> You do not make any change.</div>
+
+                <form id="edit-profile-form" asp-controller="Account" asp-action="EditProfile" method="post" class="vertical-center">
+                    <div class="form-group row">
+                        <label class="col-md-2 control-label">Staff ID :</label>
+                        <div class="col-md-10">
+                            <span>@Model.StaffId</span>
+                            <input type="hidden" name="staffId" value="@Model.StaffId"></input>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label id="staff-id" class="col-md-2 control-label">Name : </label>
+	                    <div class="col-md-10">
+                            <span id="staff-name">@Model.StaffName</span>
+                            <div class="edit-profile-input-container" id="staff-name-input-container" style="display: none;">
+	                            <input name="staffName" id="staff-name-input" value="@Model.StaffName" data-original-value="@Model.StaffName" type="text" class="form-control clearable" placeholder="Enter your name" required>
+                                <i class="mdi mdi-close clear-edit-profile-input" onclick="clearInput(this)"></i>
+                            </div>
+                            <div id="staff-name-empty" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> Please fill in your name.</div>
+                            <div id="staff-name-error" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> Name field can only contain alphabet letter and number, no special character accepted.</div>
+	                    </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-md-2 control-label">Staff Email : </label>
+	                    <div class="col-md-10">
+                            <span>@Model.StaffEmail</span>
+	                    </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-md-2 control-label">Account Type : </label>
+	                    <div class="col-md-10">
+                            <span>@Model.AccRole</span>
+	                    </div>
+                    </div>
+
+                    <div class="form-group row" id="new-password" style="display: none;">
+                        <label class="col-md-2 control-label">Set New Password : </label>
+	                    <div class="col-md-10">
+                            <div class="edit-profile-input-container">
+	                            <input name="newUserPassword" data-original-value="" type="password" class="form-control clearable" placeholder="Enter new Password if you want to reset it" id="staff-new-password-input">
+                                <i class="mdi mdi-close clear-edit-profile-input" onclick="clearInput(this)"></i>
+                            </div>
+                            <div id="staff-new-password-error" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> New password cannot less than 8 chracters.</div>
+	                    </div>
+                    </div>
+
+                    <div class="form-group row" id="old-password" style="display: none;">
+                        <label class="col-md-2 control-label in-a-row" style="justify-content: flex-start;">Password &nbsp;<div style="color: #e25959;">*</div> &nbsp;:</label>
+	                    <div class="col-md-10">
+                            <div class="edit-profile-input-container">
+	                            <input name="oldUserPassword" data-original-value="" type="password" class="form-control clearable" placeholder="Enter your old password to save change" id="staff-old-password-input" required>
+                                <i class="mdi mdi-close clear-edit-profile-input" onclick="clearInput(this)"></i>
+                            </div>
+                            <div id="staff-old-password-empty" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> This field cannot be empty.</div>
+	                    </div>
+                    </div>
+
+                    <div class="in-a-row" style="justify-content: center; gap: 120px;">
+               
+                            <button type="button" id="edit-btn" class="btn btn-inverse waves-effect waves-light" onclick="editProfile()">Edit</button>
+
+                            <button type="submit" id="save-btn" class="btn btn-inverse waves-effect waves-light" style="display: none;">Save</button>
+
+                            <button type="button" id="cancel-btn" class="btn btn-inverse waves-effect waves-light" style="display: none;" onclick="cancelEdit()">Cancel</button>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!--View js-->
+      <script src="~/js/ProfilePage.js"></script>
+
+        <!--jQuery-->
+        <script src="~/assets/js/jquery.min.js"></script>
+        <script src="~/assets/js/bootstrap.min.js"></script>
+        <script src="~/assets/js/detect.js"></script>
+        <script src="~/assets/js/fastclick.js"></script>
+        <script src="~/assets/js/jquery.blockUI.js"></script>
+        <script src="~/assets/js/waves.js"></script>
+        <script src="~/assets/js/jquery.slimscroll.js"></script>
+        <script src="~/assets/js/jquery.scrollTo.min.js"></script>
+        <script src="~/assets/js/switchery.min.js"></script>
+
+        <!--Modal js-->
+        <script src="~/assets/js/custombox.min.js"></script>
+        <script src="~/assets/js/legacy.min.js"></script>
+
+        <!--App js-->
+        <script src="~/assets/js/jquery.core.js"></script>
+        <script src="~/assets/js/jquery.app.js"></script> 
+    </body>
+</html>
+

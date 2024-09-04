@@ -1,0 +1,105 @@
+body {
+    background-color: #e8e8e8;
+}
+
+/* card and container */
+.container {
+    color: #474b63;
+}
+
+    .container .box {
+        border: 2px solid rgba(26, 35, 110, 0.333);
+        /*box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);*/
+        box-shadow: 3px 4px 8px 0 rgba(0, 0, 0, 0.2), 2px 3px 8px 0 rgb(0 0 0 / 0%);
+        background-color: rgba(0, 0, 0, 0.074);
+    }
+
+/*submit attendance card*/
+.form-control-two input {
+    border-bottom: 2px darkblue solid;
+}
+
+.submit-attendance-btn {
+    background-color: #3b348e;
+}
+
+/*date card*/
+.selected {
+    border: 2px solid rgba(26, 35, 110, 0.666) !important;
+    /*box-shadow: 0px 0px 1rem 1px #2b348a;*/
+    box-shadow: 0px 1px 8px 0 rgb(0 0 0 / 16%), 0px 4px 4px 0 rgb(0 0 0 / 15%) !important;
+}
+
+/*attendance record card*/
+.icon-container {
+    background-color: rgb(255 255 255 / 69%);
+}
+
+.check-icon {
+    color: #3b348eab !important;
+}
+
+.sub-text {
+    color: #55607c;
+}
+
+/* theme toggle */
+.st-sunMoonThemeToggleBtn svg {
+    fill: #e3a100d6;
+}
+
+/*toolkit*/
+.menu-btn {
+    background-color: #3b348e;
+}
+
+.example-2 .icon-content a {
+    background-color: #3b348e;
+}
+
+    .example-2 .icon-content a[data-social="black"] .filled,
+    .example-2 .icon-content a[data-social="black"] ~ .tooltip {
+        background-color: #24262a;
+    }
+
+/*modal*/
+.seperate-line {
+    background-color: #00040d;
+}
+
+.container .contact-admin-card {
+    background: linear-gradient(to top, rgb(134 161 197), rgb(216 222 228));
+    margin-bottom: 10rem;
+    padding: 2.2rem;
+    -webkit-backdrop-filter: blur(80px);
+    backdrop-filter: blur(80px);
+}
+
+.admin-card-body {
+    background-color: rgb(255 255 255 / 34%);
+}
+
+/*.admin-detail {
+    background-color: rgb(255 255 255 / 34%);
+}
+*/
+.container .feedback-form-card {
+    background: linear-gradient(to top, rgb(134 161 197), rgb(216 222 228));
+    margin-bottom: 10rem;
+    padding: 2.2rem;
+    -webkit-backdrop-filter: blur(80px);
+    backdrop-filter: blur(80px);
+}
+
+.feedback-form-textarea {
+    color: black;
+}
+
+.feedback-form-button-submit {
+    background-color: #3b348e !important;
+}
+
+/* History Page */
+.back-button-container {
+    color: #515a8f;
+}

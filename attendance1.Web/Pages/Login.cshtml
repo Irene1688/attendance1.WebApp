@@ -1,0 +1,348 @@
+﻿@page
+@model attendance1.Web.Models.LoginMdl
+@{
+    ViewData["Title"] = "Login";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A attendance management system.">
+
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="assets/images/favicon.ico">
+    <Title>Login</Title>
+
+    <!-- Prevent Browser Backward-->
+    <script type="text/javascript">
+        function preventBack() {
+            window.history.forward();
+        }
+        setTimeout("preventBack()", 0);
+        window.onunload = function () {
+            null
+        };
+    </script>
+
+    <!-- App css -->
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="assets/css/core.css" rel="stylesheet" type="text/css" />
+    <link href="assets/css/components.css" rel="stylesheet" type="text/css" />
+    <link href="assets/css/icons.css" rel="stylesheet" type="text/css" />
+    <link href="assets/css/pages.css" rel="stylesheet" type="text/css" />
+    <link href="assets/css/menu.css" rel="stylesheet" type="text/css" />
+    <link href="assets/css/responsive.css" rel="stylesheet" type="text/css" />
+
+    <!-- HTML5 Shiv and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="assets/js/modernizr.min.js"></script>
+
+    <!--Web App-->
+    <link rel="manifest" href="/Manifest.json">
+
+    @*<script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/ServiceWorker.js').then(function (registration) {
+                console.log('Service Worker registered with scope:', registration.scope);
+            }).catch(function (error) {
+                console.log('Service Worker registration failed:', error);
+            });
+        }
+    </script> *@
+    <style>
+        /* Hide the default radio button */
+        .custom-radio {
+            position: relative;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .custom-radio input[type="radio"] {
+            opacity: 0;
+            position: absolute;
+            left: 0;
+        }
+
+            /* Create a custom radio button */
+            .custom-radio input[type="radio"] + label {
+                position: relative;
+                padding-left: 25px;
+                cursor: pointer;
+                line-height: 20px;
+                display: inline-block;
+                color: #797979;
+                font-family: 'Varela Round', sans-serif;
+                font-weight: normal;
+            }
+
+                /* The custom radio button */
+                .custom-radio input[type="radio"] + label::before {
+                    content: "";
+                    position: absolute;
+                    left: 0;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    width: 16px;
+                    height: 16px;
+                    border: 2px solid #a2a2a2;
+                    border-radius: 50%;
+                    background: #fff;
+                }
+
+            /* The checked state */
+            .custom-radio input[type="radio"]:checked + label::before {
+                background: #6b5fb5;
+                border-color: #6b5fb5;
+            }
+
+            /* The dot inside the custom radio button */
+            .custom-radio input[type="radio"]:checked + label::after {
+                content: "";
+                position: absolute;
+                left: 5px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                background: #fff;
+            }
+    </style>
+</head>
+
+
+<body class="bg-transparent">
+
+    <div class="horizontal-center">
+        <div class="direction-column" style="height: 100%; padding: 24px;">
+            <div class="at-vertical-start">
+                <!--Error Message-->
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger" style="" role="alert">
+                        @TempData["ErrorMessage"]
+                    </div>
+                }
+                <div id="device-type-error" class="prompt-text text-danger m-b-10" style="display: none; font-size: 1.5rem;"><i class=" mdi mdi-alert-circle-outline"></i> Please use your phone to proceed.</div>
+@*                 <div id="device-registered-error" class="prompt-text text-danger m-b-10" style="display: none; font-size: 1.5rem; text-align: justify;"><i class=" mdi mdi-alert-circle-outline"></i> This device has been registered. Duplicate register is not allowed.</div> *@
+
+                <div class="main">
+                    <input type="checkbox" id="chk" aria-hidden="true">
+                    <div class="login">
+
+                        <form class="form" asp-controller="Account" asp-action="Login" id="student-login-form" method="post">
+                            <div id="device-type-error" class="prompt-text m-b-0" style="display: none; color: white;"><i class=" mdi mdi-alert-circle-outline"></i> Please use your phone to proceed.</div>
+                            
+                            <div style="flex-direction: column; align-items: center;">
+                                <label for="chk" class="login-label" aria-hidden="true">
+                                    Student
+                                </label>
+                                <div class="device-require-caption">* Your device will bind to your student ID. Please use your phone to register and login.</div>
+                            </div>
+
+                            <input type="hidden" asp-for="Role" value="Student">
+                            
+                            <div>
+                                <input class="input" type="text" id="student-username" asp-for="Username" placeholder="Enter your name as OCULUS" required="">
+                                <div id="student-username-empty" class="prompt-text m-b-0" style="display: none; color: white;"><i class=" mdi mdi-alert-circle-outline"></i> Username is required.</div>
+                                <div id="student-username-error" class="prompt-text m-b-0" style="display: none; color: white;"><i class=" mdi mdi-alert-circle-outline"></i> Username must be in character form.</div>
+                            </div>
+                            
+                            <div>
+                                <input class="input" type="text" id="student-id" asp-for="StudentID" placeholder="Enter your Student ID" required="">
+                                <div id="student-id-empty" class="prompt-text m-b-0" style="display: none; color: white;"><i class=" mdi mdi-alert-circle-outline"></i> Student ID is required.</div>
+                                <div id="student-id-error" class="prompt-text m-b-0" style="display: none; color: white;"><i class=" mdi mdi-alert-circle-outline"></i> Format of Student ID incorrect.</div>
+                            </div>
+
+                            @* <div class="checkbox checkbox-purple" style="margin: 0; padding: 0px 24px;">
+                                <input id="checkbox-signup-student" asp-for="RememberMe" type="checkbox" checked>
+                                <label for="checkbox-signup-student" style="font-size: 1.5rem; margin: 0; color: white;">
+                                    Remember me
+                                </label>
+                            </div> *@
+                            
+                            <div class="in-a-row" style="gap: 20px; height: 100px;">
+                                <button id="student-register-button" type="submit" style="background-color: white; color: rebeccapurple;">Register</button>
+                                <button id="student-login-button" type="submit">Log in</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="register">
+                        <form class="form" asp-controller="Account" asp-action="Login" id="staff-login-form" method="post" style="padding-bottom: 60px;">
+                            <label class="login-label" for="chk" aria-hidden="true">Staff</label>
+                            @* <input type="hidden" asp-for="Role" value="Staff"> *@
+
+                            <div>
+                                <input class="input" type="text" id="staff-username" asp-for="Username" placeholder="Username" required="">
+                                <div id="staff-username-empty" class="prompt-text text-danger" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> Username is required.</div>
+                                <div id="staff-username-error" class="prompt-text text-danger" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> Username must be in character form.</div>
+                            </div>
+                            @* <input class="input" type="email" name="email" placeholder="Email" required=""> *@
+
+                            <div>
+                                <input class="input" type="password" id="staff-password" asp-for="Password" placeholder="Password" required="">
+                                <div id="staff-password-empty" class="prompt-text text-danger" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> Password is required.</div>
+                                <div id="staff-password-error" class="prompt-text text-danger" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> Minimum 6 charactes are required.</div>
+                            </div>
+                            <div>
+                                <div class="in-a-row" style="justify-content: flex-start; gap: 2rem;">
+                                    <div>
+                                        <div class="custom-radio">
+                                            <input type="radio" name="Role" value="Admin" id="role-admin" required>
+                                            <label for="role-admin">
+                                                Admin
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="custom-radio">
+                                            <input type="radio" name="Role" value="Lecturer" id="role-lecturer" required>
+                                            <label for="role-lecturer">
+                                                Lecturer
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="staff-role-empty" class="prompt-text text-danger m-t-0" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> Please select your role.</div>
+                            </div>
+                            
+                            <div class="checkbox checkbox-purple" style="margin: 0; padding: 0px 24px;">
+                                <input id="checkbox-signup-staff" asp-for="RememberMe" type="checkbox" checked>
+                                <label for="checkbox-signup-staff" style="font-size: 1.5rem; margin: 0;">
+                                    Remember me
+                                </label>
+                            </div>
+
+                            <button type="submit" id="staff-login-button" style="min-height: 40px;">Log in</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+    
+
+
+    
+
+    <!-- HOME -->
+    @* <section>
+        <div class="container-alt">
+            <div class="row">
+                <div class="col-sm-12">
+
+                    <div class="wrapper-page">
+
+                        <div class="m-t-40 account-pages">
+                            <div class="text-center account-logo-box">
+                                <h2 class="text-uppercase">
+                                    <div class="text-success">
+                                        <span><img src="~/assets/images/UTSlogo.png" alt="UTS logo" height="65"></span>
+                                    </div>
+                                </h2>
+                                <h3 class="text-uppercase font-bold m-b-0" style="color: white;">LogIn</h3>
+                            </div>
+                            <div class="account-content">
+                                <form class="form-horizontal" asp-controller="Account" asp-action="Login" method="post">
+
+                                    <div class="form-group ">
+                                        <div class="col-xs-12">
+                                            <input class="form-control" asp-for="Username" type="text" required="" placeholder="Username">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <div class="col-xs-12">
+                                            <input class="form-control" asp-for="Password" type="password" required="" placeholder="Password">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group ">
+                                        <div class="col-xs-12">
+                                            <div class="checkbox checkbox-success">
+                                                <input id="checkbox-signup" asp-for="RememberMe" type="checkbox" checked>
+                                                <label for="checkbox-signup">
+                                                    Remember me
+                                                </label>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group text-center m-t-30">
+                                        <div class="col-sm-12">
+                                            <a href="page-recoverpw.html" class="text-muted"><i class="fa fa-lock m-r-5"></i> Forgot your password?</a>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group account-btn text-center m-t-10">
+                                        <div class="col-xs-12">
+                                            <button class="btn w-md btn-bordered btn-danger waves-effect waves-light" type="submit">Login</button>
+                                        </div>
+                                    </div>
+
+                                </form>
+
+                                <div class="clearfix"></div>
+
+                            </div>
+                        </div>
+                        <!-- end card-box-->
+
+
+                        <div class="row m-t-50">
+                            <div class="col-sm-12 text-center">
+                                <p class="text-muted">Don't have an account? <a href="page-register.html" class="text-primary m-l-5"><b>Sign Up</b></a></p>
+                            </div>
+                        </div>
+
+                        <!--Error Message-->
+                        @if (TempData["ErrorMessage"] != null)
+                        {
+                            <div class="alert alert-danger" role="alert">
+                                @TempData["ErrorMessage"]
+                            </div>
+                        }
+                    </div>
+                    <!-- end wrapper -->
+                    
+                </div>
+            </div>
+        </div>
+    </section> *@
+    <!-- END HOME -->
+
+    <script>
+        var resizefunc = [];
+    </script>
+
+    <!--pag ejs-->
+    <script src="~/js/Login.js"></script>
+
+    <!-- jQuery  -->
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/bootstrap.min.js"></script>
+    <script src="assets/js/detect.js"></script>
+    <script src="assets/js/fastclick.js"></script>
+    <script src="assets/js/jquery.blockUI.js"></script>
+    <script src="assets/js/waves.js"></script>
+    <script src="assets/js/jquery.slimscroll.js"></script>
+    <script src="assets/js/jquery.scrollTo.min.js"></script>
+
+    <!-- App js -->
+    <script src="assets/js/jquery.core.js"></script>
+    <script src="assets/js/jquery.app.js"></script>
+
+</body>
+</html>

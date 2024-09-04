@@ -1,0 +1,152 @@
+﻿@model attendance1.Web.Models.AttendanceMdl
+@{
+    Layout = null;
+    @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+}
+
+<!DOCTYPE html>
+<html class="account-pages-bg" style="height:100%;">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Attendance Management System">
+
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="~/assets/images/favicon.ico">
+    
+    <!-- App title -->
+    <title>Taking Attendance...</title>
+
+    <!-- App css -->
+    <link href="~/assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/assets/css/core.css" rel="stylesheet" type="text/css" />
+    <link href="~/assets/css/components.css" rel="stylesheet" type="text/css" />
+    <link href="~/assets/css/icons.css" rel="stylesheet" type="text/css" />
+    <link href="~/assets/css/pages.css" rel="stylesheet" type="text/css" />
+    <link href="~/assets/css/menu.css" rel="stylesheet" type="text/css" />
+    <link href="~/assets/css/responsive.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="~/assets/css/switchery.min.css">
+
+    <script src="~/assets/js/modernizr.min.js"></script>
+
+    <!--Real time count number of student-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.12/signalr.min.js"></script>
+
+    <style>
+        .code {
+            font-size: 65px;
+            color: #54545c;
+            font-family: "Hind Madurai", sans-serif;
+
+        }
+
+        .count-down {
+            margin: 0px 10px 0px 0px;
+            color: #54545c;
+            font-size: 40px;
+            font-family: "Hind Madurai", sans-serif;
+        }
+
+        .unit {
+/*             padding-bottom: 2px; */
+            font-family: "Hind Madurai", sans-serif;
+            color: #83838f;
+
+        }
+
+        .center {
+            display: flex;
+            justify-content: center;
+        }
+
+        .button-location {
+            margin-top: 25%;
+        }
+    </style>
+
+</head>
+
+
+<body style="height:100%;">
+    <div id="data-code-end-time" style="display: none;">@Html.Raw(Json.Serialize(Model.EndTime))</div>
+    <div class="page-title-box" style="padding-left: 50px;padding-right: 50px;">
+        <h4 class="page-title">Generate Code</h4>
+        <ol class="breadcrumb p-0 m-0">
+            <li>
+                <a href="#">Student Management System</a>
+            </li>
+            <li>
+                <a href="#">Take Attendance</a>
+            </li>
+            <li class="active">
+                Code Page
+            </li>
+        </ol>
+        <div class="clearfix"></div>
+    </div>
+
+    <!-- HOME -->
+    <div class="container-alt">
+        <div class="row">
+            <div class="col-sm-12 text-center">
+                <div class="wrapper-page">
+                    @if (Model != null && Model.AttendanceCode != null)
+                    {
+                        <div class="code">@Model.AttendanceCode</div>
+                        <h3 class="text-muted">
+                            @Model.Duration 
+                        </h3>
+                        <br />
+                        <br />
+                        <h4>Time remaining:</h4>
+                        <br />
+                        <div class="center">
+                            <div class="col-md-6">
+                                <div class="in-a-row expired" id="expired">
+                                    <div class="in-a-block" style="align-items: flex-end;">
+                                        <div id="count-down-minute" class="count-down"></div> <h3 class="unit">m</h3>
+                                    </div>
+                                    <div class="in-a-block" style="align-items: flex-end;">
+                                        <div id="count-down-second" class="count-down"></div> <h3 class="unit">s</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        
+                        
+                        <p>Attended count: <span id="AttendedStudentCount">0</span></p>
+                    }
+
+                    <a asp-controller="Class" asp-action="GetClass" class="btn btn-inverse waves-effect waves-light button-location">Back</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END HOME -->
+
+
+    <script>
+        var resizefunc = [];
+    </script>
+
+    <!--View js-->
+    <script src="~/js/CodePage.js"></script>
+
+    <!-- jQuery  -->
+    <script src="~/assets/js/jquery.min.js"></script>
+    <script src="~/assets/js/bootstrap.min.js"></script>
+    <script src="~/assets/js/detect.js"></script>
+    <script src="~/assets/js/fastclick.js"></script>
+    <script src="~/assets/js/jquery.blockUI.js"></script>
+    <script src="~/assets/js/waves.js"></script>
+    <script src="~/assets/js/jquery.slimscroll.js"></script>
+    <script src="~/assets/js/jquery.scrollTo.min.js"></script>
+
+    <!-- App js -->
+    <script src="~/assets/js/jquery.core.js"></script>
+    <script src="~/assets/js/jquery.app.js"></script>
+
+</body>
+</html>
+
