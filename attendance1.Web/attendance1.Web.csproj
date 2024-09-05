@@ -27,6 +27,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Pages\Admin\" />
+    <Folder Include="Pages\Lecturer\" />
     <Folder Include="Pages\Shared\Components\ClassListLec\" />
   </ItemGroup>
 

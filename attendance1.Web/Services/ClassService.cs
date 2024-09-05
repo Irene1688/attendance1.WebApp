@@ -5,7 +5,6 @@ using attendance1.Web.Pages;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Data;
-using attendance1.Web.Pages.Lecturer;
 using System.Globalization;
 using System.IO;
 using CsvHelper;
