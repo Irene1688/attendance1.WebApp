@@ -23,7 +23,7 @@ namespace attendance1.Web.ViewCompoents
             //var lecturerId = HttpContext.User.FindFirstValue("LecturerID");
             if (string.IsNullOrEmpty(lecturerId))
             {
-                return View("/Pages/Shared/Components/ClassListLec/_ClassListLec.cshtml", new List<ClassMdl>());
+                return View("/Views/Shared/Components/Lecturer/ClassListMenu.cshtml", new List<ClassMdl>());
                 //return View(new List<ClassMdl>());
             }
 
@@ -39,7 +39,7 @@ namespace attendance1.Web.ViewCompoents
                 }
             }
 
-            return View("/Pages/Shared/Components/ClassListLec/_ClassListLec.cshtml", activeClasses);
+            return View("/Views/Shared/Components/Lecturer/ClassListMenu.cshtml", activeClasses);
         }
     }
 }
