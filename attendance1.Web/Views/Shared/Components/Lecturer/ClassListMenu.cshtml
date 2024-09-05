@@ -1,7 +1,4 @@
-﻿@model List<attendance1.Web.Models.ClassMdl>
-@{
-    @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
-}
+﻿@model List<ClassMdl>
 
 <ul class="list-unstyled" id="@ViewData["ClassStatus"]-classes-sidemenu">
     @foreach (var ClassItem in Model)
