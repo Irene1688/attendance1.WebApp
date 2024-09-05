@@ -1,4 +1,5 @@
-﻿document.addEventListener("DOMContentLoaded", function () {
+﻿// Count Down time
+document.addEventListener("DOMContentLoaded", function () {
     var codeEndTime = JSON.parse(document.getElementById('data-code-end-time').textContent);
 
     function updateCountdown() {
@@ -33,16 +34,3 @@
     var countdownInterval = setInterval(updateCountdown, 1000);
 });
 
-//实时显示签到人数，等后期如果两个solution合并再搞
-////real time count nummber of student attended
-//const connection = new signalR.HubConnectionBuilder()
-//    .withUrl("/attendanceHub")
-//    .build();
-
-//connection.on("ReceiveAttendedCount", function (count) {
-//    document.getElementById("AttendedStudentCount").innerText = count;
-//});
-
-//connection.start().catch(function (err) {
-//    return console.error(err.toString());
-//}); 
