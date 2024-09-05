@@ -39,6 +39,7 @@ namespace attendance1.Web.ViewCompoents
                 }
             }
 
+            ViewData["ClassStatus"] = "inactive";
             return View("/Views/Shared/Components/Lecturer/ClassListMenu.cshtml", inactiveClasses);
         }
     }

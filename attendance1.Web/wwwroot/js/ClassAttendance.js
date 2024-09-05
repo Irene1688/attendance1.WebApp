@@ -1,60 +1,66 @@
 ﻿//display side menu class list
 document.addEventListener("DOMContentLoaded", function () {
-    var classesSidemenu = document.getElementById("classes-sidemenu");
-    var classesMenuTitle = document.getElementById("classes-menu-title");
-    var userClickedMenuTitle = false;
+    // Function to handle the menu behavior
+    function setupClassesMenu(menuId, menuTitleId) {
+        var classesSidemenu = document.getElementById(menuId);
+        var classesMenuTitle = document.getElementById(menuTitleId);
+        var userClickedMenuTitle = false;
 
-    // Listen for clicks on the classes menu title
-    classesMenuTitle.addEventListener("click", function () {
-        userClickedMenuTitle = true;
+        // Listen for clicks on the classes menu title
+        classesMenuTitle.addEventListener("click", function () {
+            userClickedMenuTitle = true;
 
-        // Clear any existing transition effects
-        classesSidemenu.style.transition = "none";
-        classesSidemenu.style.height = classesSidemenu.scrollHeight + "px";
+            // Clear any existing transition effects
+            classesSidemenu.style.transition = "none";
+            classesSidemenu.style.height = classesSidemenu.scrollHeight + "px";
 
-        // Reflow to apply immediate changes
-        classesSidemenu.offsetHeight;
+            // Reflow to apply immediate changes
+            classesSidemenu.offsetHeight;
 
-        // Remove overflow hidden if it was set
-        classesSidemenu.style.overflow = "hidden";
-    });
+            // Remove overflow hidden if it was set
+            classesSidemenu.style.overflow = "hidden";
+        });
 
-    // Set up MutationObserver to monitor display style changes on classesSidemenu
-    var classesSidemenuObserver = new MutationObserver(function (mutationsList, observer) {
-        for (let mutation of mutationsList) {
-            if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                if (!userClickedMenuTitle && classesSidemenu.style.display === '') {
-                    setTimeout(function () {
-                        if (document.getElementById("wrapper").classList.contains('enlarged')) {
-                            return;
-                        }
+        // Set up MutationObserver to monitor display style changes on classesSidemenu
+        var classesSidemenuObserver = new MutationObserver(function (mutationsList, observer) {
+            for (let mutation of mutationsList) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                    if (!userClickedMenuTitle && classesSidemenu.style.display === '') {
+                        setTimeout(function () {
+                            if (document.getElementById("wrapper").classList.contains('enlarged')) {
+                                return;
+                            }
 
-                        classesMenuTitle.classList.add("subdrop");
+                            classesMenuTitle.classList.add("subdrop");
 
-                        // Set initial state
-                        classesSidemenu.style.height = "0";
-                        classesSidemenu.style.overflow = "hidden";
-                        classesSidemenu.style.display = "block";
+                            // Set initial state
+                            classesSidemenu.style.height = "0";
+                            classesSidemenu.style.overflow = "hidden";
+                            classesSidemenu.style.display = "block";
 
-                        // Force reflow to ensure transition happens
-                        classesSidemenu.offsetHeight;
+                            // Force reflow to ensure transition happens
+                            classesSidemenu.offsetHeight;
 
-                        // Apply transition
-                        classesSidemenu.style.transition = "height 0.8s ease";
-                        classesSidemenu.style.height = classesSidemenu.scrollHeight + "px";
+                            // Apply transition
+                            classesSidemenu.style.transition = "height 0.8s ease";
+                            classesSidemenu.style.height = classesSidemenu.scrollHeight + "px";
 
-                    }, 300);
+                        }, 300);
+                    }
                 }
             }
-        }
-    });
+        });
 
-    // Configure the observer to watch for attribute changes
-    classesSidemenuObserver.observe(classesSidemenu, {
-        attributes: true
-    });
+        // Configure the observer to watch for attribute changes
+        classesSidemenuObserver.observe(classesSidemenu, {
+            attributes: true
+        });
+    }
+
+    // Initialize the menu behavior for both active and inactive classes
+    setupClassesMenu("active-classes-sidemenu", "active-classes-menu-title");
+    setupClassesMenu("inactive-classes-sidemenu", "inactive-classes-menu-title");
 });
-
 
 
 // dispaly class day respondingly in class details

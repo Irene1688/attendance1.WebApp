@@ -224,7 +224,7 @@
 
                             <li class="has_sub">
                                 <!--id and activeMenu used in Views/Lecturer/ClassAttendancePage.cshtml and ClassAttendance.js-->
-                                <a href="javascript:void(0);" class="waves-effect @(activeMenu == "ActiveClassList" ? "subdrop" : "")" id="classes-menu-title"><i class="mdi mdi-cube-outline"></i> <span> Active Classes </span> <span class="menu-arrow"></span></a>
+                                <a href="javascript:void(0);" class="waves-effect @(activeMenu == "ActiveClassList" ? "subdrop" : "")" id="active-classes-menu-title"><i class="mdi mdi-cube-outline"></i> <span> Active Classes </span> <span class="menu-arrow"></span></a>
                                 @await Component.InvokeAsync("ActiveClassListLec") <!--The name of ViewComponent-->
                             </li>
 
@@ -232,7 +232,7 @@
                             {
                                 <li class="has_sub">
                                     <!--id and activeMenu used in Views/Lecturer/ClassAttendancePage.cshtml and ClassAttendance.js-->
-                                    <a href="javascript:void(0);" class="waves-effect @(activeMenu == "InactiveClassList" ? "subdrop" : "")" id="classes-menu-title"><i class="mdi mdi-cube-outline"></i> <span> Inactive Classes </span> <span class="menu-arrow"></span></a>
+                                    <a href="javascript:void(0);" class="waves-effect @(activeMenu == "InactiveClassList" ? "subdrop" : "")" id="inactive-classes-menu-title"><i class="mdi mdi-cube-outline"></i> <span> Inactive Classes </span> <span class="menu-arrow"></span></a>
                                     @await Component.InvokeAsync("InactiveClassListLec") <!--The name of ViewComponent-->
                                 </li>
                             }
