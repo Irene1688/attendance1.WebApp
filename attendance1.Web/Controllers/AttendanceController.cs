@@ -12,10 +12,8 @@ using System.Reflection;
 using System.Security.Claims;
 using System.Data;
 using System.CodeDom.Compiler;
-using attendance1.Web.Hubs; //显示实时签到人数，合并solution之后再搞
-using Microsoft.AspNetCore.SignalR;
 using attendance1.Web.Services;
-using Microsoft.AspNetCore.Authorization; //显示实时签到人数，合并solution之后再搞
+using Microsoft.AspNetCore.Authorization;
 
 namespace attendance1.Web.Controllers
 {
@@ -26,16 +24,14 @@ namespace attendance1.Web.Controllers
         private readonly AttendanceService _attendanceService;
         private readonly DeviceService _deviceService;
         private readonly ClassService _classService;
-        private readonly IHubContext<AttendanceHub> _hubContext;
 
-        public AttendanceController(DatabaseContext databaseContext, AccountService accountService, AttendanceService attendanceService, DeviceService deviceService, ClassService classService, IHubContext<AttendanceHub> hubContext)
+        public AttendanceController(DatabaseContext databaseContext, AccountService accountService, AttendanceService attendanceService, DeviceService deviceService, ClassService classService)
         {
             _databaseContext = databaseContext;
             _accountService = accountService;
             _attendanceService = attendanceService;
             _deviceService = deviceService;
             _classService = classService;
-            _hubContext = hubContext;
         }
 
         private static string GenerateRandomCode(int length)
@@ -355,21 +351,6 @@ namespace attendance1.Web.Controllers
             return View("/Views/Student/HistoryAttendancePage.cshtml", model);
         }
 
-
-        #region 用来显示实时签到人数的，后期如果两个solution combine再搞
-        //private async Task UpdateAttendedStudentCount(int RecordId)
-        //{
-        //    string query = @"COUNT (*) FROM studentAttendance where recordID = @RecordId";
-
-        //    SqlParameter[] parameters =
-        //    {
-        //            new SqlParameter("@RecordId", RecordId)
-        //    };
-
-        //    int count= await _databaseContext.ExecuteScalarAsync<int>(query, parameters);
-        //    await _hubContext.Clients.All.SendAsync("ReceiveSignedInCount", count);
-        //}
-        #endregion
     }
 
 }

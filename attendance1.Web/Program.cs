@@ -1,7 +1,6 @@
 ﻿using attendance1.Web.Controllers;
 using attendance1.Web.Services;
 using attendance1.Web.Data;
-using attendance1.Web.Hubs;  //显示实时签到人数，合并solution之后再搞
 using Microsoft.AspNetCore.Authentication.Cookies;
 using attendance1.Web.Helpers;
 using DeviceDetectorNET.Parser.Device;
@@ -14,7 +13,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddTransient<DatabaseContext>();
 builder.Services.AddControllersWithViews();
-builder.Services.AddSignalR();  //显示实时签到人数，合并solution之后再搞
 
 //builder.Services.AddDistributedMemoryCache();
 //builder.Services.AddSession(options =>
@@ -37,11 +35,6 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 // authrizate user login and account role
 builder.Services.AddAuthorization();
-//builder.Services.AddAuthorization(options =>
-//{
-//    options.AddPolicy("AdminAuth", policy => policy.RequireRole("Admin"));
-//    options.AddPolicy("LecturerAuth", policy => policy.RequireRole("Lecturer"));
-//});
 
 // register injection: class controller will be used in view component
 builder.Services.AddScoped<MenuHelper>();
@@ -90,8 +83,6 @@ app.UseAuthorization();
 app.MapRazorPages();
 app.MapControllers();
 app.MapDefaultControllerRoute();
-
-app.MapHub<AttendanceHub>("/attendanceHub"); //显示实时签到人数，合并solution之后再搞
 
 
 //Final version
