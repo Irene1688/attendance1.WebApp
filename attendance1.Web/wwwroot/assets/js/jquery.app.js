@@ -267,7 +267,7 @@ function resizeitems(){
   }
 }
 
-function initscrolls(){
+function initscrolls() {
     if(jQuery.browser.mobile !== true){
       //SLIM SCROLL
       $('.slimscroller').slimscroll({

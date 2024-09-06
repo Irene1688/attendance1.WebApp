@@ -499,90 +499,25 @@
             <input type="hidden" name="relatedStudentId" id="related-student-id" />
         </form>
 
-       @* <!--modal content: add admin-->
-        <div id="custom-modal-add-lecturer" class="modal-demo">
-            <button type="button" class="close close-button" data-dismiss="modal" onclick="Custombox.close();">
-                <span>&times;</span><span class="sr-only">Close</span>
-            </button>
-            <h4 class="custom-modal-title">Create Lecturer Account</h4>
+        @section scripts {
+            <!--View js-->
+            <script src="~/js/StudentPage.js"></script>
 
-            <form asp-controller="Admin" asp-action="AddLecturer" id="add-lecturer-form" method="post">
-                <div class="modal-body" style="text-align: left;">
-                    <div class="direction-column">
-                        <div class="form-group direction-column">
-                            <label class="control-label m-t-10">Lecturer ID</label>
-                            <div style="width: 100%; padding: 10px;">
-                                <div class="add-lecturer-input-container">
-                                    <input type="text" name="lecturerId" class="form-control clearable" placeholder="Enter lecturer ID or Staff ID" id="new-lecturer-id-fill-space" required>
-                                    <i class="mdi mdi-close clear-add-lecturer-input" onclick="clearInput(this)"></i>
-                                </div>
-                                <div id="new-lecturer-id-empty" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i>The lecturer ID is required.</div>
-                                <div id="new-lecturer-id-error" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> Lecturer ID can only contain alphabet letter and number, no special character accepted, including white space.</div>
-                                <div id="new-lecturer-id-existed" class="text-danger prompt-text" style="display: none;"><i class="mdi mdi-alert-circle-outline"></i>The lecturer ID is existed already. You cannot use same lecturer ID.</div>
-                            </div>
-                        </div>
-                        <div class="form-group direction-column">
-                            <label class="control-label m-t-10">Lecturer Name</label>
-                            <div style="width: 100%; padding: 10px;">
-                                <div class="add-lecturer-input-container">
-                                    <input type="text" name="lecturerName" class="form-control clearable" placeholder="Enter Lecturer Name" id="new-lecturer-name-fill-space" oninput="updatePassword()" required>
-                                    <i class="mdi mdi-close clear-add-lecturer-input" onclick="clearInput(this)"></i>
-                                </div>
-                                <div id="new-lecturer-name-empty" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i>Lecturer name cannot be empty.</div>
-                                <div id="new-lecturer-name-error" class="text-danger prompt-text" style="display: none;"><i class="mdi mdi-alert-circle-outline"></i>Lecturer name can only contain alphabet letter and number, no special character accepted.</div>
-                            </div>
-                        </div>
-                        <div class="form-group direction-column">
-                            <label class="control-label m-t-10">UTS Email</label>
-                            <div style="width: 100%; padding: 10px;">
-                                <div class="add-lecturer-input-container">
-                                    <input type="text" name="lecturerEmail" class="form-control clearable" placeholder="Enter UTS Email" id="new-lecturer-email-fill-space" required>
-                                <i class="mdi mdi-close clear-add-lecturer-input" onclick="clearInput(this)"></i>
-                                </div>
-                                
-                                <div id="new-lecturer-email-empty" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> Lecturer email cannot be empty.</div>
-                                <div id="new-lecturer-email-error" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> Lecturer email must contain '@@uts.edu.my'.</div>
-                                <div id="new-lecturer-email-existed" class="text-danger prompt-text" style="display: none;"><i class="mdi mdi-alert-circle-outline"></i>The email has been used. You cannot use the same email.</div>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group direction-column">
-                            <label class="control-label m-t-10 in-a-row" style="justify-content: flex-start;">Default Password:&nbsp;<div style="color: #d64545;">Lecturer Name first word (lowercase) + 1234</div></label>
-                            <div style="width: 100%; padding: 10px;">
-                                <input type="text" readonly class="form-control" value="name + 1234" name="password" id="default-password-input">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default waves-effect close-button" data-dismiss="modal" onclick="Custombox.close();">Cancel</button>
-                        <button type="submit" id="add-lecturer-submit-button" class="btn btn-inverse waves-effect waves-light">Create</button>
-                    </div>
-                </div>
-            </form>
-        </div> *@
+            <!--jQuery-->
+            <script src="~/assets/js/detect.js"></script>
+            <script src="~/assets/js/waves.js"></script>
+            <script src="~/assets/js/jquery.slimscroll.js"></script>
 
-        <!--View js-->
-        <script src="~/js/StudentPage.js"></script> 
+            <!--Modal js-->
+            <script src="~/assets/js/custombox.min.js"></script>
+            <script src="~/assets/js/legacy.min.js"></script>
 
-        <!--jQuery-->
-        <script src="~/assets/js/jquery.min.js"></script>
-        <script src="~/assets/js/bootstrap.min.js"></script>
-        <script src="~/assets/js/detect.js"></script>
-        <script src="~/assets/js/fastclick.js"></script>
-        <script src="~/assets/js/jquery.blockUI.js"></script>
-        <script src="~/assets/js/waves.js"></script>
-        <script src="~/assets/js/jquery.slimscroll.js"></script>
-        <script src="~/assets/js/jquery.scrollTo.min.js"></script>
-        <script src="~/assets/js/switchery.min.js"></script>
+            <!--App js-->
+            <script src="~/assets/js/jquery.core.js"></script>
+            <script src="~/assets/js/jquery.app.js"></script>
+        }
 
-        <!--Modal js-->
-        <script src="~/assets/js/custombox.min.js"></script>
-        <script src="~/assets/js/legacy.min.js"></script>
-
-        <!--App js-->
-        <script src="~/assets/js/jquery.core.js"></script>
-        <script src="~/assets/js/jquery.app.js"></script> 
+        
     </body>
 </html>
 

@@ -206,7 +206,25 @@
             </div>
         }
 
-         <!--View js-->
+        @section scripts {
+        <!--View js-->
+        <script src="~/js/IndexLec.js"></script>
+
+        <!--jQuery-->
+        <script src="~/assets/js/detect.js"></script>
+        <script src="~/assets/js/waves.js"></script>
+        <script src="~/assets/js/jquery.slimscroll.js"></script>
+
+        <!--Modal js-->
+        <script src="~/assets/js/custombox.min.js"></script>
+        <script src="~/assets/js/legacy.min.js"></script>
+
+        <!--App js-->
+        <script src="~/assets/js/jquery.core.js"></script>
+        <script src="~/assets/js/jquery.app.js"></script>
+    }
+
+        @*  <!--View js-->
         <script src="~/js/IndexLec.js"></script>
 
         <!--jQuery-->
@@ -226,146 +244,10 @@
 
         <!--App js-->
         <script src="~/assets/js/jquery.core.js"></script>
-        <script src="~/assets/js/jquery.app.js"></script> 
+        <script src="~/assets/js/jquery.app.js"></script>  *@
     </body>
 </html>
-@* <head>
-    <title>Home Page</title>
-</head>
 
-<div class="page-title-box">
-    <h4 class="page-title">Classes</h4>
-    <ol class="breadcrumb p-0 m-0">
-        <li>
-            <a href="#">Student Management System</a>
-        </li>
-        <li class="active">
-            Take Attendance
-        </li>
-    </ol>
-    <div class="clearfix"></div>
-</div>
-
-
-@foreach (var item in @Model)
-{
-    <div class="col-lg-4 col-md-4 col-sm">
-        <a href="#custom-modal" data-animation="fadein" data-plugin="custommodal" data-overlaySpeed="200" data-overlayColor="#36404a">
-            <div class="card-box widget-box-one class-box">
-                <div class="wigdet-one-content">
-                    <p class="m-0 text-uppercase font-600 font-secondary text-overflow" title="ClassSession">@item.CourseCode</p>
-                    <h3>@item.ClassName</h3>
-                    <p class="text-muted m-0">@item.ClassSession</p>
-                </div>
-            </div>
-        </a>
-    </div>
-}
-
-<!-- Modal content -->
-<div id="custom-modal" class="modal-demo">
-    <button type="button" class="close" data-dismiss="modal" onclick="Custombox.close();">
-        <span>&times;</span><span class="sr-only">Close</span>
-    </button>
-    @foreach (var item in @Model)
-    {
-        <h4 class="custom-modal-title">@item.CourseCode @item.ClassName</h4>
-    }
-
-    <form asp-controller="Attendance" asp-action="GenerateCode" method="post">
-        @foreach (var item in @Model)
-        {
-            <input type="hidden" name="courseId" value="@item.CourseId" />
-        } 
-        <div class="modal-body" style="text-align: left;">
-            <div class="row">
-                <h3 style="text-align: center;">Generate Attendance Code</h3>
-            </div>
-            <div class="row">
-                <div class="form-group" style="padding-left: 15px;">
-                    <label>Code Valid Time:</label>
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="radio">
-                                <input type="radio" name="CodeValidTime" id="ThirtySec" value="30 sec" required="">
-                                <label for="ThirtySec">
-                                    30 seconds
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3">
-                            <div class="radio">
-                                <input type="radio" name="CodeValidTime" id="OneMin" value="1 Min">
-                                <label for="OneMin">
-                                    1 minute
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3">
-                            <div class="radio">
-                                <input type="radio" name="CodeValidTime" id="ThreeMin" value="3 Min">
-                                <label for="ThreeMin">
-                                    3 minutes
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3">
-                            <div class="radio">
-                                <input type="radio" name="CodeValidTime" id="FiveMin" value="5 Min">
-                                <label for="FiveMin">
-                                    5 minute
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default waves-effect" data-dismiss="modal" onclick="Custombox.close();">Close</button>
-                <button type="submit" class="btn btn-inverse waves-effect waves-light">Generate</button>
-            </div>
-        </div>
-    </form>
-</div>
-
-
-
-<!-- jQuery  -->
-    <script src="~/assets/js/jquery.min.js"></script>
-    <script src="~/assets/js/bootstrap.min.js"></script>
-    <script src="~/assets/js/detect.js"></script>
-    <script src="~/assets/js/fastclick.js"></script>
-    <script src="~/assets/js/jquery.blockUI.js"></script>
-    <script src="~/assets/js/waves.js"></script>
-    <script src="~/assets/js/jquery.slimscroll.js"></script>
-    <script src="~/assets/js/jquery.scrollTo.min.js"></script>
-    <script src="~/assets/js/switchery.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
-    
-    <!-- Counter js  -->
-    <script src="~/assets/js/jquery.waypoints.min.js"></script>
-    <script src="~/assets/js/jquery.counterup.min.js"></script>
-
-    <!--Morris Chart-->
-    <script src="~/assets/js/morris.min.js"></script>
-    <script src="~/assets/js/raphael-min.js"></script>
-
-    <!-- Dashboard init -->
-    <script src="~/assets/pages/jquery.dashboard.js"></script>
-
-    <!-- Modal-Effect -->
-<script src="~/assets/js/custombox.min.js"></script>
-<script src="~/assets/js/legacy.min.js"></script>
-<link rel="stylesheet" href="~/assets/css/custombox.min.css">
-
-    <!-- App js -->
-    <script src="~/assets/js/jquery.core.js"></script>
-    <script src="~/assets/js/jquery.app.js"></script> 
- *@
 
 
 
