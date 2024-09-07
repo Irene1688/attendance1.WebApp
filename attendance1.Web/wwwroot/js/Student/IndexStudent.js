@@ -253,7 +253,7 @@ function copyEmail(email) {
 document.addEventListener("DOMContentLoaded", () => {
     const checkbox = document.getElementById("themeToggle");
 
-    // 函数：应用主题
+    // apply theme
     function applyTheme(theme) {
         const existingTheme = document.querySelector('link[href*="theme"]');
         if (existingTheme) {
@@ -277,20 +277,20 @@ document.addEventListener("DOMContentLoaded", () => {
         const preference = localStorage.getItem('themePreference');
         if (preference === 'light') {
             checkbox.checked = true;
-            applyTheme("/css/student-light-theme.css");
+            applyTheme("/css/Student/student-light-theme.css");
         } else {
             checkbox.checked = false;
-            applyTheme("/css/student-dark-theme.css");
+            applyTheme("/css/Student/student-dark-theme.css");
         }
     }
 
     // 监听复选框变化
     checkbox.addEventListener("change", () => {
         if (checkbox.checked) {
-            applyTheme("/css/student-light-theme.css");
+            applyTheme("/css/Student/student-light-theme.css");
             saveThemePreference(true);
         } else {
-            applyTheme("/css/student-dark-theme.css");
+            applyTheme("/css/Student/student-dark-theme.css");
             saveThemePreference(false);
         }
     });

@@ -19,10 +19,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const preference = localStorage.getItem('themePreference');
         if (preference === 'light') {
             //checkbox.checked = true;
-            applyTheme("/css/student-light-theme.css");
+            applyTheme("/css/Student/student-light-theme.css");
         } else {
             //checkbox.checked = false;
-            applyTheme("/css/student-dark-theme.css");
+            applyTheme("/css/Student/student-dark-theme.css");
         }
     }
 

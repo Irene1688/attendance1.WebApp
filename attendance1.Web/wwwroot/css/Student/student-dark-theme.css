@@ -98,6 +98,14 @@ body {
 
 
 /* History Page */
+.back-bar {
+    background-color: #212121;
+}
+
 .back-button-container {
     color: white;
+}
+
+.group-header-date {
+    color: #a9a9a9;
 }

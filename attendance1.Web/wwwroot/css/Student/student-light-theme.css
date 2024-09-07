@@ -100,6 +100,14 @@ body {
 }
 
 /* History Page */
+.back-bar {
+    background-color: #e8e8e8;
+}
+
 .back-button-container {
     color: #515a8f;
+}
+
+.group-header-date {
+    color: #797979;
 }
