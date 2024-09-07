@@ -72,6 +72,7 @@ function parseCustomDate(dateString) {
 function searchFeedbacks() {
     const searchInput = document.getElementById('search-input').value.toLowerCase();
     const feedbackItems = document.getElementsByClassName('feedback-item');
+    let isFound = false;
 
     var clearBtn = document.getElementById("clear-search-input");
     if (searchInput) {
@@ -86,11 +87,23 @@ function searchFeedbacks() {
         const feedbackContent = item.getAttribute('data-feedbackcontent').toLowerCase();
 
         if (studentId.includes(searchInput) || studentName.includes(searchInput) || feedbackContent.includes(searchInput)) {
-            item.style.display = ''; // 显示匹配的反馈
+            isFound = true;
+            item.style.display = ''; 
         } else {
-            item.style.display = 'none'; // 隐藏不匹配的反馈
+            item.style.display = 'none';
         }
     });
+
+    var noFoundRow = document.getElementById("no-found-row");
+    if (!isFound) {
+        if (noFoundRow) {
+            noFoundRow.style.display = "block";
+        }
+    } else {
+        if (noFoundRow) {
+            noFoundRow.style.display = "none";
+        }
+    }
 }
 
 //clear search input
