@@ -37,7 +37,7 @@ namespace attendance1.Web.Controllers
             if (string.IsNullOrEmpty(lecturerId))
             {
                 TempData["ErrorMessage"] = "Please log in first.";
-                return RedirectToPage("/Login");
+                return View("/Views/Login.cshtml");
             }
 
             var classList = await _classService.GetClassForLecturerAsync(lecturerId);
@@ -151,7 +151,7 @@ namespace attendance1.Web.Controllers
             if (string.IsNullOrEmpty(lecturerId))
             {
                 TempData["ErrorMessage"] = "Please log in first.";
-                return RedirectToPage("/Login");
+                return View("/Views/Login.cshtml");
             }
             try
             {

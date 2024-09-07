@@ -1190,7 +1190,7 @@ a:focus {
     }
 
 #chk:checked ~ .register {
-    transform: translateY(-68%);
+    transform: translateY(-65%);
 }
 
     #chk:checked ~ .register .login-label {

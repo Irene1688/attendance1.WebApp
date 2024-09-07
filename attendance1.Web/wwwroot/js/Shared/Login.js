@@ -1,4 +1,14 @@
-﻿// mobile add padding top
+﻿// prevent browser backward
+function preventBack() {
+    window.history.forward();
+    }
+    setTimeout("preventBack()", 0);
+    window.onunload = function () {
+        null
+};
+
+
+// mobile add padding top
 document.addEventListener("DOMContentLoaded", function () {
     var body = document.body;
     if (body.classList.contains('mobile')) {
@@ -12,6 +22,8 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
         chk.checked = false;
     }
+
+    preventBack();
 });
 
 

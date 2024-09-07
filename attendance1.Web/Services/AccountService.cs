@@ -467,7 +467,6 @@ namespace attendance1.Web.Services
             {
                 return "Login failed.";
             }   
-           
         }
 
         private async Task<string> RegisterUserClaims(List<string> userDetail, LoginMdl loginInput)

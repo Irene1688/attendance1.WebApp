@@ -29,95 +29,6 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace attendance1.Web.Controllers
 {
-    //public class AccountController : Controller
-    //{
-    //    private readonly DatabaseContext _databaseContext;
-
-    //    public AccountController(DatabaseContext databaseContext)
-    //    {
-    //        _databaseContext = databaseContext;
-    //    }
-
-    //    [HttpGet]
-    //    public IActionResult CheckLogin()
-    //    {
-    //        if (User.Identity.IsAuthenticated)
-    //        {
-    //            var role = User.FindFirst(ClaimTypes.Role)?.Value;
-
-    //            switch (role)
-    //            {
-    //                case "Admin":
-    //                    return RedirectToPage("/Admin/IndexAdmin");
-    //                case "Lecturer":
-    //                    return RedirectToAction("GetClass", "Class");
-    //                    //return RedirectToPage("/Lecturer/IndexLecturer");
-    //                default:
-    //                    return RedirectToPage("/Login");
-    //            }
-    //        }
-    //        return View();
-    //    }
-
-    //    [HttpPost]
-    //    public async Task<IActionResult> Login(LoginMdl loginmodel)
-    //    {
-    //        string query = "SELECT userID, lecturerID, accRole FROM userDetail WHERE userName = @Username AND userPassword = @Password";
-    //        SqlParameter[] parameters =
-    //        [
-    //            new SqlParameter("@Username", loginmodel.Username),
-    //            new SqlParameter("@Password", loginmodel.Password)
-    //        ];
-
-    //        var result = _databaseContext.ExecuteQuery(query, parameters);
-
-    //        if (result.Rows.Count > 0)
-    //        {
-    //            var userId = result.Rows[0]["userID"].ToString();
-    //            string? lecturerId = result.Rows[0]["lecturerID"].ToString();
-    //            string? role = result.Rows[0]["accRole"].ToString();
-
-    //            // remember user 
-    //            var userInfo = new List<Claim>
-    //                {
-    //                    new Claim(ClaimTypes.NameIdentifier, userId),
-    //                    new Claim(ClaimTypes.Name, loginmodel.Username),
-    //                    new Claim("LecturerID", lecturerId),
-    //                    new Claim(ClaimTypes.Role, role)
-    //                };
-
-    //            var userIdentity = new ClaimsIdentity(userInfo, CookieAuthenticationDefaults.AuthenticationScheme);
-
-    //            var authProperties = new AuthenticationProperties
-    //            {
-    //                IsPersistent = loginmodel.RememberMe
-    //            };
-
-    //            await HttpContext.SignInAsync(
-    //                CookieAuthenticationDefaults.AuthenticationScheme,
-    //                new ClaimsPrincipal(userIdentity),
-    //                authProperties);
-
-    //            // redirect 
-    //            switch (role)
-    //            {
-    //                case "Admin":
-    //                    //return RedirectToAction("Index", "Admin");
-    //                    return RedirectToPage("/Admin/IndexAdmin");
-    //                case "Lecturer":
-    //                    return RedirectToAction("GetClass", "Class");
-    //                    //return RedirectToPage("/Lecturer/IndexLecturer");
-    //                default:
-    //                    // 默认跳转到首页或其他页面
-    //                    return RedirectToPage("/Error");
-    //            }
-    //        }
-
-    //        TempData["ErrorMessage"] = "Check your name and password and try again.";
-    //        return RedirectToPage("/Login");
-    //    }
-    //}
-
     public class AccountController : Controller
     {
         private readonly DatabaseContext _databaseContext;
@@ -142,30 +53,27 @@ namespace attendance1.Web.Controllers
                     "Admin" => RedirectToAction("GetProgramme", "Admin"),
                     "Lecturer" => RedirectToAction("GetClass", "Class"),
                     "Student" => RedirectToAction("TakeAttendancePage", "Attendance"),
-                    _ => RedirectToPage("/Login")
+                    _ => View("Views/Login.cshtml"),
+                //_ => RedirectToPage("/Login")
                 };
             }
-            return RedirectToPage("/Login");
+            return View("Views/Login.cshtml");
 
-            //if (User.Identity.IsAuthenticated)
-            //{
-            //    var role = User.FindFirst(ClaimTypes.Role)?.Value;
-
-            //    return role switch
-            //    {
-            //        "Admin" => RedirectToPage("/Admin/IndexAdmin"),
-            //        "Lecturer" => RedirectToAction("GetClass", "Class"),
-            //        _ => RedirectToPage("/Login"),
-            //    };
-            //}
-            //return View();
         }
 
-        
+
 
 
         #region login 优化版
+        [HttpGet]
+        [Route("/Login")]
+        public IActionResult Login()
+        {
+            return View("Views/Login.cshtml");
+        }
+
         [HttpPost]
+        [Route("/Login")]
         public async Task<IActionResult> Login(LoginMdl loginmodel, bool IsRegister, string DeviceIdentifier, string UuidStatus)
         {
             if (string.IsNullOrEmpty(loginmodel.Username) || ((string.IsNullOrEmpty(loginmodel.StudentID) && string.IsNullOrEmpty(loginmodel.Password))))
@@ -202,13 +110,13 @@ namespace attendance1.Web.Controllers
                     "Admin" => RedirectToAction("GetProgramme", "Admin"),
                     "Lecturer" => RedirectToAction("GetClass", "Class"),
                     "Student" => RedirectToAction("TakeAttendancePage", "Attendance", new {studentId = studentID }),
-                    //_ => RedirectToPage("/Error"),
                     _ => RedirectToAction("ErrorHandler", "Account", new { statusCode = HttpStatusCode.BadRequest }),
                 };
             }
 
             TempData["ErrorMessage"] = GetLoginErrorMessage(message, role);
-            return RedirectToPage("/Login");
+            return View("Views/Login.cshtml");
+            //return RedirectToPage("/Login");
         }
 
         private string GetLoginErrorMessage(string message, string role)
@@ -283,7 +191,7 @@ namespace attendance1.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
-            // 1. 清除身份验证Cookie
+            // clear cookies
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
             //// 2. 清除所有的Claims
@@ -297,8 +205,7 @@ namespace attendance1.Web.Controllers
             //    }
             //}
 
-            // 4. 重定向到登录页面或其他适当的位置
-            return RedirectToPage("/Login"); // 假设登录页面是 "Login" 方法在 "Account" 控制器中
+            return View("Views/Login.cshtml");
         }
 
         [HttpPost]

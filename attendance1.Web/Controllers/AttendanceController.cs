@@ -240,27 +240,27 @@ namespace attendance1.Web.Controllers
             if (string.IsNullOrEmpty(studentId))
             {
                 TempData["ErrorMessage"] = "Please login first.";
-                return RedirectToPage("/Login");
+                return View("/Views/Login.cshtml");
             }
 
             var studentDetail = await _accountService.GetCurrentStudentDetailAsync(studentId);
             if (studentDetail == null)
             {
                 TempData["ErrorMessage"] = "Your student ID is incorrect. Please login again if your student ID have been changed.";
-                return RedirectToPage("/Login");
+                return View("/Views/Login.cshtml");
             }
 
             var deviceId = _accountService.GetCurrentStudentDeviceId();
             if (deviceId <= 0 )
             {
                 TempData["ErrorMessage"] = "Please login first.";
-                return RedirectToPage("/Login");
+                return View("/Views/Login.cshtml");
             }
             var existedDeviceId = await _deviceService.CheckDeviceIdExisted(deviceId);
             if (!existedDeviceId)
             {
                 TempData["ErrorMessage"] = "This device has been unbind to your student ID. Login again to bind the device to your student ID.";
-                return RedirectToPage("/Login");
+                return View("/Views/Login.cshtml");
             }
 
             var historyStudentAttendance = await _attendanceService.GetCurrentStudentHistoryAsync(studentId);
