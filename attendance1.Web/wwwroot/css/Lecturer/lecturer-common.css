@@ -1,0 +1,133 @@
+/*========================*/
+/* Class Attendance Page */
+/*======================*/
+.view {
+    margin: auto;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.wrapper {
+    position: relative;
+    overflow: auto;
+    border: 1px solid #c6c6c6;
+    white-space: nowrap;
+    margin: 0;
+    max-height: 85vh;
+}
+
+.sticky-col {
+    position: -webkit-sticky;
+    position: sticky;
+    background: linear-gradient(90deg, transparent 0%, transparent calc(100% - .05em), #d6d6d6 calc(100% - .05em), #d6d6d6 100%);
+    z-index: 5;
+}
+
+.first-col {
+    width: 120px;
+    min-width: 120px;
+    max-width: 120px;
+    left: 0px;
+    background-color: white;
+}
+
+.second-col {
+    width: auto;
+    left: 120px;
+    background-color: white;
+}
+
+.last-col {
+    width: 100px;
+    min-width: 100px;
+    max-width: 100px;
+    right: 0px;
+}
+
+.last-2-col {
+    width: auto;
+    background-color: white;
+    right: 100px;
+}
+
+thead {
+    background: white;
+    position: sticky;
+    top: 0;
+    z-index: 6;
+}
+
+.clear-search {
+    display: none;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    z-index: 4;
+}
+
+.sortable {
+    font-style: italic;
+    cursor: pointer;
+}
+
+    .sortable:hover {
+        cursor: pointer;
+    }
+
+.dropdown-menu-right .dropdown-menu {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    position: absolute;
+    right: 0;
+    background-color: white;
+    border: 1px solid grey;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    /*     right: 0;
+    left: auto;
+            display: none;
+            flex-direction: column;
+            align-items: center; */
+}
+
+.display-menu.show {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/*============*/
+/* Code Page */
+/*==========*/
+.code {
+    font-size: 65px;
+    color: #54545c;
+    font-family: "Hind Madurai", sans-serif;
+}
+
+.count-down {
+    margin: 0px 10px 0px 0px;
+    color: #54545c;
+    font-size: 40px;
+    font-family: "Hind Madurai", sans-serif;
+}
+
+.unit {
+    /*             padding-bottom: 2px; */
+    font-family: "Hind Madurai", sans-serif;
+    color: #83838f;
+}
+
+.center {
+    display: flex;
+    justify-content: center;
+}
+
+.button-location {
+    margin-top: 25%;
+}
