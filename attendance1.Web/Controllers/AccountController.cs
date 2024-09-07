@@ -256,7 +256,7 @@ namespace attendance1.Web.Controllers
             
             var personalInfo = await _accountService.GetCurrentStaffDetail(staffId, userId);
 
-            return View("/Views/ProfilePage.cshtml", personalInfo);
+            return View("/Views/Shared/AdminLecturerShared/ProfilePage.cshtml", personalInfo);
         }
 
         [HttpPost]

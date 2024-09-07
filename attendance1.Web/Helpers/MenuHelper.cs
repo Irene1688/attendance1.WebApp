@@ -29,7 +29,7 @@ namespace attendance1.Web.Helpers
         }
 
         // used by lecturer shared layout, sidemenu-left
-        public async Task<bool> HasInactiveClassesAsync()
+        public async Task<bool> HasClassesBasedOnStatusAsync(string status)
         {
             var lecturerId = _accountService.GetCurrentLecturerId();
             if (string.IsNullOrEmpty(lecturerId))
@@ -38,12 +38,14 @@ namespace attendance1.Web.Helpers
             }
 
             var classes = await _classService.GetClassForLecturerAsync(lecturerId);
-            if (classes != null)
+            if (classes == null)
             {
-                return classes.Any(classItem => classItem.IsActive == false);
+                return false;
             }
 
-            return false;
+            bool isActive = status == "activeClass";
+            return classes.Any(classItem => classItem.IsActive == isActive);
         }
+
     }
 }

@@ -217,13 +217,17 @@
                                 <a asp-controller="Class" asp-action="AddClass" class="waves-effect"><i class="mdi mdi-library-plus"></i><span> Add Class </span></a>
                             </li>
 
-                            <li class="has_sub">
-                                <!--id and activeMenu used in Views/Lecturer/ClassAttendancePage.cshtml and ClassAttendance.js-->
-                                <a href="javascript:void(0);" class="waves-effect @(activeMenu == "ActiveClassList" ? "subdrop" : "")" id="active-classes-menu-title"><i class="mdi mdi-cube-outline"></i> <span> Active Classes </span> <span class="menu-arrow"></span></a>
-                                @await Component.InvokeAsync("ActiveClassListLec") <!--The name of ViewComponent-->
-                            </li>
+                            @if (await menuHelper.HasClassesBasedOnStatusAsync("activeClass"))
+                            {
+                                <li class="has_sub">
+                                    <!--id and activeMenu used in Views/Lecturer/ClassAttendancePage.cshtml and ClassAttendance.js-->
+                                    <a href="javascript:void(0);" class="waves-effect @(activeMenu == "ActiveClassList" ? "subdrop" : "")" id="active-classes-menu-title"><i class="mdi mdi-cube-outline"></i> <span> Active Classes </span> <span class="menu-arrow"></span></a>
+                                    @await Component.InvokeAsync("ActiveClassListLec") <!--The name of ViewComponent-->
+                                </li>
+                            }
 
-                            @if (await menuHelper.HasInactiveClassesAsync())
+
+                            @if (await menuHelper.HasClassesBasedOnStatusAsync("inactiveClass"))
                             {
                                 <li class="has_sub">
                                     <!--id and activeMenu used in Views/Lecturer/ClassAttendancePage.cshtml and ClassAttendance.js-->

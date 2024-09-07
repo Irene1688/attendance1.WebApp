@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="wwwroot\js\ClassAttendance.js">
+    <EmbeddedResource Include="wwwroot\js\Lecturer\ClassAttendance.js">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
   </ItemGroup>

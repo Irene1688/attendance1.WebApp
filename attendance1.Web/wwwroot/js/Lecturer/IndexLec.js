@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
     var otherClasses = document.getElementById('other-classes');
     //var todayClassesContainer = document.getElementById('today-classes-container');
     var noClassesMessage = document.getElementById('no-class-message');
-    var otherClassesContainer = document.getElementById('other-classes-container');
+    var otherClassesContainer = document.getElementById('other-classes-conntainer');
 
     if (todayClasses === null) {
         //todayClassesTitle.style.display = 'none';
