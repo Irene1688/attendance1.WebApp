@@ -1,0 +1,24 @@
+/*===============*/
+/* Profile Page */
+/*=============*/
+.edit-profile-input-container {
+    position: relative;
+}
+
+.clear-edit-profile-input {
+    display: none;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+
+.clearable:focus + .clear-edit-profile-input,
+.clearable:not(:placeholder-shown) + .clear-edit-profile-input {
+    display: inline;
+}
+
+label {
+    vertical-align: middle;
+}

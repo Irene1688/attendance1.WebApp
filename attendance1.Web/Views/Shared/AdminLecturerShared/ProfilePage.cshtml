@@ -2,37 +2,16 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
-        <title>Admin Page</title>
+        <title>Profile Page</title>
+
+        <!--View Css-->
+        <link href="~/css/shared/profile.css" rel="stylesheet" />
 
         <!--Modal css-->
         <link href="~/plugins/custombox/css/custombox.min.css" rel="stylesheet">
 
         <!--google icon source-->
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
-
-        <style>
-            .edit-profile-input-container {
-                position: relative;
-            }
-
-            .clear-edit-profile-input {
-                display: none;
-                position: absolute;
-                right: 10px;
-                top: 50%;
-                transform: translateY(-50%);
-                cursor: pointer;
-            }
-
-            .clearable:focus + .clear-edit-profile-input,
-            .clearable:not(:placeholder-shown) + .clear-edit-profile-input {
-                display: inline;
-            }
-
-            label {
-                vertical-align: middle;
-            }
-        </style>
     </head>
     <body>
         <div class="page-title-box">
@@ -141,7 +120,7 @@
 
                             <button type="submit" id="save-btn" class="btn btn-inverse waves-effect waves-light" style="display: none;">Save</button>
 
-                            <button type="button" id="cancel-btn" class="btn btn-inverse waves-effect waves-light" style="display: none;" onclick="cancelEdit()">Cancel</button>
+                    <button type="button" id="cancel-btn" class="btn btn-default waves-effect waves-light" style="display: none;" onclick="cancelEdit()">Cancel</button>
 
                     </div>
                 </form>
