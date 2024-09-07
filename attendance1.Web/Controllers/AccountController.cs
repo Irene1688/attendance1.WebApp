@@ -69,6 +69,12 @@ namespace attendance1.Web.Controllers
         [Route("/Login")]
         public IActionResult Login()
         {
+            var role = _accountService.GetCurrentUserRole();
+            if (role == "Student")
+            {
+                return RedirectToAction("CheckLogin", "Account");
+            }
+
             return View("Views/Login.cshtml");
         }
 
