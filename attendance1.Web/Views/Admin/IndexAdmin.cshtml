@@ -9,6 +9,9 @@
     <head>
         <title>Programme Page</title>
 
+        <!--View css-->
+        <link href="~/css/admin/admin-common.css" rel="stylesheet" />
+
         <!--Modal css-->
         <link href="~/plugins/custombox/css/custombox.min.css" rel="stylesheet">
 
@@ -16,132 +19,13 @@
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 
         <style>
-            .sortable {
-                cursor: pointer;
-                font-style: italic;
-            }
-
-            .search-container {
-                display: flex; 
-                justify-content: flex-start; 
-                position: relative; 
-                align-content: center; 
-                width: 350px; 
-                max-width: 50%;
-            }
-
-            .search-icon {
-                color: #555; 
-                background-color: #eee; 
-                font-size: 15px; 
-                min-height: 38px; 
-                min-width: 45px; 
-                border: 1px solid #e3e3e3;
-                border-radius: 4px 0 0 4px;
-                border-right: none;
-                display: flex; 
-                justify-content: center; 
-                align-items: center;
-            }
-
-            .search-container:focus-within #search-icon-div {
-                border-color: #aaaaaa !important;
-            }
-
-            .search-input {
-                border-top-left-radius: 0; 
-                border-bottom-left-radius: 0; 
-            }
-
-            .clear-search-icon {
-                display: none; 
-                position: absolute; 
-                right: 10px; 
-                min-height: 100%; 
-                align-items: center; 
-                cursor: pointer;
-            }
-
-            .search-no-found {
-                display: none; 
-                border: 2px solid #eee; 
-                border-top: transparent;
-            }
-
-            .class-details-content {
-                max-height: 0;
-                overflow: hidden;
-                transition: max-height 0.3s ease, opacity 0.3s ease;
-                opacity: 0;
-            }
-
-            .class-details-content.expanded {
-                max-height: 100000px;
-                opacity: 1;
-            }
-
-            .admin-details-content {
-                max-height: 0;
-                overflow: hidden;
-                transition: max-height 0.3s ease, opacity 0.3s ease;
-                opacity: 0;
-            }
-
-            .admin-details-content.expanded {
-                max-height: 100000px;
-                opacity: 1;
-            }
-
-            .click-to-display {
-                cursor: pointer;
-            }
-
-            .click-to-display:hover {
-                background-color: #f7f5f5;
-            }
-
-            .info {
-                cursor: pointer;
-                position: relative;
-            }
-
-            .info:hover .info-content {
-                visibility: visible;
-                opacity: 1;
-            }
-
             .info-content {
-                visibility: hidden;
-                width: max-content;
-                background-color: #333;
-                color: #fff;
-                border-radius: 5px;
-                padding: 10px;
-                position: absolute;
-                z-index: 2;
-                bottom: 150%;
-                right: 50%;
-                margin-right: -100px;
-                opacity: 0;
-                transition: opacity 0.3s;
-                text-align: left;
-                font-weight: normal;
-                font-family: 'Varela Round', sans-serif;
-                font-size: 14px;
+                margin-right: -125px;
             }
 
-            
             .info-content::after {
-                content: "";
-                position: absolute;
-                bottom: 0px;
-                right: 50%;
-                margin-right: -100px;
-                border-width: 10px;
-                border-style: solid;
-                border-color: transparent transparent #333 transparent;
+                margin-right: -125px;
             }
-
         </style>
     </head>
 

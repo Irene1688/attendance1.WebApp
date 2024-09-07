@@ -3,12 +3,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
         <title>Feedback Collection</title>
-
-        <style>
-            .search-container:focus-within #search-icon-div {
-                border-color: #aaaaaa !important;
-            }
-        </style>
     </head>
     <body>
         <div class="page-title-box">
@@ -129,6 +123,15 @@
                         <input type="hidden" name="deleteFeedbackId" id="delete-feedback-id" />
                     </form>
                 }
+
+                <div id="no-found-row" class="search-no-found p-b-10 p-t-10">
+                    <div class="text-danger text-center">
+                        <i class="mdi mdi-alert-outline"></i>
+                        <b>
+                            No found.
+                        </b>
+                    </div>
+                </div>
             </div>
             
         }

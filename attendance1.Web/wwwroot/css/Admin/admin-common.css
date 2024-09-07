@@ -1,0 +1,211 @@
+/*=============*/
+/* Common Css */
+/*===========*/
+.sortable {
+    cursor: pointer;
+    font-style: italic;
+}
+
+.search-container {
+    display: flex;
+    justify-content: flex-start;
+    position: relative;
+    align-content: center;
+    width: 350px;
+    max-width: 50%;
+}
+
+.search-icon {
+    color: #555;
+    background-color: #eee;
+    font-size: 15px;
+    min-height: 38px;
+    min-width: 45px;
+    border: 1px solid #e3e3e3;
+    border-radius: 4px 0 0 4px;
+    border-right: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.search-container:focus-within #search-icon-div {
+    border-color: #aaaaaa !important;
+}
+
+.search-input {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.clear-search-icon {
+    display: none;
+    position: absolute;
+    right: 10px;
+    min-height: 100%;
+    align-items: center;
+    cursor: pointer;
+}
+
+.search-no-found {
+    display: none;
+    border: 2px solid #eee;
+    border-top: transparent;
+}
+
+.click-to-display {
+    cursor: pointer;
+}
+
+    .click-to-display:hover {
+        background-color: #f7f5f5;
+    }
+
+.info {
+    cursor: pointer;
+    position: relative;
+}
+
+    .info:hover .info-content {
+        visibility: visible;
+        opacity: 1;
+    }
+
+.info-content {
+    visibility: hidden;
+    width: max-content;
+    background-color: #333;
+    color: #fff;
+    border-radius: 5px;
+    padding: 10px 10px 0 10px;
+    position: absolute;
+    z-index: 2;
+    bottom: 150%;
+    right: 50%;
+    opacity: 0;
+    transition: opacity 0.3s;
+    text-align: left;
+    font-weight: normal;
+    font-family: 'Varela Round', sans-serif;
+    font-size: 14px;
+}
+
+
+    .info-content::after {
+        content: "";
+        position: absolute;
+        bottom: 0px;
+        right: 50%;
+        border-width: 10px;
+        border-style: solid;
+        border-color: transparent transparent #333 transparent;
+    }
+
+
+
+/*=================*/
+/* Programme Page */
+/*===============*/
+.class-details-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    opacity: 0;
+}
+
+    .class-details-content.expanded {
+        max-height: 100000px;
+        opacity: 1;
+    }
+
+.admin-details-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    opacity: 0;
+}
+
+    .admin-details-content.expanded {
+        max-height: 100000px;
+        opacity: 1;
+    }
+
+
+/*=============*/
+/* Admin Page */
+/*===========*/
+.add-admin-input-container {
+    position: relative;
+}
+
+.clear-add-admin-input {
+    display: none;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+
+.clearable:focus + .clear-add-admin-input,
+.clearable:not(:placeholder-shown) + .clear-add-admin-input {
+    display: inline;
+}
+
+/*================*/
+/* Lecturer Page */
+/*==============*/
+.add-lecturer-input-container {
+    position: relative;
+}
+
+.clear-add-lecturer-input {
+    display: none;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+
+.clearable:focus + .clear-add-lecturer-input,
+.clearable:not(:placeholder-shown) + .clear-add-lecturer-input {
+    display: inline;
+}
+
+
+/*===============================*/
+/* Lecturer Page + Student Page */
+/*=============================*/
+.class-details-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    opacity: 0;
+}
+
+    .class-details-content.expanded {
+        max-height: 100000px;
+        opacity: 1;
+    }
+
+/*===============*/
+/* Student Page */
+/*=============*/
+.device-details-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    opacity: 0;
+}
+
+    .device-details-content.expanded {
+        max-height: 100000px;
+        opacity: 1;
+    }
+
+.device-code {
+    white-space: normal;
+    word-wrap: break-word;
+    word-break: break-all;
+}
