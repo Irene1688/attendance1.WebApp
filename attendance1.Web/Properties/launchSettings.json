@@ -33,7 +33,7 @@
       "commandName": "IISExpress",
       "launchBrowser": true,
       //"applicationUrl": "http://*:port",
-      //"sslPort": 0,
+      //"sslPort": 0,  // configured 44377 in line 8
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
