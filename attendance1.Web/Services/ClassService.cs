@@ -1,7 +1,6 @@
 ﻿using attendance1.Web.Data;
 using attendance1.Web.Models;
 using System.Data.SqlClient;
-using attendance1.Web.Pages;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Data;

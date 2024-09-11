@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using attendance1.Web.Helpers;
 using DeviceDetectorNET.Parser.Device;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.CodeAnalysis.Scripting;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -65,7 +66,6 @@ else
 }
 
 app.UseStatusCodePagesWithReExecute("/Account/ErrorHandler", "?statusCode={0}");
-//app.UseStatusCodePagesWithReExecute("/Account/NotFound/{0}");
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
@@ -134,4 +134,10 @@ app.Run();
 //28. edit-profile: password安全新不高
 //29. class attendance page的change status modal关了之后数据initial
 
+#endregion
+
+#region BackUp
+//_ValidationScriptsPartial.cshtml
+//< script src = "~/lib/jquery-validation/dist/jquery.validate.min.js" ></ script >
+//< script src = "~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js" ></ script >
 #endregion

@@ -1,5 +1,4 @@
 ﻿using attendance1.Web.Data;
-using attendance1.Web.Pages;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using System.Data.SqlClient;
