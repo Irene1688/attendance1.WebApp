@@ -148,14 +148,25 @@ namespace attendance1.Web.Controllers
         {
             if (TempData.Count == 4)
             {
-                var endtime = TempData["EndTime"].ToString();
+                // Check if any TempData value is null or type is incorrect
+                if (
+                    TempData["EndTime"] is not string endTimeValue || 
+                    TempData["AttendanceId"] is not int attendanceIdValue || 
+                    TempData["AttendanceCode"] is not string attendanceCodeValue ||
+                    TempData["Duration"] is not string durationValue)
+                {
+                    TempData["ErrorMessage"] = "Lost necessary data when generating the attendance code, please try again.";
+                    return RedirectToAction("GetClass", "Class");
+                }
+
                 AttendanceMdl attendanceDetail = new AttendanceMdl()
                 {
-                    AttendanceId = Convert.ToInt32(TempData["AttendanceId"]),
-                    AttendanceCode = TempData["AttendanceCode"].ToString(),
-                    Duration = TempData["Duration"].ToString(),
-                    EndTime = TimeSpan.Parse(endtime)
+                    AttendanceId = Convert.ToInt32(attendanceIdValue),
+                    AttendanceCode = attendanceCodeValue,
+                    Duration = durationValue,
+                    EndTime = TimeSpan.Parse(endTimeValue)
                 };
+
                 return View("/Views/Lecturer/CodePage.cshtml", attendanceDetail);
             }
             else

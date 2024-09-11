@@ -40,7 +40,7 @@ namespace attendance1.Web.Controllers
             }
 
             var classList = await _classService.GetClassForLecturerAsync(lecturerId);
-            if (classList.Count == 0)
+            if (classList != null && classList.Count == 0)
             {
                 TempData["PromptMessage"] = "Please add a class first.";
             }
@@ -70,7 +70,7 @@ namespace attendance1.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> ClassAttendance(int id)
         {
-            if (id <= 0 || id == null)
+            if (id <= 0)
             {
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
@@ -121,6 +121,11 @@ namespace attendance1.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> EditClass(int id)
         {
+            if (id <= 0)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+
             int courseId = id;
             ClassMdl classDetails = await _classService.GetCourseDetailsForCurrentClassAsync(courseId);
             if (classDetails.CourseId <= 0)
@@ -129,8 +134,15 @@ namespace attendance1.Web.Controllers
                 return RedirectToAction("AddClass", "Class");
             }
 
-            classDetails.SessionMonth = classDetails.ClassSession.Split(" ")[0];
-            classDetails.SessionYear = classDetails.ClassSession.Split(" ")[1];
+            if (!string.IsNullOrEmpty(classDetails.ClassSession))
+            {
+                var sessionParts = classDetails.ClassSession.Split(" ");
+                if (sessionParts.Length >= 2)
+                {
+                    classDetails.SessionMonth = classDetails.ClassSession.Split(" ")[0];
+                    classDetails.SessionYear = classDetails.ClassSession.Split(" ")[1];
+                }
+            }
             classDetails.ProgrammeDropDownMenu = await _classService.GetAllProgrammeAsync();
 
             return View("/Views/Lecturer/EditClass.cshtml", classDetails);
@@ -220,13 +232,19 @@ namespace attendance1.Web.Controllers
                 }
 
                 var classList = await _classService.GetClassForLecturerAsync(lecturerId);
+                if (classList == null || classList.Count == 0)
+                {
+                    TempData["ErrorMessage"] = "Class not found. Please add the class first.";
+                    return RedirectToAction("AddClass", "Class");
+                }
+
                 bool hasMatchingCourse = classList.Any(c => c.CourseId == courseId);
                 if (!hasMatchingCourse)
                 {
-                    return StatusCode(StatusCodes.Status404NotFound);
+                    TempData["ErrorMessage"] = "Class not found. Please add the class first.";
+                    return RedirectToAction("AddClass", "Class");
                 }
 
-                //var message = await DeleteClassAsync(courseId);
                 var message = await _classService.DeleteCurrentClassAsync(courseId);
 
                 if (message == "Class deleted successfully.")
@@ -352,13 +370,28 @@ namespace attendance1.Web.Controllers
             try
             {
                 var AllChanges = JsonSerializer.Deserialize<List<StudentAttendanceMdl>>(changedStatuses);
-                var StudentId = AllChanges.FirstOrDefault().StudentId;
-                var Date = AllChanges.FirstOrDefault().DateAndTime;
+                if (AllChanges == null || AllChanges.Count == 0)
+                {
+                    TempData["ErrorMessage"] = "No attendance changes provided.";
+                    return RedirectToAction("ClassAttendance", "Class", new { id = courseId });
+                }
+
+                // this is a redundant check, aims to clear some warning
+                var firstChange = AllChanges.FirstOrDefault();
+                if (firstChange == null)
+                {
+                    TempData["ErrorMessage"] = "No attendance changes provided.";
+                    return RedirectToAction("ClassAttendance", "Class", new { id = courseId });
+                }
+
+                var StudentId = firstChange.StudentId;
+                //var Date = AllChanges.FirstOrDefault().DateAndTime;
 
                 var addAttendanceIds = AllChanges.Where(c => c.Action == "add").Select(c => c.AttendanceId).ToList();
+                var dates = AllChanges.Where(c => c.Action == "add").Select(c => c.DateAndTime).ToList();
                 var deleteAttendanceIds = AllChanges.Where(c => c.Action == "delete").Select(c => c.AttendanceId).ToList();
 
-                var addTask = addAttendanceIds.Count > 0 ? _classService.AddCurrentStudentAttendnaceRecordAsync(courseId, StudentId, Date, addAttendanceIds) : Task.FromResult("");
+                var addTask = addAttendanceIds.Count > 0 ? _classService.AddCurrentStudentAttendnaceRecordAsync(courseId, StudentId, dates, addAttendanceIds) : Task.FromResult("");
                 var deleteTask = deleteAttendanceIds.Count > 0 ? _classService.DeleteCurrentStudentAttendnaceRecordAsync(courseId, StudentId, deleteAttendanceIds) : Task.FromResult("");
 
                 await Task.WhenAll(addTask, deleteTask);

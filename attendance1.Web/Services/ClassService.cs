@@ -843,7 +843,7 @@ namespace attendance1.Web.Services
             }
         }
 
-        public async Task<string> AddCurrentStudentAttendnaceRecordAsync(int courseId, string studentID, DateTime date, List<int> attendanceIds)
+        public async Task<string> AddCurrentStudentAttendnaceRecordAsync(int courseId, string studentID, List<DateTime> dates, List<int> attendanceIds)
         {
             try
             {
@@ -863,20 +863,25 @@ namespace attendance1.Web.Services
                 {
                     new SqlParameter("@courseId", courseId),
                     new SqlParameter("@studentId", studentID),
-                    new SqlParameter("@deviceId", deviceId),
-                    new SqlParameter("@currentDateTime", date)
+                    new SqlParameter("@deviceId", deviceId)
+                    //new SqlParameter("@currentDateTime", date)
                 };
 
                 for (int i = 0; i < attendanceIds.Count; i++)
                 {
-                    values.Add($"(@studentId, @currentDateTime, @courseId, @attendanceId{i}, @deviceId)");
+                    values.Add($"(@studentId, @attendanceDateTime{i}, @courseId, @attendanceId{i}, @deviceId)");
                     parameters.Add(new SqlParameter($"@attendanceId{i}", attendanceIds[i]));
+                    parameters.Add(new SqlParameter($"@attendanceDateTime{i}", dates[i]));
                 }
 
                 string AddStudentAttendanceQuery = $@"INSERT INTO studentAttendance (studentID, DateAndTime, courseID, recordID, deviceID)
                                                       VALUES {string.Join(", ", values)};";
 
-                await _databaseContext.ExecuteScalarAsync<int>(AddStudentAttendanceQuery, parameters.ToArray());
+                var result = await _databaseContext.ExecuteScalarAsync<int>(AddStudentAttendanceQuery, parameters.ToArray());
+                if (result == -1)
+                {
+                    throw new Exception("Failed to add new attendance record(s) for student " + studentID);
+                }
 
                 return "Student's attendance added successfully.";
             }
