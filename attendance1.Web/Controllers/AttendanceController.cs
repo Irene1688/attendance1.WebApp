@@ -112,7 +112,6 @@ namespace attendance1.Web.Controllers
             };
 
             int attendanceId = await _attendanceService.SaveAttendnaceCodeToDatabase(attendanceRecord);
-            //int attendanceId = 5;
             if (attendanceId > 0)
             {
                 TempData["AttendanceId"] = attendanceId;
@@ -161,7 +160,7 @@ namespace attendance1.Web.Controllers
             }
             else
             {
-                TempData["ErrorMessage"] = "Error occured when generate the attendance code, please try again.";
+                TempData["ErrorMessage"] = "Lost necessary data when generate the attendance code, please try again.";
                 return RedirectToAction("GetClass", "Class");
             }
         }
@@ -244,7 +243,7 @@ namespace attendance1.Web.Controllers
             }
 
             var studentDetail = await _accountService.GetCurrentStudentDetailAsync(studentId);
-            if (studentDetail == null)
+            if (studentDetail.StudentID == null)
             {
                 TempData["ErrorMessage"] = "Your student ID is incorrect. Please login again if your student ID have been changed.";
                 return View("/Views/Login.cshtml");

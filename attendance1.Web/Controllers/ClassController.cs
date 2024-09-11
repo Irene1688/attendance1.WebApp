@@ -78,16 +78,17 @@ namespace attendance1.Web.Controllers
             }
             int courseId = id;
             bool courseStatus = false;
+
             //var courseDetails = await GetCourseDetails(courseId);
             var courseDetails = await _classService.GetCourseDetailsForCurrentClassAsync(courseId);
-            if (courseDetails == null)
+            if (courseDetails.CourseId <= 0)
             {
                 TempData["ErrorMessage"] = "Class not found. Please add the class first.";
                 return RedirectToAction("AddClass", "Class");
             }
 
             var enrolledStudents = await _classService.GetEnrolledStudentsForCurrentClassAsync(courseId);
-            if (enrolledStudents == null)
+            if (enrolledStudents.Count <= 0 )
             {
                 TempData["PromptMessage"] = "No student found. Please add the student first.";
             }
@@ -124,9 +125,10 @@ namespace attendance1.Web.Controllers
         {
             int courseId = id;
             ClassMdl classDetails = await _classService.GetCourseDetailsForCurrentClassAsync(courseId);
-            if (classDetails == null)
+            if (classDetails.CourseId <= 0)
             {
-                return RedirectToAction("ErrorHandler", "Account");
+                TempData["ErrorMessage"] = "Class not found. Please add the class first.";
+                return RedirectToAction("AddClass", "Class");
             }
 
             classDetails.SessionMonth = classDetails.ClassSession.Split(" ")[0];
@@ -214,6 +216,21 @@ namespace attendance1.Web.Controllers
         {
             try
             {
+                var lecturerId = _accountService.GetCurrentLecturerId();
+                if (lecturerId == null)
+                {
+                    TempData["ErrorMessage"] = "Please log in first.";
+                    return View("/Views/Login.cshtml");
+                }
+
+                var classList = await _classService.GetClassForLecturerAsync(lecturerId);
+                bool hasMatchingCourse = classList.Any(c => c.CourseId == courseId);
+                if (!hasMatchingCourse)
+                {
+                    var status = HttpStatusCode.NotFound;
+                    return RedirectToAction("ErrorHandler", "Account", new { statusCode = status });
+                }
+
                 //var message = await DeleteClassAsync(courseId);
                 var message = await _classService.DeleteCurrentClassAsync(courseId);
 
