@@ -117,7 +117,8 @@ namespace attendance1.Web.Controllers
                     "Admin" => RedirectToAction("GetProgramme", "Admin"),
                     "Lecturer" => RedirectToAction("GetClass", "Class"),
                     "Student" => RedirectToAction("TakeAttendancePage", "Attendance", new {studentId = studentID }),
-                    _ => RedirectToAction("ErrorHandler", "Account", new { statusCode = HttpStatusCode.BadRequest }),
+                    _ => StatusCode(StatusCodes.Status400BadRequest),
+                    //_ => RedirectToAction("ErrorHandler", "Account", new { statusCode = HttpStatusCode.BadRequest }),
                 };
             }
 
@@ -168,7 +169,12 @@ namespace attendance1.Web.Controllers
             {
                 staffId = _accountService.GetCurrentLecturerId();
             }
-            
+
+            if (string.IsNullOrEmpty(staffId))
+            {
+                throw new InvalidOperationException("Cannot get your staff ID.");
+            }
+
             var personalInfo = await _accountService.GetCurrentStaffDetail(staffId, userId);
 
             return View("/Views/Shared/AdminLecturerShared/ProfilePage.cshtml", personalInfo);
@@ -221,8 +227,7 @@ namespace attendance1.Web.Controllers
         {
             if (feedbackRating == 0 && feedbackContent == null)
             {
-                var status = HttpStatusCode.ServiceUnavailable;
-                return RedirectToAction("ErrorHandler", "Account", new { statusCode = status });
+                return StatusCode(StatusCodes.Status400BadRequest);
             }
 
             var studentId = _accountService.GetCurrentStudentId();
@@ -243,7 +248,7 @@ namespace attendance1.Web.Controllers
 
         #region Error Page
         [HttpGet]
-        public async Task<IActionResult> AccessDenied()
+        public IActionResult AccessDenied()
         {
             //return StatusCode(403);
             var info = new
@@ -255,14 +260,18 @@ namespace attendance1.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ErrorHandler(HttpStatusCode statusCode)
+        /// <summary>
+        /// for using this method:
+        /// always return StatusCode();
+        /// or using throw new Exception();
+        /// example: return StatusCode(StatusCodes.Status400BadRequest);
+        /// example: throw new Exception("Some data lost, please try again.");
+        /// </summary>
+        public IActionResult ErrorHandler(HttpStatusCode statusCode)
         {
             //Get status Code Message
-            string status = Enum.GetName(typeof(HttpStatusCode), statusCode);
-            if (string.IsNullOrEmpty(status))
-            {
-                status = "Internal Server Error";
-            }
+            string status = Enum.GetName(typeof(HttpStatusCode), statusCode) ?? "Internal Server Error";
+
 
             // get error details
             string? originalQueryString = null;

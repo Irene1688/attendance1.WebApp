@@ -28,14 +28,14 @@ namespace attendance1.Web.Controllers
             var adminGroupedByProgrammeName = new Dictionary<string, List<StaffMdl>>();
             var classGroupedByProgrammeId = new Dictionary<int, List<ClassMdl>>();
             var adminList = await _adminService.GetAllAdminAsync();
-            if (adminList != null || adminList.Count > 0)
+            if (adminList != null && adminList.Count > 0)
             {
                 adminGroupedByProgrammeName = adminList.GroupBy(admin => admin.UnderProgramme)
                                                       .ToDictionary(g => g.Key, g => g.ToList());
             }
            
             var classList = await _adminService.GetAllClassDetailsAsync();
-            if (classList != null || classList.Count > 0)
+            if (classList != null && classList.Count > 0)
             {
                 classGroupedByProgrammeId = classList.GroupBy(classItem => classItem.ProgrammeId)
                                                        .ToDictionary(g => g.Key, g => g.ToList());
@@ -391,6 +391,7 @@ namespace attendance1.Web.Controllers
             if (feedbackList == null || feedbackList.Count == 0) 
             {
                 TempData["PromptMessage"] = "There is no feedback yet.";
+                feedbackList = new List<FeedbackMdl>();
             }
 
             var model = new FeedbackPageMdl

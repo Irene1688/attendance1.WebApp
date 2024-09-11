@@ -72,11 +72,10 @@ namespace attendance1.Web.Controllers
         {
             if (id <= 0 || id == null)
             {
-                var status = HttpStatusCode.BadRequest;
-                return RedirectToAction("ErrorHandler", "Account", new { statusCode = status });
+                return StatusCode(StatusCodes.Status400BadRequest);
             }
             int courseId = id;
-            bool courseStatus = false;
+            //bool courseStatus = false;
 
             //var courseDetails = await GetCourseDetails(courseId);
             var courseDetails = await _classService.GetCourseDetailsForCurrentClassAsync(courseId);
@@ -143,9 +142,7 @@ namespace attendance1.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                //return BadRequest();
-                var status = HttpStatusCode.MethodNotAllowed;
-                return RedirectToAction("ErrorHandler", "Account", new { statusCode = status});
+                return StatusCode(StatusCodes.Status400BadRequest);
             }
 
             var lecturerId = _accountService.GetCurrentLecturerId();
@@ -226,8 +223,7 @@ namespace attendance1.Web.Controllers
                 bool hasMatchingCourse = classList.Any(c => c.CourseId == courseId);
                 if (!hasMatchingCourse)
                 {
-                    var status = HttpStatusCode.NotFound;
-                    return RedirectToAction("ErrorHandler", "Account", new { statusCode = status });
+                    return StatusCode(StatusCodes.Status404NotFound);
                 }
 
                 //var message = await DeleteClassAsync(courseId);
