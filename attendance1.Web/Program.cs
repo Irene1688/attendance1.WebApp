@@ -4,6 +4,7 @@ using attendance1.Web.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using attendance1.Web.Helpers;
 using DeviceDetectorNET.Parser.Device;
+using Microsoft.AspNetCore.Builder;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -56,17 +57,12 @@ if (app.Environment.IsDevelopment())
 }
 else
 {
-    app.UseExceptionHandler("/Error");
+    //app.UseExceptionHandler("/Error");
+    app.UseExceptionHandler("/Account/ErrorHandler");
     app.UseStatusCodePagesWithReExecute("/Account/ErrorHandler", "?statusCode={0}");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-//if (!app.Environment.IsDevelopment())
-//{
-//    app.UseExceptionHandler("/Error");
-//    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-//    app.UseHsts();
-//}
 
 app.UseStatusCodePagesWithReExecute("/Account/ErrorHandler", "?statusCode={0}");
 //app.UseStatusCodePagesWithReExecute("/Account/NotFound/{0}");

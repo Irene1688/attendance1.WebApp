@@ -32,7 +32,6 @@ namespace attendance1.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> GetClass()
         {
-            //var lecturerId = User.FindFirstValue("LecturerID");
             var lecturerId = _accountService.GetCurrentLecturerId();
             if (string.IsNullOrEmpty(lecturerId))
             {

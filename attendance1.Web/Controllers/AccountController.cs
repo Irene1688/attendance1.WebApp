@@ -24,6 +24,7 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Diagnostics;
 
 
 
@@ -256,19 +257,44 @@ namespace attendance1.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> ErrorHandler(HttpStatusCode statusCode)
         {
-            //return StatusCode(404);
+            //Get status Code Message
             string status = Enum.GetName(typeof(HttpStatusCode), statusCode);
             if (string.IsNullOrEmpty(status))
             {
-                status = "Unknown Error";
+                status = "Internal Server Error";
             }
 
-            var info = new
+            // get error details
+            string? originalQueryString = null;
+            string? fullOriginalPath = null;
+            int originalStatusCode = Convert.ToInt32(statusCode);
+            bool hasStatusCodeReExecuteFeature = false;
+            var statusCodeReExecuteFeature = HttpContext.Features.Get<IStatusCodeReExecuteFeature>();
+            if (statusCodeReExecuteFeature != null)
             {
-                    StatusCode = Convert.ToInt32(statusCode),
-                    Message = Regex.Replace(status, "([A-Z])", " $1").Trim()
+                originalStatusCode = statusCodeReExecuteFeature.OriginalStatusCode;
+                fullOriginalPath = statusCodeReExecuteFeature.OriginalPathBase + statusCodeReExecuteFeature.OriginalPath + originalQueryString;
+                hasStatusCodeReExecuteFeature = true;
+            }
+
+            // Get Exception details
+            var exceptionDetails = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
+
+            var errorDetails = new
+            {
+                StatusCode = statusCode != 0 ? Convert.ToInt32(statusCode) : 500,
+                Message = Regex.Replace(status, "([A-Z])", " $1").Trim(),
+
+                HasStatusCodeReExecuteFeature = hasStatusCodeReExecuteFeature,
+                OriginalStatusCode = originalStatusCode,
+                FullOriginalPath = fullOriginalPath,
+
+                HasException = exceptionDetails != null,
+                ExceptionMessage = exceptionDetails?.Error.Message,
+                //ExceptionStackTrace = exceptionDetails?.Error.StackTrace,
+                ExceptionInner = exceptionDetails?.Error.InnerException?.Message
             };
-            return View("Views/ErrorPage.cshtml", info);
+            return View("Views/ErrorPage.cshtml", errorDetails);
         }
 
         #endregion

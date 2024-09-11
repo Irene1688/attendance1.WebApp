@@ -80,10 +80,11 @@
 }
 
 .ghost {
-    /* border: 1px solid tomato; */
-    position: absolute;
+    /*position: absolute;*/
+    position: relative;
     bottom: 5px;
-    left: calc(50% - 100px);
+    /*left: calc(50% - 100px);*/
+    left: 315px;
     width: 200px;
     height: 200px;
     /* have the ghost move to the right and to the left of the screen, turning to its central position and repeating the animation twice */
@@ -94,7 +95,7 @@
         content: var(--animation-sentence);
         color: var(--color-theme);
         border-radius: 50%;
-        position: absolute;
+        /*position: absolute;*/
         bottom: 100%;
         text-align: center;
         line-height: 2;
@@ -146,3 +147,36 @@
         --animation-sentence: 'You know you\'re supposed to leave, right?';
     }
 }
+
+.error-title {
+    margin-bottom: 15px;
+}
+
+.error-details-container {
+    border: 1px solid #f1eedb;
+    border-radius: 15px;
+    width: fit-content;
+    max-width: 80%;
+    margin: 0 auto 15px auto;
+    padding: 15px;
+}
+
+.error-details-content {
+    font-size: 16px;
+    line-height: 1.6;
+    text-align: left;
+    width: 100%;
+    background: #535148d9;
+    border-left: 5px solid #f1eedb;
+    padding: 7px 15px;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word;
+    white-space: normal;
+    margin: 10px 0;
+}
+
+    .error-details-content pre {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word;
+        white-space: normal;
+    }

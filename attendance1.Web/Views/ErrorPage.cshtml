@@ -17,7 +17,8 @@
                 font-family: var(--font-text);
                 color: var(--color-theme);
                 background: var(--color-bg);
-                overflow: hidden;
+                overflow-y: auto;
+                overflow
             }
 
             .container {
@@ -37,6 +38,8 @@
                 font-size: 2rem;
                 margin: 1.5rem 0 3rem;
             }
+
+            
         </style>
     </head>
     <body>
@@ -49,6 +52,47 @@
     <div class="container">
         <h1>@Model.StatusCode</h1>
         <p>@Model.Message</p>
+
+        @if (Model.HasStatusCodeReExecuteFeature || Model.HasException) {
+            <div class="error-details-container">
+                <h2 class="error-title">Error Details</h2>
+
+                @if (Model.HasStatusCodeReExecuteFeature)
+                {
+                    <div class="error-details-content">
+                        <strong>Original Status Code:</strong> @Model.OriginalStatusCode
+
+                    </div>
+                    <div class="error-details-content">
+                        <strong>Original Path:</strong> @Model.FullOriginalPath
+                    </div>
+                }
+
+                @if (Model.HasException)
+                {
+                    <div class="error-details-content">
+                        <strong>Message:</strong> <br /> @Model.ExceptionMessage
+                    </div>
+
+                    @* <div class="error-details-content">
+                        <strong>Stack Trace:</strong> <br /> <pre>@Model.ExceptionStackTrace</pre>
+                    </div> *@
+
+                    @if (!string.IsNullOrEmpty(Model.ExceptionInner))
+                    {
+                        <div class="error-details-content">
+                            <strong>Inner Exception:</strong> <br /> @Model.ExceptionInner
+                        </div>
+                    }
+                }
+
+                <div class="error-details-content">
+                    <strong>Helpful Tip:</strong> <br />
+                    <pre>If you believe this is an error, please take a screenshot and contact our technical support by clicking the "Technical Support" button. We'll work to resolve the issue as quickly as possible. Thank you for your patience!</pre>
+                </div>
+
+            </div>
+        }
     </div>
 
     <!--
