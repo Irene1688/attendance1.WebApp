@@ -34,66 +34,6 @@ namespace attendance1.Web.Controllers
             _classService = classService;
         }
 
-        private static string GenerateRandomCode(int length)
-        {
-            const string chars = "0123456789AaBbCcDdEeFfGgHhiJjKkLMmNnOoPpQqRrSsTtUuVvWwXxYyZz";
-            var random = new Random();
-            return new string(Enumerable.Repeat(chars, length)
-                .Select(s => s[random.Next(s.Length)]).ToArray());
-        }
-
-        private static TimeSpan GetDuration(string codeValidTime)
-        {
-            return codeValidTime switch
-            {
-                "30 sec" => TimeSpan.FromSeconds(30),
-                "1 Min" => TimeSpan.FromMinutes(1),
-                "3 Min" => TimeSpan.FromMinutes(3),
-                "5 Min" => TimeSpan.FromMinutes(5),
-                _ => TimeSpan.Zero
-            };
-        }
-
-        //[HttpPost]
-        //public async Task<IActionResult> GenerateCode(int courseId, string CodeValidTime)
-        //{
-        //    var attendanceCode = GenerateRandomCode(6);
-        //    var duration = GetDuration(CodeValidTime);
-        //    var now = DateTime.Now;
-
-        //    var attendanceRecord = new AttendanceMdl
-        //    {
-        //        AttendanceCode = attendanceCode,
-        //        Date = now.Date,
-        //        StartTime = now.TimeOfDay,
-        //        EndTime = now.TimeOfDay + duration,
-        //        CourseID = courseId
-        //    };
-
-        //    string query = @"
-        //                    INSERT INTO attendanceRecord (attendanceCode, date, startTime, endTime, courseID)
-        //                    VALUES (@AttendanceCode, @Date, @StartTime, @EndTime, @CourseID)";
-
-        //    var parameters = new Dictionary<string, object>
-        //    {
-        //        { "@AttendanceCode", attendanceRecord.AttendanceCode },
-        //        { "@Date", attendanceRecord.Date },
-        //        { "@StartTime", attendanceRecord.StartTime },
-        //        { "@EndTime", attendanceRecord.EndTime },
-        //        { "@CourseID", attendanceRecord.CourseID }
-        //    };
-
-        //    await _databaseContext.ExecuteNonQueryAsync(query, parameters);
-
-        //    var attendancemodel = new AttendanceMdl
-        //    {
-        //        AttendanceCode = attendanceCode,
-        //        Duration = CodeValidTime,
-        //        EndTime = attendanceRecord.EndTime
-        //    };
-
-        //    return View("/Views/Lecturer/CodePage.cshtml", attendancemodel);
-        //}
         [Authorize(Roles = "Lecturer")]
         [HttpPost]
         public async Task<IActionResult> GenerateCode(int courseId, string CodeValidTime)
