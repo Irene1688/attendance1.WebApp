@@ -75,9 +75,7 @@ namespace attendance1.Web.Controllers
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
             int courseId = id;
-            //bool courseStatus = false;
 
-            //var courseDetails = await GetCourseDetails(courseId);
             var courseDetails = await _classService.GetCourseDetailsForCurrentClassAsync(courseId);
             if (courseDetails.CourseId <= 0)
             {
@@ -93,14 +91,15 @@ namespace attendance1.Web.Controllers
             //var semesterDetails = await GetSemesterDetails(courseDetails.SemesterId);
             //var regularClassDays = courseDetails.ClassDays.Split(',').Select(day => int.Parse(day)).ToList();
             var regularClassDays = _classService.ChangeRegularClassDayToIntListAsync(courseDetails.ClassDays);
+            if (regularClassDays.Count <= 0 )
+            {
+                throw new Exception("Lost class day for generating classAttendance page.");
+            }
 
-            //var extraClassDays = await GetExtraClassDays(courseId);
             var extraClassDays = await _classService.GetExtraClassDayForCurrentClassAsync(courseId);
             
-            //var latestAttendanceDate = await GetLatestAttendanceDate(courseId);
             var latestAttendanceDate = await _classService.GetLatestAttendanceDateForCurrentClassAsync(courseId);
 
-            //var weekDetails = await GetWeekDetails(courseDetails.StartDate, courseDetails.EndDate, regularClassDays, extraClassDays, courseId);
             var weekDetails = await _classService.GetAllClassWeekWithDaysForCurrentClassAsync(courseDetails.StartDate, courseDetails.EndDate, regularClassDays, extraClassDays);
 
             var model = new ClassAttendanceMdl
@@ -108,7 +107,6 @@ namespace attendance1.Web.Controllers
                 ClassDetails = courseDetails,
                 EnrolledStudents = enrolledStudents,
                 ClassDays = regularClassDays,
-                //StudentAttendance = await GetAttendance(courseId, enrolledStudents.Select(s => s.StudentID).ToList()),
                 StudentAttendance = await _classService.GetStudentAttendanceForCurrentClassAsync(courseId, enrolledStudents.Select(s => s.StudentID).ToList()),
                 LatestAttendanceDate = latestAttendanceDate,
                 WeekDetails = weekDetails,

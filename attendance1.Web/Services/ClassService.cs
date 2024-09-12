@@ -378,7 +378,14 @@ namespace attendance1.Web.Services
 
         public List<int> ChangeRegularClassDayToIntListAsync(string classDays)
         {
-            return classDays.Split(',').Select(day => int.Parse(day)).ToList();
+            if (string.IsNullOrEmpty(classDays))
+            {
+                return new List<int>();
+            }
+
+            return classDays.Split(',')
+                .Select(day => int.Parse(day))
+                .ToList();
         }
 
         public async Task<List<AttendanceMdl>> GetExtraClassDayForCurrentClassAsync(int courseId)

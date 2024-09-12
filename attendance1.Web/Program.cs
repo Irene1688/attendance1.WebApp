@@ -6,100 +6,120 @@ using attendance1.Web.Helpers;
 using DeviceDetectorNET.Parser.Device;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.CodeAnalysis.Scripting;
+using NLog;
+using NLog.Web;
+using System;
 
+//var logger = NLog.LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
+var logger = NLog.LogManager.GetCurrentClassLogger();
 
-var builder = WebApplication.CreateBuilder(args);
+try
+{
+    var builder = WebApplication.CreateBuilder(args);
 
-# region services region
-// Add services to the container.
-builder.Services.AddRazorPages();
-builder.Services.AddTransient<DatabaseContext>();
-builder.Services.AddControllersWithViews();
-
-//builder.Services.AddDistributedMemoryCache();
-//builder.Services.AddSession(options =>
-//{
-//    options.IdleTimeout = TimeSpan.FromMinutes(30); 
-//    options.Cookie.HttpOnly = true; 
-//    options.Cookie.IsEssential = true; 
-//});
-
-// cookie services
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
+    var loggerFactory = LoggerFactory.Create(builder =>
     {
-        options.LoginPath = "/Login"; 
-        options.Cookie.Name = "AuthCookie";
-        //options.ExpireTimeSpan = TimeSpan.FromDays(14); // effective in 14 days
-        options.SlidingExpiration = true;
-        options.AccessDeniedPath = "/Error/AccessDenied";
+        //builder.ClearProviders(); // clear default asp.net configure, better is no used
+        builder.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
     });
 
-// authrizate user login and account role
-builder.Services.AddAuthorization();
+    #region services region
+    // Add services to the container.
+    
+    // using NLog to log exception and error
+    builder.Host.UseNLog();
 
-// register injection: class controller will be used in view component
-builder.Services.AddScoped<MenuHelper>();
-builder.Services.AddScoped<ClassController>();
-builder.Services.AddScoped<AccountService>();
-builder.Services.AddScoped<ClassService>();
-builder.Services.AddScoped<AttendanceService>();
-builder.Services.AddScoped<DeviceService>();
-builder.Services.AddScoped<AdminService>();
-builder.Services.AddHttpContextAccessor();
-#endregion
+    builder.Services.AddRazorPages();
+    builder.Services.AddTransient<DatabaseContext>();
+    builder.Services.AddControllersWithViews();
 
-var app = builder.Build();
+    // cookie services
+    builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+        .AddCookie(options =>
+        {
+            options.LoginPath = "/Login";
+            options.Cookie.Name = "AuthCookie";
+            //options.ExpireTimeSpan = TimeSpan.FromDays(14); // effective in 14 days
+            options.SlidingExpiration = true;
+            options.AccessDeniedPath = "/Error/AccessDenied";
+        });
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseDeveloperExceptionPage();
+    // authrizate user login and account role
+    builder.Services.AddAuthorization();
+
+    // register injection: class controller will be used in view component
+    builder.Services.AddScoped<MenuHelper>();
+    builder.Services.AddScoped<ClassController>();
+    builder.Services.AddScoped<AccountService>();
+    builder.Services.AddScoped<ClassService>();
+    builder.Services.AddScoped<AttendanceService>();
+    builder.Services.AddScoped<DeviceService>();
+    builder.Services.AddScoped<AdminService>();
+    builder.Services.AddHttpContextAccessor();
+    #endregion
+
+    var app = builder.Build();
+    Console.WriteLine("Application has started");
+    Console.WriteLine(AppDomain.CurrentDomain.BaseDirectory);
+    logger.Info("Application started");
+
+    // Configure the HTTP request pipeline.
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseDeveloperExceptionPage();
+        app.UseStatusCodePagesWithReExecute("/Error/ErrorHandler", "?statusCode={0}");
+    }
+    else
+    {
+        app.UseExceptionHandler("/Error/ErrorHandler");
+        app.UseStatusCodePagesWithReExecute("/Error/ErrorHandler", "?statusCode={0}");
+        // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+        app.UseHsts();
+    }
+
+    app.UseHttpsRedirection();
+    app.UseStaticFiles();
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        ServeUnknownFileTypes = true,
+        DefaultContentType = "application/json"
+    });
+
+    app.UseRouting();
+
+    app.UseAuthentication();
+    app.UseAuthorization();
+
+    app.MapRazorPages();
+    app.MapControllers();
+    app.MapDefaultControllerRoute();
+
+    app.MapGet("/", context =>
+    {
+        context.Response.Redirect("/Account/CheckLogin");
+        return Task.CompletedTask;
+    });
+
+    //test login
+    //app.MapGet("/", context =>
+    //{
+    //    context.Response.Redirect("/Login");
+    //    return Task.CompletedTask;
+    //});
+
+    app.Run();
 }
-else
+catch (Exception exception)
 {
-    //app.UseExceptionHandler("/Error");
-    app.UseExceptionHandler("/Error/ErrorHandler");
-    app.UseStatusCodePagesWithReExecute("/Error/ErrorHandler", "?statusCode={0}");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+    // NLog: catch setup errors
+    logger.Error(exception, "Stopped program because of exception");
+    throw;
 }
-
-//app.UseStatusCodePagesWithReExecute("/Account/ErrorHandler", "?statusCode={0}");
-
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-app.UseStaticFiles(new StaticFileOptions
+finally
 {
-    ServeUnknownFileTypes = true,
-    DefaultContentType = "application/json"
-});
-
-app.UseRouting();
-
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.MapRazorPages();
-app.MapControllers();
-app.MapDefaultControllerRoute();
-
-
-//Final version
-app.MapGet("/", context =>
-{
-    context.Response.Redirect("/Account/CheckLogin");
-    return Task.CompletedTask;
-});
-
-//test login
-//app.MapGet("/", context =>
-//{
-//    context.Response.Redirect("/Login");
-//    return Task.CompletedTask;
-//});
-
-app.Run();
+    // Ensure to flush and stop internal timers/threads before application-exit
+    NLog.LogManager.Shutdown();
+}
 
 #region [to do list]
 //1. authorization 要根据情况做好重定向(403/access denied) v

@@ -29,9 +29,10 @@ namespace attendance1.Web.Controllers
 {
     public class ErrorController: Controller
     {
-        public ErrorController()
+        private readonly ILogger<ErrorController> _logger;
+        public ErrorController(ILogger<ErrorController> logger)
         {
-            
+            _logger = logger;
         }
 
         [HttpGet]
@@ -61,7 +62,6 @@ namespace attendance1.Web.Controllers
             //Get status Code Message
             string status = Enum.GetName(typeof(HttpStatusCode), statusCode) ?? "Internal Server Error";
 
-
             // get error details
             string? originalQueryString = null;
             string? fullOriginalPath = null;
@@ -89,9 +89,21 @@ namespace attendance1.Web.Controllers
 
                 HasException = exceptionDetails != null,
                 ExceptionMessage = exceptionDetails?.Error.Message,
-                //ExceptionStackTrace = exceptionDetails?.Error.StackTrace,
                 ExceptionInner = exceptionDetails?.Error.InnerException?.Message
             };
+
+            // log error
+            _logger.LogError("An error occurred. Status Code: {StatusCode}. Message: {Message}. Path: {Path}. Exception: {ExceptionMessage}",
+                errorDetails.StatusCode,
+                errorDetails.Message,
+                errorDetails.FullOriginalPath,
+                errorDetails.ExceptionMessage);
+
+            if (errorDetails.HasException && exceptionDetails?.Error != null)
+            {
+                _logger.LogError(exceptionDetails.Error, "Detailed exception information");
+            }
+
             return View("Views/ErrorPage.cshtml", errorDetails);
         }
     }
