@@ -32,7 +32,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.Cookie.Name = "AuthCookie";
         //options.ExpireTimeSpan = TimeSpan.FromDays(14); // effective in 14 days
         options.SlidingExpiration = true;
-        options.AccessDeniedPath = "/Account/AccessDenied";
+        options.AccessDeniedPath = "/Error/AccessDenied";
     });
 
 // authrizate user login and account role
@@ -59,13 +59,13 @@ if (app.Environment.IsDevelopment())
 else
 {
     //app.UseExceptionHandler("/Error");
-    app.UseExceptionHandler("/Account/ErrorHandler");
-    app.UseStatusCodePagesWithReExecute("/Account/ErrorHandler", "?statusCode={0}");
+    app.UseExceptionHandler("/Error/ErrorHandler");
+    app.UseStatusCodePagesWithReExecute("/Error/ErrorHandler", "?statusCode={0}");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
-app.UseStatusCodePagesWithReExecute("/Account/ErrorHandler", "?statusCode={0}");
+//app.UseStatusCodePagesWithReExecute("/Account/ErrorHandler", "?statusCode={0}");
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
