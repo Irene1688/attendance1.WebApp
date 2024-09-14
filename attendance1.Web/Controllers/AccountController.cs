@@ -34,12 +34,14 @@ namespace attendance1.Web.Controllers
         private readonly DatabaseContext _databaseContext;
         private readonly AccountService _accountService;
         private readonly DeviceService _deviceService;
+        private readonly ILogger _logger;
 
-        public AccountController(DatabaseContext databaseContext, AccountService accountService, DeviceService deviceService)
+        public AccountController(DatabaseContext databaseContext, AccountService accountService, DeviceService deviceService, ILogger<AccountController> logger)
         {
             _databaseContext = databaseContext;
             _accountService = accountService;
             _deviceService = deviceService;
+            _logger = logger;
         }
 
         [HttpGet]

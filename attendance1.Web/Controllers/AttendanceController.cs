@@ -23,14 +23,16 @@ namespace attendance1.Web.Controllers
         private readonly AttendanceService _attendanceService;
         private readonly DeviceService _deviceService;
         private readonly ClassService _classService;
+        private readonly ILogger _logger;
 
-        public AttendanceController(DatabaseContext databaseContext, AccountService accountService, AttendanceService attendanceService, DeviceService deviceService, ClassService classService)
+        public AttendanceController(DatabaseContext databaseContext, AccountService accountService, AttendanceService attendanceService, DeviceService deviceService, ClassService classService, ILogger<AttendanceController> logger)
         {
             _databaseContext = databaseContext;
             _accountService = accountService;
             _attendanceService = attendanceService;
             _deviceService = deviceService;
             _classService = classService;
+            _logger = logger;
         }
 
         [Authorize(Roles = "Lecturer")]
@@ -182,10 +184,26 @@ namespace attendance1.Web.Controllers
             return RedirectToAction("TakeAttendancePage", "Attendance");
         }
 
+        // debug
+        private string GetCurrentStudentId()
+        {
+            string accRole = HttpContext.User.FindFirstValue(ClaimTypes.Role);
+            if (!string.IsNullOrWhiteSpace(accRole) && accRole == "Student")
+            {
+                //string studentId = UserSchoolRoleID;
+                //return studentId;
+                return "Success gain accRole in contoller";
+            }
+            return null;
+        }
+
         [HttpGet]
         public async Task<IActionResult> TakeAttendancePage()
         {
-            var studentId = _accountService.GetCurrentStudentId();
+            //var studentId = _accountService.GetCurrentStudentId();
+            // debug
+            var message = GetCurrentStudentId;
+            _logger.LogError("message:"+  message);
             if (string.IsNullOrEmpty(studentId))
             {
                 TempData["ErrorMessage"] = "Please login first.";
