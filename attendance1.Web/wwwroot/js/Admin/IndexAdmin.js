@@ -279,12 +279,23 @@ function searchTable() {
     var input = document.getElementById("search-programme-input");
     var filter = input.value.toUpperCase();
     var tbody = document.getElementById("programme-table-tbody");
+    if (tbody === null) {
+        var clearBtn = document.getElementById("clear-input");
+        clearBtn.style.display = input.value ? "flex" : "none";
+        var noFoundRow = document.getElementById("no-found-row");
+        if (noFoundRow) {
+            noFoundRow.style.borderTop = "2px solid #eee";
+            noFoundRow.style.display = !isFound && filter ? "block" : "none";
+        }
+        return;
+    }
     var tr = tbody.getElementsByTagName("tr");
 
     var clearBtn = document.getElementById("clear-input");
     clearBtn.style.display = input.value ? "flex" : "none";
 
     var isFound = false;
+    
     for (i = 0; i < tr.length; i++) {
         var isMatch = false;
         var row = tr[i];
@@ -345,6 +356,7 @@ function searchTable() {
 
     var noFoundRow = document.getElementById("no-found-row");
     if (noFoundRow) {
+        noFoundRow.style.borderTop = "2px solid transparent";
         noFoundRow.style.display = !isFound && filter ? "block" : "none";
     }
     console.log('Search completed');

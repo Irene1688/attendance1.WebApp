@@ -131,7 +131,7 @@ body.modal-open {
 
 .contact-admin-card-container::before {
     top: 10%;
-    height: 70%;
+    height: 50%;
 }
 
 .container::after {

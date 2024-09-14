@@ -80,7 +80,22 @@
             </button>
         </div>
 
-        <!--programme table-->
+    @if (Model.ProgrammeList.Count <= 0)
+    {
+        @if (TempData["PromptMessage"] != null)
+        {
+            <div class="alert alert-icon alert-info alert-dismissible fade in" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <i class="mdi mdi-emoticon-cool"></i>
+                @TempData["PromptMessage"]
+            </div>
+        }
+    }
+    else
+    {
+            <!--programme table-->
         <table class="table table-colored table-inverse table-bordered m-b-0" id="programme-table">
             <thead>
                 <tr>
@@ -106,161 +121,164 @@
                 </tr>
             </thead>
             <tbody id="programme-table-tbody">
-                @foreach (var programme in Model.ProgrammeList) 
-                {
-                    <tr id="row-programme-@programme.ProgrammeId" data-original-index="@counter">
-                        <td class="text-center" style="vertical-align: middle;">@counter</td>
-                            
-                        <td style="vertical-align: middle;">
-                            <span class="programme-name">@programme.Programme</span>
-                            <!--Edit programme form-->
-                            <form asp-controller="Admin" asp-action="EditProgramme" id="edit-programme-form-@programme.ProgrammeId" method="post" style="width: 100%;">
-                                <input type="text" class="programme-name-input form-control" value="@programme.Programme" name="newProgrammeName" data-original-value="@programme.Programme" style="display:none; width: 100%;" />
-                                <div id="programme-name-empty" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> Programme name cannot be empty.</div>
-                                <div id="programme-name-error" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> Programme name must contain alphabet letter, accept number and bracket, no special character accepted.</div>
-                                <div id="programme-name-no-change" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> New programme name cannot same as the original programme name.</div>
-                                <div id="programme-name-existed" class="text-danger prompt-text" style="display: none;"><i class="mdi mdi-alert-circle-outline"></i>The programme is existed already. You cannot use same programme name.</div>
-                            </form>
-                        </td>
+            @foreach (var programme in Model.ProgrammeList)
+            {
+                        <tr id="row-programme-@programme.ProgrammeId" data-original-index="@counter">
+                            <td class="text-center" style="vertical-align: middle;">@counter</td>
 
-                       <td class="click-to-display" style="vertical-align: middle;" title="Click to expand details table" onclick="toggleAdminDetails('@programme.ProgrammeId', this)">
-                           @{
-                               int adminCount = Model.AdminGroupedByProgrammeName.ContainsKey(programme.Programme) ? Model.AdminGroupedByProgrammeName[programme.Programme].Count : 0;
-                           }
-                           <div class="admin-count text-center expandable">
-                               <i class="mdi mdi-chevron-down" style="font-size: 14px;"></i>
-                               @adminCount
-                           </div>
-                       </td> 
+                            <td style="vertical-align: middle;">
+                                <span class="programme-name">@programme.Programme</span>
+                                <!--Edit programme form-->
+                                <form asp-controller="Admin" asp-action="EditProgramme" id="edit-programme-form-@programme.ProgrammeId" method="post" style="width: 100%;">
+                                    <input type="text" class="programme-name-input form-control" value="@programme.Programme" name="newProgrammeName" data-original-value="@programme.Programme" style="display:none; width: 100%;" />
+                                    <div id="programme-name-empty" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> Programme name cannot be empty.</div>
+                                    <div id="programme-name-error" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> Programme name must contain alphabet letter, accept number and bracket, no special character accepted.</div>
+                                    <div id="programme-name-no-change" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> New programme name cannot same as the original programme name.</div>
+                                    <div id="programme-name-existed" class="text-danger prompt-text" style="display: none;"><i class="mdi mdi-alert-circle-outline"></i>The programme is existed already. You cannot use same programme name.</div>
+                                </form>
+                            </td>
 
-                       <td class="click-to-display" style="vertical-align: middle;" title="Click to expand details table" onclick="toggleClassDetails('@programme.ProgrammeId', this)">
-                           @{
-                               int classCount = Model.ClassGroupedByProgrammeId.ContainsKey(programme.ProgrammeId) ? Model.ClassGroupedByProgrammeId[programme.ProgrammeId].Count : 0;
-                           }
-                           <div class="class-count text-center expandable">
-                               <i class="mdi mdi-chevron-down" style="font-size: 14px;"></i>
-                               @classCount
-                           </div>
-                       </td> 
+                            <td class="click-to-display" style="vertical-align: middle;" title="Click to expand details table" onclick="toggleAdminDetails('@programme.ProgrammeId', this)">
+                        @{
+                            int adminCount = Model.AdminGroupedByProgrammeName.ContainsKey(programme.Programme) ? Model.AdminGroupedByProgrammeName[programme.Programme].Count : 0;
+                        }
+                                <div class="admin-count text-center expandable">
+                                    <i class="mdi mdi-chevron-down" style="font-size: 14px;"></i>
+                            @adminCount
+                                </div>
+                            </td> 
 
-                            
-                        <td class="text-center" style="vertical-align: middle;">
-                            <div class="in-a-row" style="justify-content: center; gap: 20px;">
-                                <button class="edit-btn btn btn-inverse waves-effect waves-light in-a-row" style="gap: 5px;" onclick="editRow('@programme.ProgrammeId')">
-                                    <i class="material-symbols-outlined" style="font-size: 14px;">edit_square</i>
-                                    Edit
-                                </button>
-                                <button class="delete-btn btn btn-danger waves-effect waves-light in-a-row" style="gap: 5px;" onclick="confirmDelete('@programme.ProgrammeId')">
-                                    <i class="material-symbols-outlined" style="font-size: 14px;">delete</i>
-                                    Delete
-                                </button>
-                            </div>
-                            
-                            <!--Edit Mode buttons-->
-                            <div class="in-a-row" style="justify-content: center; gap: 20px;">
-                                <button type="submit" id="submit-edit-programme-button" class="save-btn btn btn-inverse waves-effect waves-light in-a-row" style="display:none; gap: 5px; vertical-align: middle;" onclick="saveRow('@programme.ProgrammeId')" >
-                                    <i class="material-symbols-outlined" style="font-size: 14px;">save</i>
-                                    Save
-                                </button>
-                                <button class="cancel-btn btn waves-effect waves-light in-a-row" style="display: none; background-color: #eee; gap: 5px;" onclick="cancelEdit('@programme.ProgrammeId')">
-                                    <i class="material-symbols-outlined" style="font-size: 14px;">cancel</i>
-                                    Cancel
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr id="admin-details-row-@programme.ProgrammeId" class="admin-details-row" style="display: none; border: 2px solid #d1d1d1; ">
-                        <td colspan="5" style="padding: 0px; ">
-                            <div class="admin-details-content">
-                                <table class="table table-colored table-gray table-striped table-bordered m-b-0" id="class-details-table" style="width: 100%;">
-                                    <thead>
-                                        <tr>
-                                            <th colspan="4">Admin Table</th>
-                                        </tr>
-                                        <tr>
-                                            <th class="text-center">#</th>
-                                            <th class="text-center">Admin ID / Staff ID</th>
-                                            <th class="text-center">Admin Name</th>
-                                            <th class="text-center">Email</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @if (Model.AdminGroupedByProgrammeName.ContainsKey(programme.Programme))
-                                        {
-                                            adminCounter = 1;
-                                            var adminList = Model.AdminGroupedByProgrammeName[programme.Programme];
-                                            foreach (var admin in adminList)
-                                            {
-                                                <tr>
-                                                    <td class="text-center">@adminCounter</td>
-                                                    <td class="text-center">@admin.StaffId</td>
-                                                    <td>@admin.StaffName</td>
-                                                    <td>@admin.StaffEmail</td>
-                                                </tr>
-                                                adminCounter++;
-                                            }
-                                        }
-                                        else
-                                        {
+                            <td class="click-to-display" style="vertical-align: middle;" title="Click to expand details table" onclick="toggleClassDetails('@programme.ProgrammeId', this)">
+                        @{
+                            int classCount = Model.ClassGroupedByProgrammeId.ContainsKey(programme.ProgrammeId) ? Model.ClassGroupedByProgrammeId[programme.ProgrammeId].Count : 0;
+                        }
+                                <div class="class-count text-center expandable">
+                                    <i class="mdi mdi-chevron-down" style="font-size: 14px;"></i>
+                            @classCount
+                                </div>
+                            </td> 
+
+
+                            <td class="text-center" style="vertical-align: middle;">
+                                <div class="in-a-row" style="justify-content: center; gap: 20px;">
+                                    <button class="edit-btn btn btn-inverse waves-effect waves-light in-a-row" style="gap: 5px;" onclick="editRow('@programme.ProgrammeId')">
+                                        <i class="material-symbols-outlined" style="font-size: 14px;">edit_square</i>
+                                        Edit
+                                    </button>
+                                    <button class="delete-btn btn btn-danger waves-effect waves-light in-a-row" style="gap: 5px;" onclick="confirmDelete('@programme.ProgrammeId')">
+                                        <i class="material-symbols-outlined" style="font-size: 14px;">delete</i>
+                                        Delete
+                                    </button>
+                                </div>
+
+                                <!--Edit Mode buttons-->
+                                <div class="in-a-row" style="justify-content: center; gap: 20px;">
+                                    <button type="submit" id="submit-edit-programme-button" class="save-btn btn btn-inverse waves-effect waves-light in-a-row" style="display:none; gap: 5px; vertical-align: middle;" onclick="saveRow('@programme.ProgrammeId')" >
+                                        <i class="material-symbols-outlined" style="font-size: 14px;">save</i>
+                                        Save
+                                    </button>
+                                    <button class="cancel-btn btn waves-effect waves-light in-a-row" style="display: none; background-color: #eee; gap: 5px;" onclick="cancelEdit('@programme.ProgrammeId')">
+                                        <i class="material-symbols-outlined" style="font-size: 14px;">cancel</i>
+                                        Cancel
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr id="admin-details-row-@programme.ProgrammeId" class="admin-details-row" style="display: none; border: 2px solid #d1d1d1; ">
+                            <td colspan="5" style="padding: 0px; ">
+                                <div class="admin-details-content">
+                                    <table class="table table-colored table-gray table-striped table-bordered m-b-0" id="class-details-table" style="width: 100%;">
+                                        <thead>
                                             <tr>
-                                                <td colspan="4" class="text-center">No admin available for this programme.</td>
+                                                <th colspan="4">Admin Table</th>
                                             </tr>
-                                        }
-                                    </tbody>
-                                </table>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr id="class-details-row-@programme.ProgrammeId" class="admin-details-row" style="display: none; border: 2px solid #d1d1d1; ">
-                        <td colspan="5" style="padding: 0px; ">
-                            <div class="class-details-content">
-                                <table class="table table-colored table-gray table-striped table-bordered m-b-0" id="class-details-table" style="width: 100%;">
-                                    <thead>
-                                        <tr>
-                                            <th colspan="6">Classes Table</th>
-                                        </tr>
-                                        <tr>
-                                            <th class="text-center">#</th>
-                                            <th class="text-center">Session</th>
-                                            <th class="text-center">Course Code</th>
-                                            <th class="text-center">Class Name</th>
-                                            <th class="text-center">Lecturer ID</th>
-                                            <th class="text-center">Lecturer Name</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @if (Model.ClassGroupedByProgrammeId.ContainsKey(programme.ProgrammeId))
-                                        {
-                                            classCounter = 1;
-                                            var classList = Model.ClassGroupedByProgrammeId[programme.ProgrammeId];
-                                            foreach (var classItem in classList)
-                                            {
-                                                <tr>
-                                                    <td class="text-center">@classCounter</td>
-                                                    <td class="text-center">@classItem.ClassSession</td>
-                                                    <td class="text-center">@classItem.CourseCode</td>
-                                                    <td>@classItem.ClassName</td>
-                                                    <td class="text-center">@classItem.LecturerId</td>
-                                                    <td>@classItem.LecturerName</td>
-                                                </tr>
-                                                classCounter++;
-                                            }
-                                        }
-                                        else
-                                        {
                                             <tr>
-                                                <td colspan="6" class="text-center">No class available for this programme.</td>
+                                                <th class="text-center">#</th>
+                                                <th class="text-center">Admin ID / Staff ID</th>
+                                                <th class="text-center">Admin Name</th>
+                                                <th class="text-center">Email</th>
                                             </tr>
+                                        </thead>
+                                        <tbody>
+                                    @if (Model.AdminGroupedByProgrammeName.ContainsKey(programme.Programme))
+                                    {
+                                        adminCounter = 1;
+                                        var adminList = Model.AdminGroupedByProgrammeName[programme.Programme];
+                                        foreach (var admin in adminList)
+                                        {
+                                                            <tr>
+                                                                <td class="text-center">@adminCounter</td>
+                                                                <td class="text-center">@admin.StaffId</td>
+                                                                <td>@admin.StaffName</td>
+                                                                <td>@admin.StaffEmail</td>
+                                                            </tr>
+                                            adminCounter++;
                                         }
-                                    </tbody>
-                                </table>
-                            </div>
-                        </td>
-                    </tr>
-                    counter++;
-                }
+                                    }
+                                    else
+                                    {
+                                                    <tr>
+                                                        <td colspan="4" class="text-center">No admin available for this programme.</td>
+                                                    </tr>
+                                    }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr id="class-details-row-@programme.ProgrammeId" class="admin-details-row" style="display: none; border: 2px solid #d1d1d1; ">
+                            <td colspan="5" style="padding: 0px; ">
+                                <div class="class-details-content">
+                                    <table class="table table-colored table-gray table-striped table-bordered m-b-0" id="class-details-table" style="width: 100%;">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="6">Classes Table</th>
+                                            </tr>
+                                            <tr>
+                                                <th class="text-center">#</th>
+                                                <th class="text-center">Session</th>
+                                                <th class="text-center">Course Code</th>
+                                                <th class="text-center">Class Name</th>
+                                                <th class="text-center">Lecturer ID</th>
+                                                <th class="text-center">Lecturer Name</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                    @if (Model.ClassGroupedByProgrammeId.ContainsKey(programme.ProgrammeId))
+                                    {
+                                        classCounter = 1;
+                                        var classList = Model.ClassGroupedByProgrammeId[programme.ProgrammeId];
+                                        foreach (var classItem in classList)
+                                        {
+                                                            <tr>
+                                                                <td class="text-center">@classCounter</td>
+                                                                <td class="text-center">@classItem.ClassSession</td>
+                                                                <td class="text-center">@classItem.CourseCode</td>
+                                                                <td>@classItem.ClassName</td>
+                                                                <td class="text-center">@classItem.LecturerId</td>
+                                                                <td>@classItem.LecturerName</td>
+                                                            </tr>
+                                            classCounter++;
+                                        }
+                                    }
+                                    else
+                                    {
+                                                    <tr>
+                                                        <td colspan="6" class="text-center">No class available for this programme.</td>
+                                                    </tr>
+                                    }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </td>
+                        </tr>
+                counter++;
+            }
             </tbody>
         </table>
+    }
+
+        
 
         <div id="no-found-row" class="search-no-found p-b-10 p-t-10">
             <div class="text-danger text-center" >

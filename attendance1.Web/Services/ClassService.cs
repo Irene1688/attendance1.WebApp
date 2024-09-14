@@ -936,6 +936,10 @@ namespace attendance1.Web.Services
             try
             {
                 var courseDetailsList = new List<ClassMdl>();
+                if (courseIdList.Count <= 0)
+                {
+                    return courseDetailsList;
+                }
                 string courseIdString = string.Join(",", courseIdList);
                 string query = $"SELECT courseID, courseCode, courseName, courseSession FROM course WHERE courseID IN ({courseIdString})";
 

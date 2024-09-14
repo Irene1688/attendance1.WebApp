@@ -100,6 +100,7 @@ namespace attendance1.Web.Controllers
             }
             else
             {
+                // login for staff
                 message = await _accountService.LoginOrRegisterAsync(loginmodel, string.Empty, IsRegister, string.Empty);
             }
 

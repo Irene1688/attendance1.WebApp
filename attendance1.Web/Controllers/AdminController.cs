@@ -25,6 +25,10 @@ namespace attendance1.Web.Controllers
         public async Task<IActionResult> GetProgramme()
         {
             var programmeList = await _classService.GetAllProgrammeAsync();
+            if (programmeList.Count == 0) 
+            {
+                TempData["PromptMessage"] = "No programme at here yet. Please add a programme first.";
+            }
             var adminGroupedByProgrammeName = new Dictionary<string, List<StaffMdl>>();
             var classGroupedByProgrammeId = new Dictionary<int, List<ClassMdl>>();
             var adminList = await _adminService.GetAllAdminAsync();

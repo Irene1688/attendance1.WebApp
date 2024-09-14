@@ -279,23 +279,35 @@
                 <div class="seperate-line admin-seperate-line"></div>
                 <div style="max-height: 40vh; overflow: auto;">
                     <div>  <!-- class="slimscrollleft" for the div, if needed -->
-                        <div class="admin-content">Contact admin if you have any problem. Click email address to copy.</div>
-                        @foreach (var admin in Model.AdminInfo) {
-                            <div class="admin-group">
-                                <div class="admin-header-line"></div>
-                                <div class="admin-card-body">
-                                    <div class="admin-detail">
-                                        <div class="p-b-10"><b>Name: </b> <br /> @admin.StaffName</div>
-                                        <div class="p-b-10" onclick="copyEmail('@admin.StaffEmail')"><b>Email: </b><br /> @admin.StaffEmail</div>
-                                        <div><b>In Charge Programme: </b><br /> @admin.UnderProgramme</div>
-                                    </div>
-                                    <div>
-                                        <i class="mdi mdi-email-outline" style="font-size: 27px;" onclick="contactAdmin('@admin.StaffEmail')"></i>
-                                    </div>
-                                </div>
-                                
+                        @if (Model.AdminInfo.Count <= 0)
+                        {
+                            <div class=admin-group>
+                                <div class="p-b-10">Opps!. There is no any admin currently.</div>
                             </div>
                         }
+                        else
+                        {
+                            <div class="admin-content">Contact admin if you have any problem. Click email address to copy.</div>
+
+                            @foreach (var admin in Model.AdminInfo)
+                            {
+                                <div class="admin-group">
+                                    <div class="admin-header-line"></div>
+                                    <div class="admin-card-body">
+                                        <div class="admin-detail">
+                                            <div class="p-b-10"><b>Name: </b> <br /> @admin.StaffName</div>
+                                            <div class="p-b-10" onclick="copyEmail('@admin.StaffEmail')"><b>Email: </b><br /> @admin.StaffEmail</div>
+                                            <div><b>In Charge Programme: </b><br /> @(string.IsNullOrEmpty(admin.UnderProgramme) ? "None" : admin.UnderProgramme)</div>
+                                            @* <div><b>In Charge Programme: </b><br /> @admin.UnderProgramme ?? None</div> *@
+                                        </div>
+                                        <div>
+                                            <i class="mdi mdi-email-outline" style="font-size: 27px;" onclick="contactAdmin('@admin.StaffEmail')"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        
                     </div>
                 </div>
                 

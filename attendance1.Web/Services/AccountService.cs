@@ -606,8 +606,8 @@ namespace attendance1.Web.Services
                 var adminList = new List<StaffMdl>();
                 string fetchQuery = @"SELECT ud.userID, ud.userName, ud.email, ud.accRole, p.programmeName 
                                       FROM userDetail ud
-                                      JOIN adminProgramme ap ON ud.userID = ap.userID
-                                      JOIN Programme p ON ap.programmeID = p.programmeID
+                                      LEFT JOIN adminProgramme ap ON ud.userID = ap.userID
+                                      LEFT JOIN Programme p ON ap.programmeID = p.programmeID
                                       WHERE ud.accRole = @accRole";
 
                 SqlParameter[] fetchParameters =
