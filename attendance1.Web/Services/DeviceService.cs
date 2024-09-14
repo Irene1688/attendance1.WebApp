@@ -391,7 +391,7 @@ namespace attendance1.Web.Services
                                 {
                                     return $"This device is registered with another student ID: {UuidBindedStudentId}.";
                                 }
-                                return "This device is not the device you registered, please use the registered device to proceed.";
+                                return "This device is not the device you registered, please use the registered device to proceed. If you want to change your binding device, please contact admin to remove your current binding device.";
                             }
                             else
                             {
@@ -439,12 +439,12 @@ namespace attendance1.Web.Services
                                             {
                                                 return $"This device is registered with another student ID: {UuidBindedStudentId}.";
                                             }
-                                            return "This device is not the device you registered, please use the registered device to proceed.";
+                                            return "This device is not the device you registered, please use the registered device to proceed. If you want to change your binding device, please contact admin to remove your current binding device.";
                                         }
-                                        return "This device is not the device you registered, please use the registered device to proceed.";
+                                        return "This device is not the device you registered, please use the registered device to proceed. If you want to change your binding device, please contact admin to remove your current binding device.";
                                     }
                                     // the student has device code but no same as the current login device code
-                                    return "This device is not the device you registered, please use the registered device to proceed.";
+                                    return "This device is not the device you registered, please use the registered device to proceed. If you want to change your binding device, please contact admin to remove your current binding device.";
                                 }
                             }
                             
