@@ -20,12 +20,14 @@ namespace attendance1.Web.Services
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly DatabaseContext _databaseContext;
         private readonly DeviceService _deviceService;
+        private readonly ILogger _logger;
 
-        public AccountService(IHttpContextAccessor httpContextAccessor, DatabaseContext databaseContext, DeviceService deviceService)
+        public AccountService(IHttpContextAccessor httpContextAccessor, DatabaseContext databaseContext, DeviceService deviceService, ILogger<AccountService> logger)
         {
             _httpContextAccessor = httpContextAccessor;
             _databaseContext = databaseContext;
             _deviceService = deviceService;
+            _logger = logger;
         }
 
         private string UserId => _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -480,29 +482,7 @@ namespace attendance1.Web.Services
             };
 
             var userIdentity = new ClaimsIdentity(userInfo, CookieAuthenticationDefaults.AuthenticationScheme);
-
-
-            //if (loginInput.Role == "Student")
-            //{
-            //    var authProperties = new AuthenticationProperties
-            //    {
-            //        // student
-            //        IsPersistent = true,
-            //        ExpiresUtc = DateTimeOffset.UtcNow.AddDays(14),
-            //    };
-            //    await _httpContextAccessor.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(userIdentity), authProperties);
-
-            //}
-            //else
-            //{
-            //    var authProperties = new AuthenticationProperties
-            //    {
-            //        // staff
-            //        IsPersistent = loginInput.RememberMe,
-            //        ExpiresUtc = loginInput.RememberMe ? DateTimeOffset.UtcNow.AddDays(14) : (DateTimeOffset?)null,
-            //    };
-            //    await _httpContextAccessor.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(userIdentity), authProperties);
-            //}
+            
             var isPersistent = loginInput.Role == "Student" || loginInput.RememberMe; // student = true; or staff = true/ false
             var expiresUtc = isPersistent ? DateTimeOffset.UtcNow.AddDays(14) : (DateTimeOffset?)null;
 
@@ -541,6 +521,7 @@ namespace attendance1.Web.Services
         public string GetCurrentUserRole()
         {
             string accRole = AccRole;
+
             if (!string.IsNullOrWhiteSpace(accRole))
             {
                 return accRole;
