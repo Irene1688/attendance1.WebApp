@@ -13,6 +13,12 @@ body {
         background-color: rgba(153,179,204, 0.011);
     }
 
+/*Submit Attendance label*/
+.form-control-two input:focus + label span,
+.form-control-two input:valid + label span {
+    color: #e1e1e1;
+}
+
 /*submit attendance card*/
 .form-control-two input {
     border-bottom: 2px #99b3cc solid;

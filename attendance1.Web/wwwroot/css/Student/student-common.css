@@ -41,7 +41,6 @@ body.modal-open {
 
     .form-control-two input:focus + label span,
     .form-control-two input:valid + label span {
-        color: #e1e1e1;
         transform: translateY(-50px);
     }
 
