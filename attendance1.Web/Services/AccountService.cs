@@ -562,6 +562,7 @@ namespace attendance1.Web.Services
         public string GetCurrentStudentId() 
         {
             string accRole = AccRole;
+
             if (!string.IsNullOrWhiteSpace(accRole) && accRole == "Student")
             {
                 string studentId = UserSchoolRoleID;
