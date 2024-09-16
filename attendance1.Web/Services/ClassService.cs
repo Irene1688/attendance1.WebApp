@@ -2,21 +2,10 @@
 using attendance1.Web.Models;
 using System.Data.SqlClient;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using System.Data;
 using System.Globalization;
 using System.IO;
 using CsvHelper;
-using CsvHelper.Configuration;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using NuGet.Packaging;
-using NuGet.Protocol.Plugins;
-using System.Transactions;
-using System.Reflection;
-using System.Data.Common;
-using NuGet.Common;
-using System;
-using Microsoft.VisualStudio.Web.CodeGeneration.Design;
 
 
 namespace attendance1.Web.Services
@@ -246,14 +235,6 @@ namespace attendance1.Web.Services
                 }
 
                 return classes;
-                //return result.AsEnumerable().Select(row => new ClassMdl
-                //{
-                //    CourseId = Convert.ToInt32(row["courseID"]),
-                //    CourseCode = row["courseCode"].ToString(),
-                //    ClassName = row["courseName"].ToString(),
-                //    ClassSession = row["courseSession"].ToString(),
-                //    ClassDays = row["classDay"].ToString(),
-                //}).ToList();
             }
             catch (Exception ex)
             {
@@ -267,7 +248,6 @@ namespace attendance1.Web.Services
             try
             {
                 string query = "SELECT programmeID, programmeName FROM programme";
-                //SqlParameter[] parameters = [];
 
                 var result = await _databaseContext.ExecuteQueryAsync(query, []);
                 if (result == null || result.Rows.Count == 0)
@@ -421,7 +401,6 @@ namespace attendance1.Web.Services
         {
             try
             {
-                //string query = "SELECT MAX(recordID), Date FROM attendanceRecord WHERE courseID = @CourseID";
                 string fetchQuery = @"SELECT recordID, Date FROM attendanceRecord WHERE courseID = @CourseID 
                                       AND recordID = ( SELECT MAX(recordID) FROM attendanceRecord WHERE courseID = @CourseID)";
                 SqlParameter[] parameters =
@@ -445,27 +424,6 @@ namespace attendance1.Web.Services
                 Console.WriteLine($"Error executing query: {ex.Message}");
                 return (0, null);
             }
-            //try
-            //{
-            //    string query = "SELECT MAX(Date) FROM attendanceRecord WHERE courseID = @CourseID";
-            //    SqlParameter[] parameters =
-            //    {
-            //        new SqlParameter("@CourseID", courseId)
-            //    };
-
-            //    var result = await _databaseContext.ExecuteQueryAsync(query, parameters);
-            //    if (result == null || result.Rows.Count == 0 || result.Rows[0][0] == DBNull.Value)
-            //    {
-            //        return null;
-            //    }
-
-            //    return Convert.ToDateTime(result.Rows[0][0]);
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine($"Error executing query: {ex.Message}");
-            //    return new DateTime();
-            //}
         }
 
         public Task<List<ClassWeekMdl>> GetAllClassWeekWithDaysForCurrentClassAsync(DateTime startDate, DateTime endDate, List<int> choosedClassDays, List<AttendanceMdl> extraClassDays)
@@ -777,16 +735,6 @@ namespace attendance1.Web.Services
                             return false;
                         }
 
-                        //string deleteAttendanceQuery = "DELETE FROM studentAttendance WHERE courseID = @courseId AND studentID = @studentId";
-                        //SqlParameter[] studentAttendanceParams = {
-                        //    new SqlParameter("@courseId", courseId),
-                        //    new SqlParameter("@studentId", student.StudentID)
-                        //};
-                        //var result2= await _databaseContext.ExecuteScalarAsync<int>(deleteAttendanceQuery, studentAttendanceParams, connection, transaction);
-                        //if (result2 <= -1)
-                        //{
-                        //    return false;
-                        //}
                         return true;
                     });
                     if (!IsDeleted)

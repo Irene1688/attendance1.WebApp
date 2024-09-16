@@ -1,22 +1,9 @@
 ﻿using attendance1.Web.Data;
 using attendance1.Web.Models;
-using DeviceDetectorNET;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 using System.Data.SqlClient;
 using System.Net.NetworkInformation;
-using System.Reflection.Emit;
-using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
-using System.Web;
-using Microsoft.AspNetCore.Http;
-using System.Management;
-using System.Reflection;
 using System.Text;
 using System.Security.Cryptography;
-using DeviceDetectorNET.Parser.Device;
-using System.Data;
-using DeviceDetectorNET.Class.Device;
-using Microsoft.AspNetCore.Http.HttpResults;
 
 
 namespace attendance1.Web.Services
@@ -32,147 +19,40 @@ namespace attendance1.Web.Services
             _httpContextAccessor = httpContextAccessor;
         }
 
-        #region get device info
-        //[HttpPost]
-        //public async void GetDeviceInfomation()
+        //public string GetMacAddress()
         //{
-        //    #region 硬盘序列号
-        //    //var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_DiskDrive");
+        //    try
+        //    {
+        //        const int MIN_MAC_ADDR_LENGTH = 12;
+        //        string macAddress = string.Empty;
+        //        long maxSpeed = -1;
 
-        //    //foreach (ManagementObject wmi_HD in searcher.Get())
-        //    //{
+        //        foreach (NetworkInterface nic in NetworkInterface.GetAllNetworkInterfaces())
+        //        {
+        //            Console.WriteLine(
+        //                "Found MAC Address: " + nic.GetPhysicalAddress() +
+        //                " Type: " + nic.NetworkInterfaceType);
 
-        //    //    var Model = wmi_HD["Model"].ToString();
-        //    //    var InterfaceType = wmi_HD["InterfaceType"].ToString();
-        //    //    var Caption = wmi_HD["Caption"].ToString();
+        //            string tempMac = nic.GetPhysicalAddress().ToString();
+        //            if (nic.Speed > maxSpeed &&
+        //                !string.IsNullOrEmpty(tempMac) &&
+        //                tempMac.Length >= MIN_MAC_ADDR_LENGTH)
+        //            {
+        //                Console.WriteLine("New Max Speed = " + nic.Speed + ", MAC: " + tempMac);
+        //                maxSpeed = nic.Speed;
+        //                macAddress = tempMac;
+        //            }
+        //        }
 
-        //    //    var SerialNo = wmi_HD.GetPropertyValue("SerialNumber").ToString();//get the serailNumber of diskdrive
-
-        //    //}
-        //    #endregion
-
-        //    #region 浏览器和操作系统
-        //    //var userAgent = Request.Headers["User-Agent"].ToString();
-
-        //    //// Initialize the DeviceDetector
-        //    //var deviceDetector = new DeviceDetector(userAgent);
-
-        //    //// OPTIONAL: Set caching method (file or in-memory caching)
-        //    ////deviceDetector.SetCache(new DictionaryCache()); // Replace with preferred caching method
-
-        //    //// Parse the user agent string
-        //    //deviceDetector.Parse();
-
-        //    //// Get device information
-        //    //string clientDevice = deviceDetector.GetDeviceName(); // Device name
-        //    //string clientOS = deviceDetector.GetOs().ToString(); // Operating system name
-        //    //string clientBrowser = deviceDetector.GetClient().ToString(); // Browser name
-        //    //var a = deviceDetector.GetType().ToString();
-        //    //var b = deviceDetector.GetBot().ToString();
-        //    //var c = deviceDetector.GetBrand().ToString();
-        //    //var d = deviceDetector.GetBrandName().ToString();
-        //    //var model = deviceDetector.GetModel().ToString();
-
-        //    //// Output or use the detected information
-        //    //Console.WriteLine($"Device: {clientDevice}, OS: {clientOS}, Browser: {clientBrowser}");
-        //    //return "";
-        //    #endregion
-
-        //    #region get mac address 返回的是WLAN的 (possible only win os)
-        //    //string macAddress = string.Empty;
-        //    //foreach (NetworkInterface nic in NetworkInterface.GetAllNetworkInterfaces())
-        //    //{
-        //    //    if (nic.OperationalStatus == OperationalStatus.Up && !nic.Description.Contains("Virtual"))
-        //    //    {
-        //    //        macAddress = nic.GetPhysicalAddress().ToString();
-        //    //        break;
-        //    //    }
-        //    //}
-        //    //return;
-        //    #endregion
-
-        //    #region 得到以太网适配器的mac地址
-        //    //var macAddr =
-        //    //            (
-        //    //                from nic in NetworkInterface.GetAllNetworkInterfaces()
-        //    //                where nic.OperationalStatus == OperationalStatus.Up
-        //    //                select nic.GetPhysicalAddress().ToString()
-        //    //            ).FirstOrDefault();
-        //    //return macAddr;
-
-        //    //方法二
-        //    //String firstMacAddress = NetworkInterface
-        //    //                    .GetAllNetworkInterfaces()
-        //    //                    .Where(nic => nic.OperationalStatus == OperationalStatus.Up && nic.NetworkInterfaceType != NetworkInterfaceType.Loopback)
-        //    //                    .Select(nic => nic.GetPhysicalAddress().ToString())
-        //    //                    .FirstOrDefault();
-        //    //return firstMacAddress;
-
-        //    ////方法三
-        //    //var macaddr = NetworkInterface.GetAllNetworkInterfaces().Where(nic => nic.OperationalStatus == OperationalStatus.Up).Select(nic => nic.GetPhysicalAddress().ToString()).FirstOrDefault();
-        //    //return macaddr;
-
-        //    //方法四
-        //    //const int MIN_MAC_ADDR_LENGTH = 12;
-        //    //string macAddress = string.Empty;
-        //    //long maxSpeed = -1;
-
-        //    //foreach (NetworkInterface nic in NetworkInterface.GetAllNetworkInterfaces())
-        //    //{
-        //    //    Console.WriteLine(
-        //    //        "Found MAC Address: " + nic.GetPhysicalAddress() +
-        //    //        " Type: " + nic.NetworkInterfaceType);
-
-        //    //    string tempMac = nic.GetPhysicalAddress().ToString();
-        //    //    if (nic.Speed > maxSpeed &&
-        //    //        !string.IsNullOrEmpty(tempMac) &&
-        //    //        tempMac.Length >= MIN_MAC_ADDR_LENGTH)
-        //    //    {
-        //    //        Console.WriteLine("New Max Speed = " + nic.Speed + ", MAC: " + tempMac);
-        //    //        maxSpeed = nic.Speed;
-        //    //        macAddress = tempMac;
-        //    //    }
-        //    //}
-
-        //    //return macAddress;
-        //    #endregion
+        //        return macAddress;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine("An error occurred while getting the MAC address: " + ex.Message);
+        //        Console.WriteLine("Stack Trace: " + ex.StackTrace);
+        //        return "Error retrieving MAC address.";
+        //    }
         //}
-        #endregion
-
-        public string GetMacAddress()
-        {
-            try
-            {
-                const int MIN_MAC_ADDR_LENGTH = 12;
-                string macAddress = string.Empty;
-                long maxSpeed = -1;
-
-                foreach (NetworkInterface nic in NetworkInterface.GetAllNetworkInterfaces())
-                {
-                    Console.WriteLine(
-                        "Found MAC Address: " + nic.GetPhysicalAddress() +
-                        " Type: " + nic.NetworkInterfaceType);
-
-                    string tempMac = nic.GetPhysicalAddress().ToString();
-                    if (nic.Speed > maxSpeed &&
-                        !string.IsNullOrEmpty(tempMac) &&
-                        tempMac.Length >= MIN_MAC_ADDR_LENGTH)
-                    {
-                        Console.WriteLine("New Max Speed = " + nic.Speed + ", MAC: " + tempMac);
-                        maxSpeed = nic.Speed;
-                        macAddress = tempMac;
-                    }
-                }
-
-                return macAddress;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("An error occurred while getting the MAC address: " + ex.Message);
-                Console.WriteLine("Stack Trace: " + ex.StackTrace);
-                return "Error retrieving MAC address.";
-            }
-        }
 
         private static string HashEncode(string input)
         {
@@ -188,7 +68,7 @@ namespace attendance1.Web.Services
             }
         }
 
-        public async Task<StudentDeviceMdl> GetDeviceInfoAsync(string deviceInfo)
+        public StudentDeviceMdl GetDeviceInfoAsync(string deviceInfo)
         {
             try
             {
@@ -213,7 +93,6 @@ namespace attendance1.Web.Services
             }
             catch (Exception ex)
             {
-                //Console.WriteLine("An error occurred while getting the device information: " + ex.Message);
                 Console.WriteLine("An error occurred while encode the device information: " + ex.Message);
                 return new StudentDeviceMdl();
             }
@@ -447,29 +326,6 @@ namespace attendance1.Web.Services
                                     return "This device is not the device you registered, please use the registered device to proceed. If you want to change your binding device, please contact admin to remove your current binding device.";
                                 }
                             }
-                            
-
-                            //{
-                                
-                            //    string fetchStudentIdQuery = @"SELECT studentID FROM studentDevice WHERE uuID = @UUID";
-                            //    SqlParameter[] fetchStudentIDParameter =
-                            //    {
-                            //        new SqlParameter("@UUID", studentDeviceInfo.UUID)
-                            //    };
-                            //    var result = await _databaseContext.ExecuteQueryAsync(fetchStudentIdQuery, fetchStudentIDParameter);
-                            //    if (result != null && result.Rows.Count > 0)
-                            //    {
-                            //        DataRow row = result.Rows[0];
-                            //        var originalStudentID = row["studentID"].ToString();
-                            //        return $"This device is registered with another student ID: {originalStudentID}.";
-                            //    }
-                            //    return "This device is registered with another student ID. Try to use another device or that student ID and try again.";
-                            //}
-                            //else if (uuidStatus == "re-assign")
-                            //{
-                            //    // re-assign = database never saved the device with the student id (because no found device code), click login is not allowed
-                            //    return "This device is registered with another student ID. Try to use another device or that student ID and try again.";
-                            //}
                         }
                         else
                         {
@@ -509,28 +365,7 @@ namespace attendance1.Web.Services
                             }
                         }
                     }
-                    //else if (uuidStatus == "re-use")
-                    //{
-                    //    // re-use but no device code found = the browser is used but logined with different account in the past, not the current account
-                    //    string fetchStudentIdQuery = @"SELECT studentID FROM studentDevice WHERE uuID = @UUID";
-                    //    SqlParameter[] fetchStudentIDParameter =
-                    //    {
-                    //        new SqlParameter("@UUID", studentDeviceInfo.UUID)
-                    //    };
-                    //    var result = await _databaseContext.ExecuteQueryAsync(fetchStudentIdQuery, fetchStudentIDParameter);
-                    //    if (result != null && result.Rows.Count > 0)
-                    //    {
-                    //        DataRow row = result.Rows[0];
-                    //        var originalStudentID = row["studentID"].ToString();
-                    //        return $"This device is registered with another student ID: {originalStudentID}.";
-                    //    }
-                    //    return "This device is registered with another student ID. Try to use another device or that student ID and try again.";
-                    //}
-                    //else if (uuidStatus == "re-assign")
-                    //{
-                    //    // re-assign = database never saved the device with the student id (because no found device code), click login is not allowed
-                    //    return "This device is registered with another student ID. Try to use another device or that student ID and try again.";
-                    //}
+                    
                     return $"Unknown status. Debug Info: uuid status: {uuidStatus}; current uuid: {studentDeviceInfo.UUID}";
                 }
             }

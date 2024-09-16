@@ -3,7 +3,6 @@ using attendance1.Web.Models.PageModels;
 using attendance1.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 
 namespace attendance1.Web.Controllers
 {

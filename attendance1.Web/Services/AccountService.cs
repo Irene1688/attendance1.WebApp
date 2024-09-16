@@ -4,11 +4,6 @@ using Microsoft.AspNetCore.Authentication;
 using System.Data.SqlClient;
 using System.Security.Claims;
 using attendance1.Web.Models;
-using DeviceDetectorNET;
-using System.Net.NetworkInformation;
-using DeviceDetectorNET.Parser.Device;
-using System.Net.Mail;
-using UAParser;
 using System.Data;
 
 
@@ -32,164 +27,9 @@ namespace attendance1.Web.Services
 
         private string UserId => _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
         private string UserSchoolRoleID => _httpContextAccessor.HttpContext.User.FindFirstValue("UserSchoolRoleID");
-        private string DeviceId => _httpContextAccessor.HttpContext.User.FindFirstValue("StudentDeviceId");
+        //private string DeviceId => _httpContextAccessor.HttpContext.User.FindFirstValue("StudentDeviceId");
         private string AccRole => _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Role);
 
-        //private async Task<StudentDeviceMdl> GetDeviceInfoAsync(string userAgent)
-        //{
-        //    try
-        //    {
-        //        // Initialize the DeviceDetector
-        //        var deviceDetector = new DeviceDetector(userAgent);
-
-        //        // OPTIONAL: Set caching method (file or in-memory caching)
-        //        //deviceDetector.SetCache(new DictionaryCache()); // Replace with preferred caching method
-
-        //        // Parse the user agent string
-        //        deviceDetector.Parse();
-
-        //        var macAddress = await GetMacAddress();
-
-        //        var currentDevice = new StudentDeviceMdl()
-        //        {
-        //            DeviceType = deviceDetector.GetDeviceName(),
-        //            //DeviceModel = deviceDetector.GetModel(),
-        //            DeviceOS = deviceDetector.GetOs().ToString(),
-        //            UsedBrowser = deviceDetector.GetClient().ToString(),
-        //            MacAddress = macAddress,
-        //        };
-        //        return currentDevice;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine("An error occred while getting the mac address of current device: " + ex.Message);
-        //        return new StudentDeviceMdl();
-        //    }
-        //}
-
-        //private async Task<string> ValidateStduentDeviceAndGetIdAsync(string studentID, StudentDeviceMdl studentCurrentDevice)
-        //{
-        //    try
-        //    {
-        //        //string checkExistedQuery = "SELECT deviceID FROM studentDevice WHERE studentID = @StudentID AND deviceType = @DeviceType AND deviceOS = @DeviceOS AND macAddress = @MacAddress";
-        //        string checkExistedQuery = "SELECT studentID, deviceID FROM studentDevice WHERE macAddress = @MacAddress";
-
-        //        SqlParameter[] deviceParameters = {
-        //            //new SqlParameter("@StudentID", studentID),
-        //            //new SqlParameter("@DeviceType", studentCurrentDevice.DeviceType),
-        //            //new SqlParameter("@DeviceOS", studentCurrentDevice.DeviceOS),
-        //            new SqlParameter("@MacAddress", studentCurrentDevice.MacAddress)
-        //        };
-        //        //int deviceId = await _databaseContext.ExecuteScalarAsync<int>(checkExistedQuery, deviceParameters);
-        //        var result = await _databaseContext.ExecuteQueryAsync(checkExistedQuery, deviceParameters);
-        //        if (result != null && result.Rows.Count > 0) {
-        //            var originalStudentID = result.Rows[0]["studentID"].ToString();
-        //            var deviceId = result.Rows[0]["deviceID"].ToString();
-
-        //            if (originalStudentID != studentID)
-        //            {
-        //                return $"This device is registed with another student ID: {originalStudentID}.";
-        //            }
-        //            return deviceId;
-        //        }
-        //        else {
-        //            //new device, register to database
-        //            string insertDeviceQuery = @"INSERT INTO studentDevice (studentID, deviceType, deviceOS, macAddress) VALUES (@StudentID, @DeviceType, @DeviceOS, @MacAddress); 
-        //                                         SELECT SCOPE_IDENTITY();";
-
-        //            //output version
-        //            //string insertDeviceQuery = @"INSERT INTO userDevice (studentID, deviceType, deviceOS, macAddress) OUTPUT INSERTED.deviceID VALUES (@StudentID, @DeviceType, @DeviceOS, @MacAddress);";
-
-
-        //            SqlParameter[] insertDeviceParameters = {
-        //                new SqlParameter("@StudentID", studentID),
-        //                new SqlParameter("@DeviceType", studentCurrentDevice.DeviceType),
-        //                new SqlParameter("@DeviceOS", studentCurrentDevice.DeviceOS),
-        //                new SqlParameter("@MacAddress", studentCurrentDevice.MacAddress)
-        //            };
-
-        //            //deviceId = await _databaseContext.ExecuteScalarAsync<decimal>(insertDeviceQuery, insertDeviceParameters);
-        //            var deviceIdObj = await _databaseContext.ExecuteScalarAsync<decimal>(insertDeviceQuery, insertDeviceParameters);
-        //            string deviceId = deviceIdObj.ToString();
-        //            return deviceId;
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine("An error occured while validating student device: " + ex.Message);
-        //        return "An error occured while validating student device: " + ex.Message;
-        //    }
-        //}
-
-        //private async Task<List<string>> ValidateStudentAsync(LoginMdl loginInput, StudentDeviceMdl studentCurrentDevice)
-        //{
-        //    try
-        //    {
-        //        string query = "SELECT userID, studentID, accRole FROM userDetail WHERE userName = @Username AND studentID = @studentId AND accRole = @Role";
-
-        //        SqlParameter[] parameters =
-        //        {
-        //            new SqlParameter("@Username", loginInput.Username),
-        //            new SqlParameter("@studentId", loginInput.StudentID),
-        //            new SqlParameter("@Role", loginInput.Role)
-        //        };
-        //        var result = await _databaseContext.ExecuteQueryAsync(query, parameters);
-
-        //        if (result != null && result.Rows.Count > 0)
-        //        {
-        //            //student existed
-        //            var userId = result.Rows[0]["userID"].ToString();
-        //            var studentId = result.Rows[0]["studentID"].ToString();
-        //            var role = result.Rows[0]["accRole"].ToString();
-
-        //            var deviceIdOrErrorMessage = await ValidateStduentDeviceAndGetIdAsync(studentId, studentCurrentDevice);
-
-        //            return new List<string> { userId, studentId, role, deviceIdOrErrorMessage };
-        //        }
-        //        else
-        //        {
-        //            string studentIdQuery = "SELECT studentID FROM userDetail WHERE studentID = @studentId";
-
-        //            SqlParameter[] studentIdParameters =
-        //            {
-        //                new SqlParameter("@Username", loginInput.Username),
-        //                new SqlParameter("@studentId", loginInput.StudentID),
-        //                new SqlParameter("@Role", loginInput.Role)
-        //            };
-        //            var Isregistered = await _databaseContext.ExecuteQueryAsync(studentIdQuery, studentIdParameters);
-
-        //            if (Isregistered != null && result.Rows.Count > 0)
-        //            {
-        //                //student existed but different username
-        //                return new List<string>();
-        //            }
-        //            else
-        //            {
-        //                //student does not existed: new student, register to database
-        //                string insertStudentQuery = @"INSERT INTO userDetail (userName, studentID, accRole) OUTPUT INSERTED.userID VALUES (@Username, @studentId, @Role);";
-
-        //                SqlParameter[] insertParameters =
-        //                {
-        //                    new SqlParameter("@Username", loginInput.Username),
-        //                    new SqlParameter("@studentId", loginInput.StudentID),
-        //                    new SqlParameter("@Role", loginInput.Role)
-        //                };
-
-        //                int newUserId = await _databaseContext.ExecuteScalarAsync<int>(insertStudentQuery, insertParameters); ;
-
-        //                var deviceIdOrErrorMessage = await ValidateStduentDeviceAndGetIdAsync(loginInput.StudentID, studentCurrentDevice);
-        //                return new List<string> { newUserId.ToString(), loginInput.StudentID, loginInput.Role, deviceIdOrErrorMessage };
-        //            }
-
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine("An error occured while validate the student: " + ex.Message);
-        //        return new List<string>();
-        //    }
-
-        //}
 
         private async Task<List<string>> ValidateStaffAsync(LoginMdl loginInput)
         {
@@ -226,77 +66,6 @@ namespace attendance1.Web.Services
                 return new List<string>();
             }
         }
-
-
-
-        //private async Task<StudentDeviceMdl> GetDeviceInfoAsync(string userAgent)
-        //{
-        //    try
-        //    {
-        //        var deviceDetector = new DeviceDetector(userAgent);
-        //        deviceDetector.Parse();
-        //        var macAddress = await GetMacAddress();
-        //        return new StudentDeviceMdl
-        //        {
-        //            DeviceType = deviceDetector.GetDeviceName(),
-        //            DeviceOS = deviceDetector.GetOs().ToString(),
-        //            UsedBrowser = deviceDetector.GetClient().ToString(),
-        //            MacAddress = macAddress
-        //        };
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine("An error occurred while getting the device information: " + ex.Message);
-        //        return new StudentDeviceMdl();
-        //    }
-        //}
-
-        //private async Task<string> ValidateStudentDeviceAndGetIdAsync(string studentID, StudentDeviceMdl studentCurrentDevice)
-        //{
-        //    try
-        //    {
-        //        string checkExistedQuery = "SELECT studentID, deviceID FROM studentDevice WHERE macAddress = @MacAddress";
-
-        //        SqlParameter[] deviceParameters = {
-        //            new SqlParameter("@MacAddress", studentCurrentDevice.MacAddress)
-        //        };
-
-        //        var result = await _databaseContext.ExecuteQueryAsync(checkExistedQuery, deviceParameters);
-        //        if (result != null && result.Rows.Count > 0)
-        //        {
-        //            //device existed
-        //            var originalStudentID = result.Rows[0]["studentID"].ToString();
-        //            var deviceId = result.Rows[0]["deviceID"].ToString();
-
-        //            if (originalStudentID != studentID)
-        //            {
-        //                return $"This device is registered with another student ID: {originalStudentID}.";
-        //            }
-        //            return deviceId;
-        //        }
-        //        else
-        //        {
-        //            //deivce does not existed, register the device
-        //            string insertDeviceQuery = @"INSERT INTO studentDevice (studentID, deviceType, deviceOS, macAddress) OUTPUT INSERTED.deviceID VALUES (@StudentID, @DeviceType, @DeviceOS, @MacAddress);";
-
-        //            SqlParameter[] insertDeviceParameters = {
-        //                new SqlParameter("@StudentID", studentID),
-        //                new SqlParameter("@DeviceType", studentCurrentDevice.DeviceType),
-        //                new SqlParameter("@DeviceOS", studentCurrentDevice.DeviceOS),
-        //                new SqlParameter("@MacAddress", studentCurrentDevice.MacAddress)
-        //            };
-
-        //            var deviceId = await _databaseContext.ExecuteScalarAsync<int>(insertDeviceQuery, insertDeviceParameters);
-        //            return deviceId.ToString();
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine($"{studentID}: {ex.Message}");
-        //        return "Ann error occured while validate your device: " + ex.Message;
-        //    }
-            
-        //}
 
         private async Task<List<string>> RegisterNewStudentAsync(LoginMdl loginInput)
         {
@@ -401,7 +170,7 @@ namespace attendance1.Web.Services
         {
             var userDetail = new List<string>();
             //var studentDeviceInfo = await _deviceService.GetDeviceInfoAsync(deviceInfo);
-            var studentDeviceInfo = await _deviceService.GetDeviceInfoAsync(deviceInfo);
+            var studentDeviceInfo =  _deviceService.GetDeviceInfoAsync(deviceInfo);
             if (IsRegister)
             {
                 //register
@@ -478,9 +247,12 @@ namespace attendance1.Web.Services
                 new(ClaimTypes.Name, loginInput.Username),
                 new("UserSchoolRoleID", userDetail[1]), // admin id / lecturer id / student id
                 new(ClaimTypes.Role, userDetail[2]), // acc role
-                new("StudentDeviceId", !string.IsNullOrEmpty(userDetail[3]) ? userDetail[3].Split(':')[1] : string.Empty) // null or device id
+                //new("StudentDeviceId", !string.IsNullOrEmpty(userDetail[3]) ? userDetail[3].Split(':')[1] : string.Empty) // null or device id
             };
 
+            // only for student
+            var IsRegister = RegisterStudentDetailToSession(userDetail);
+            
             var userIdentity = new ClaimsIdentity(userInfo, CookieAuthenticationDefaults.AuthenticationScheme);
             
             var isPersistent = loginInput.Role == "Student" || loginInput.RememberMe; // student = true; or staff = true/ false
@@ -492,14 +264,39 @@ namespace attendance1.Web.Services
                 ExpiresUtc = expiresUtc
             };
 
-            await _httpContextAccessor.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(userIdentity), authProperties);
+            try
+            {
+                await _httpContextAccessor.HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    new ClaimsPrincipal(userIdentity),
+                    authProperties
+                );
+
+                var user = _httpContextAccessor.HttpContext.User;
+                if (user.Identity.IsAuthenticated)
+                {
+                    _logger.LogInformation("SignInAsync executed successfully and user is authenticated.");
+                    var role = user.FindFirstValue(ClaimTypes.Role);
+                    _logger.LogInformation($"User role: {role}");
+                }
+                else
+                {
+                    _logger.LogWarning($"User with id {userDetail[1]} is not authenticated.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning($"User with id {userDetail[1]} sync in failed.");
+            }
+
+            //await _httpContextAccessor.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(userIdentity), authProperties);
 
             return "Login successfully." + userDetail[2];
         }
 
         public bool IsLogined()
         {
-            if (_httpContextAccessor.HttpContext.User.Identity.IsAuthenticated)
+            if (_httpContextAccessor.HttpContext.User.Identity.IsAuthenticated || _httpContextAccessor.HttpContext.Session.GetString("IsLogined") == "true")
             {
                 return true;            
             }
@@ -514,39 +311,64 @@ namespace attendance1.Web.Services
                 string lecturerId = UserSchoolRoleID;
                 return lecturerId;
             }
-            //int lecturerId = User.FindFirstValue("LecturerID");
             return null;
         }
 
-        public string GetCurrentUserRole()
+        public string? GetCurrentUserRole()
         {
-            string accRole = AccRole;
+            var accRole = !string.IsNullOrWhiteSpace(AccRole) ? AccRole : _httpContextAccessor.HttpContext.Session.GetString("AccRole");
 
-            if (!string.IsNullOrWhiteSpace(accRole))
-            {
-                return accRole;
-            }
-            return null;
+            return accRole;
+        //    string accRole = AccRole;
+
+        //    if (!string.IsNullOrWhiteSpace(accRole))
+        //    {
+        //        return accRole;
+        //    }
+        //    else
+        //    {
+        //        accRole = _httpContextAccessor.HttpContext.Session.GetString("AccRole");
+        //    }
+        //    return null;
         }
 
         public int GetCurrentStudentDeviceId()
         {
-            string accRole = AccRole;
+            string accRole = GetCurrentUserRole();
             if (!string.IsNullOrWhiteSpace(accRole) && accRole == "Student")
             {
-                int deviceId = int.Parse(DeviceId);
+                string deviceIdStr = _httpContextAccessor.HttpContext.Session.GetString("DeviceId");
+                int deviceId = Convert.ToInt32(deviceIdStr);
                 return deviceId;
             }
             return -1;
         }
 
-        public string GetCurrentStudentId() 
+        public bool RegisterStudentDetailToSession(List<string> userDetail)
         {
-            string accRole = AccRole;
+            var httpContext = _httpContextAccessor.HttpContext;
+            if (userDetail[2] == "Student" && httpContext != null)
+            {
+                httpContext.Session.SetString("UserId", userDetail[0]);
+                httpContext.Session.SetString("StudentId", userDetail[1]);
+                httpContext.Session.SetString("AccRole", userDetail[2]);
+                httpContext.Session.SetString("DeviceId", !string.IsNullOrEmpty(userDetail[3]) ? userDetail[3].Split(':')[1] : string.Empty);
+                httpContext.Session.SetString("IsLogined", "true");
+                return true;
+            }
+            else
+            {
+                // not a student
+                return false;
+            }
+        }
 
+        public string? GetCurrentStudentId() 
+        {
+            string accRole = GetCurrentUserRole();
             if (!string.IsNullOrWhiteSpace(accRole) && accRole == "Student")
             {
-                string studentId = UserSchoolRoleID;
+                string studentId = _httpContextAccessor.HttpContext.Session.GetString("StudentId");
                 return studentId;
             }
             return null;
@@ -557,12 +379,12 @@ namespace attendance1.Web.Services
             try
             {
                 string fetchQuery = @"SELECT studentID, userName FROM userDetail WHERE studentID = @studentID";
-                SqlParameter[] fetcgParameters =
+                SqlParameter[] fetchParameters =
                 {
                     new SqlParameter("@studentID", studentId)
                 };
 
-                var result = await _databaseContext.ExecuteQueryAsync(fetchQuery, fetcgParameters);
+                var result = await _databaseContext.ExecuteQueryAsync(fetchQuery, fetchParameters);
                 if (result != null && result.Rows.Count > 0)
                 {
                     var row = result.Rows[0];
@@ -576,7 +398,7 @@ namespace attendance1.Web.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine("An error occured while getting stident infomation: " + ex.Message);
+                Console.WriteLine("An error occured while getting student infomation: " + ex.Message);
                 return new StudentMdl();
             }
         }
@@ -635,6 +457,8 @@ namespace attendance1.Web.Services
 
         public int GetCurrentUserId()
         {
+            // student role cannot used the method
+            // user id of student did not save
             int userId = Convert.ToInt32(UserId);
             if (userId != 0)
             {

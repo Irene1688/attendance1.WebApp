@@ -1,16 +1,11 @@
 ﻿using attendance1.Web.Data;
 using attendance1.Web.Models;
 using attendance1.Web.Models.PageModels;
-//using Microsoft.CodeAnalysis.Elfie.Serialization;
 using attendance1.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
-using System.Data.SqlClient;
-using System.Net;
 using System.Text.Json;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-
 
 namespace attendance1.Web.Controllers
 {
@@ -88,8 +83,7 @@ namespace attendance1.Web.Controllers
             {
                 TempData["PromptMessage"] = "No student found. Please add the student first.";
             }
-            //var semesterDetails = await GetSemesterDetails(courseDetails.SemesterId);
-            //var regularClassDays = courseDetails.ClassDays.Split(',').Select(day => int.Parse(day)).ToList();
+            
             var regularClassDays = _classService.ChangeRegularClassDayToIntListAsync(courseDetails.ClassDays);
             if (regularClassDays.Count <= 0 )
             {
@@ -196,7 +190,6 @@ namespace attendance1.Web.Controllers
             {
                 var message = await _classService.EditCurrentClassAsync(classDetails);
 
-                //var message = await EditClassInfoAsync(classDetails);
                 if (message == "Class details saved successfully.")
                 {
                     TempData["SuccessMessage"] = message;
@@ -339,7 +332,6 @@ namespace attendance1.Web.Controllers
                     return RedirectToAction("ClassAttendance", "Class", new { id = courseId });
                 }
 
-                //var message = await DeleteClassDayAsync(recordId, courseId, dateToDelete);
                 var message = await _classService.DeleteClassDayForCurrentClassAsync(courseId, dateToDelete, recordId);
 
                 if (message == "Class Day with attandance record deleted successfully.")
@@ -383,7 +375,6 @@ namespace attendance1.Web.Controllers
                 }
 
                 var StudentId = firstChange.StudentId;
-                //var Date = AllChanges.FirstOrDefault().DateAndTime;
 
                 var addAttendanceIds = AllChanges.Where(c => c.Action == "add").Select(c => c.AttendanceId).ToList();
                 var dates = AllChanges.Where(c => c.Action == "add").Select(c => c.DateAndTime).ToList();

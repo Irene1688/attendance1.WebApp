@@ -2,15 +2,8 @@
 using attendance1.Web.Models;
 using attendance1.Web.Models.PageModels;
 using Microsoft.AspNetCore.Mvc;
-using System.Data.SqlClient;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.AspNetCore.Mvc.Razor;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
-using System.Reflection;
-using System.Security.Claims;
 using System.Data;
-using System.CodeDom.Compiler;
 using attendance1.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 
@@ -67,20 +60,6 @@ namespace attendance1.Web.Controllers
                 TempData["ErrorMessage"] = "Error occured when generate the attendance code, please try again.";
                 return RedirectToAction("GetClass", "Class");
             }
-            //string query = @"
-            //                INSERT INTO attendanceRecord (attendanceCode, date, startTime, endTime, courseID) OUTPUT INSERTED.recordID
-            //                VALUES (@AttendanceCode, @Date, @StartTime, @EndTime, @CourseID)";
-
-            //SqlParameter[] parameters =
-            //{
-            //        new SqlParameter("@AttendanceCode", attendanceRecord.AttendanceCode),
-            //        new SqlParameter("@Date", attendanceRecord.Date),
-            //        new SqlParameter("@StartTime", attendanceRecord.StartTime),
-            //        new SqlParameter("@EndTime", attendanceRecord.EndTime),
-            //        new SqlParameter("@CourseID", attendanceRecord.CourseID)
-            //};
-
-            //int attendanceId = await _databaseContext.ExecuteScalarAsync<int>(query, parameters);
         }
 
         [Authorize(Roles = "Lecturer")]
@@ -117,10 +96,15 @@ namespace attendance1.Web.Controllers
             }
         }
 
-        [Authorize(Roles = "Student")]
         [HttpPost]
         public async Task<IActionResult> SubmitAttendance(string attendanceCode, string deviceCode)
         {
+            var role = _accountService.GetCurrentUserRole();
+            if (String.IsNullOrEmpty(role) || role != "Student")
+            {
+                return RedirectToAction("AccessDenied", "Error");
+            }
+
             var studentId = _accountService.GetCurrentStudentId();
             var submitDateTime = DateTime.Now;
             
@@ -133,7 +117,6 @@ namespace attendance1.Web.Controllers
                 message = "Invalid or expired attendance code. Please try again.";
                 TempData["ErrorMessage"] = message;
                 return RedirectToAction("TakeAttendancePage", "Attendance");
-                //return View("/Views/Student/IndexStudent.cshtml");
             }
 
             var IsEnrolled = await _attendanceService.checkEnrollStatusOfCurrentStudent(studentId, validAttendanceCode.CourseID);
@@ -144,7 +127,6 @@ namespace attendance1.Web.Controllers
                 return RedirectToAction("TakeAttendancePage", "Attendance");
             }
 
-            //var studentDeviceMacAddress = _deviceService.GetMacAddress();
             var studentDeviceCode = _deviceService.GetEncodeDeviceCode(deviceCode);
             var studentDeviceId = await _deviceService.GetDeviceIdForCurrentStudentAsync(studentId, studentDeviceCode);
             if (studentDeviceId <= 0)
@@ -201,8 +183,8 @@ namespace attendance1.Web.Controllers
                 return View("/Views/Login.cshtml");
             }
 
-            var deviceId = _accountService.GetCurrentStudentDeviceId();
-            if (deviceId <= 0 )
+            int deviceId = _accountService.GetCurrentStudentDeviceId();
+            if (deviceId <= 0)
             {
                 TempData["ErrorMessage"] = "Please login first.";
                 return View("/Views/Login.cshtml");
@@ -241,7 +223,7 @@ namespace attendance1.Web.Controllers
 
             DateTime today = DateTime.Today;
             int daysTillMonday = (int)DayOfWeek.Monday - (int)today.DayOfWeek;
-            if (daysTillMonday > 0) daysTillMonday -= 7; 
+            if (daysTillMonday > 0) daysTillMonday -= 7;
 
             DateTime monday = today.AddDays(daysTillMonday);
 
@@ -264,11 +246,22 @@ namespace attendance1.Web.Controllers
             return View("/Views/Student/IndexStudent.cshtml", model);
         }
 
-        [Authorize(Roles = "Student")]
         [HttpGet]
         public async Task<IActionResult> HistoryAttendancePage()
         {
-            var studentId = _accountService.GetCurrentStudentId();
+            var role = HttpContext.Session.GetString("AccRole");
+            if (String.IsNullOrEmpty(role) || role != "Student")
+            {
+                return RedirectToAction("AccessDenied", "Error");
+            }
+
+            var studentId = HttpContext.Session.GetString("StudentId");
+            if (string.IsNullOrEmpty(studentId))
+            {
+                TempData["ErrorMessage"] = "Please login first.";
+                return View("/Views/Login.cshtml");
+            }
+
             var historyStudentAttendance = await _attendanceService.GetCurrentStudentHistoryAsync(studentId);
 
             var courseIdList = new List<int>();
@@ -301,6 +294,125 @@ namespace attendance1.Web.Controllers
 
             return View("/Views/Student/HistoryAttendancePage.cshtml", model);
         }
+
+        //[HttpGet]
+        //public async Task<IActionResult> TakeAttendancePage()
+        //{
+        //    //var userId = HttpContext.Session.GetInt32("UserId");
+        //    var studentId = _accountService.GetCurrentStudentId();
+        //    if (string.IsNullOrEmpty(studentId))
+        //    {
+        //        TempData["ErrorMessage"] = "Please login first.";
+        //        return View("/Views/Login.cshtml");
+        //    }
+
+        //    var studentDetail = await _accountService.GetCurrentStudentDetailAsync(studentId);
+        //    if (studentDetail.StudentID == null)
+        //    {
+        //        TempData["ErrorMessage"] = "Your student ID is incorrect. Please login again if your student ID have been changed.";
+        //        return View("/Views/Login.cshtml");
+        //    }
+
+        //    var deviceId = await _accountService.GetCurrentStudentDeviceId();
+        //    if (deviceId <= 0 )
+        //    {
+        //        TempData["ErrorMessage"] = "Please login first.";
+        //        return View("/Views/Login.cshtml");
+        //    }
+        //    var existedDeviceId = await _deviceService.CheckDeviceIdExisted(deviceId);
+        //    if (!existedDeviceId)
+        //    {
+        //        TempData["ErrorMessage"] = "This device has been unbind to your student ID. Login again to bind the device to your student ID.";
+        //        return View("/Views/Login.cshtml");
+        //    }
+
+        //    var historyStudentAttendance = await _attendanceService.GetCurrentStudentHistoryAsync(studentId);
+        //    var adminDetail = await _accountService.GetManyAdminDetailAsync();
+
+        //    var courseIdList = new List<int>();
+        //    var courseDetail = new List<ClassMdl>();
+
+        //    var model = new StudentTakeAttendancePageMdl();
+
+        //    if (historyStudentAttendance != null)
+        //    {
+        //        foreach (var history in historyStudentAttendance)
+        //        {
+        //            if (!courseIdList.Contains(history.CourseId)) // avoid repeat course id
+        //            {
+        //                courseIdList.Add(history.CourseId);
+        //            }
+        //        }
+        //        courseDetail = await _classService.GetCourseDetailsForManyCourseAsync(courseIdList);
+        //    }
+
+        //    // get the five day of current week
+        //    var currentWeekDates = new List<int>();
+        //    var currentWeekDays = new List<string>();
+        //    var currentWeekMonths = new List<string>();
+
+        //    DateTime today = DateTime.Today;
+        //    int daysTillMonday = (int)DayOfWeek.Monday - (int)today.DayOfWeek;
+        //    if (daysTillMonday > 0) daysTillMonday -= 7; 
+
+        //    DateTime monday = today.AddDays(daysTillMonday);
+
+        //    for (int i = 0; i < 5; i++)
+        //    {
+        //        var day = monday.AddDays(i);
+        //        currentWeekDates.Add(day.Day);
+        //        currentWeekDays.Add(day.ToString("ddd"));
+        //        currentWeekMonths.Add(day.ToString("MMM"));
+        //    }
+
+        //    model.StudentDetail = studentDetail;
+        //    model.StudentHistoryAttendance = historyStudentAttendance ?? new List<StudentAttendanceMdl>();
+        //    model.StudentHistoryCourse = courseDetail;
+        //    model.AdminInfo = adminDetail;
+        //    model.CurrentWeekDate = currentWeekDates;
+        //    model.CurrentWeekDay = currentWeekDays;
+        //    model.CurrentWeekMonth = currentWeekMonths;
+
+        //    return View("/Views/Student/IndexStudent.cshtml", model);
+        //}
+
+        //[Authorize(Roles = "Student")]
+        //[HttpGet]
+        //public async Task<IActionResult> HistoryAttendancePage()
+        //{
+        //    var studentId = _accountService.GetCurrentStudentId();
+        //    var historyStudentAttendance = await _attendanceService.GetCurrentStudentHistoryAsync(studentId);
+
+        //    var courseIdList = new List<int>();
+        //    var courseDetail = new List<ClassMdl>();
+
+        //    var model = new StudentTakeAttendancePageMdl();
+
+        //    if (historyStudentAttendance != null)
+        //    {
+        //        foreach (var history in historyStudentAttendance)
+        //        {
+        //            if (!courseIdList.Contains(history.CourseId)) // avoid repeat course id
+        //            {
+        //                courseIdList.Add(history.CourseId);
+        //            }
+        //        }
+        //        courseDetail = await _classService.GetCourseDetailsForManyCourseAsync(courseIdList);
+
+        //        // group attendance record based on date
+        //        var groupedHistory = historyStudentAttendance
+        //            .GroupBy(h => h.DateAndTime.Date)
+        //            .OrderByDescending(g => g.Key)
+        //            .ToDictionary(g => g.Key, g => g.ToList());
+
+        //        model.GroupedStudentHistoryAttendance = groupedHistory;
+        //    }
+
+        //    model.StudentHistoryAttendance = historyStudentAttendance ?? new List<StudentAttendanceMdl>();
+        //    model.StudentHistoryCourse = courseDetail;
+
+        //    return View("/Views/Student/HistoryAttendancePage.cshtml", model);
+        //}
 
     }
 

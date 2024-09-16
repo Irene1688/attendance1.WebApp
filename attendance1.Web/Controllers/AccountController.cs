@@ -1,8 +1,5 @@
 ﻿using attendance1.Web.Data;
 using Microsoft.AspNetCore.Mvc;
-using System.Data.SqlClient;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.AspNetCore.Mvc.Razor;
 using attendance1.Web.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
@@ -10,22 +7,9 @@ using System.Reflection;
 using System.Security.Claims;
 using attendance1.Web.Services;
 using System.Data;
-using NuGet.Protocol.Core.Types;
-using DeviceDetectorNET;
-using DeviceDetectorNET.Cache;
-using DeviceDetectorNET.Parser;
-using UAParser;
-using System.Management;
-using System.Net.NetworkInformation;
-using DeviceDetectorNET.Class.Device;
-using attendance1.Web.Models.PageModels;
 using System.Net;
-using System.Text.RegularExpressions;
-using System.Xml.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
-
-
 
 namespace attendance1.Web.Controllers
 {
@@ -63,10 +47,7 @@ namespace attendance1.Web.Controllers
 
         }
 
-
-
-
-        #region login 优化版
+        #region login
         [HttpGet]
         [Route("/Login")]
         public IActionResult Login()
@@ -120,7 +101,6 @@ namespace attendance1.Web.Controllers
                     "Lecturer" => RedirectToAction("GetClass", "Class"),
                     "Student" => RedirectToAction("TakeAttendancePage", "Attendance", new {studentId = studentID }),
                     _ => StatusCode(StatusCodes.Status400BadRequest),
-                    //_ => RedirectToAction("ErrorHandler", "Account", new { statusCode = HttpStatusCode.BadRequest }),
                 };
             }
 
@@ -138,12 +118,6 @@ namespace attendance1.Web.Controllers
                     return $"{message} Please use this Student ID to login or try another device.";
                 }
 
-                //if (message.StartsWith("Student ID not found") || message.StartsWith("The student ID has been registered"))
-                //{
-                //    return message;
-                //}
-
-                //return "Check your Name and Student ID and try again.";
                 return message;
             }
             return message;
@@ -157,9 +131,7 @@ namespace attendance1.Web.Controllers
             var role = _accountService.GetCurrentUserRole();
             if (role == null || (role != "Admin" && role != "Lecturer") || userId <= 0)
             {
-                //var status = HttpStatusCode.BadRequest;
-                //return RedirectToAction("ErrorHandler", "Account", new { statusCode = status });
-                return RedirectToAction("AccessDenied", "Account");
+                return RedirectToAction("AccessDenied", "Error");
             }
 
             var staffId = String.Empty;
@@ -209,11 +181,10 @@ namespace attendance1.Web.Controllers
             // clear cookies
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
-            //// 2. 清除所有的Claims
+            //// clear claims
             //var claimsIdentity = User.Identity as ClaimsIdentity;
             //if (claimsIdentity != null)
             //{
-            //    // 清除所有Claim
             //    foreach (var claim in claimsIdentity.Claims)
             //    {
             //        claimsIdentity.RemoveClaim(claim);
@@ -224,15 +195,26 @@ namespace attendance1.Web.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Student")]
         public async Task<IActionResult> SubmitFeedback(int feedbackRating, string feedbackContent)
         {
+            var accRole = _accountService.GetCurrentUserRole();
+            if (accRole == null || accRole != "Student")
+            {
+                return RedirectToAction("AccessDenied", "Error");
+            }
+
             if (feedbackRating == 0 && feedbackContent == null)
             {
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
 
             var studentId = _accountService.GetCurrentStudentId();
+            if (studentId == null || String.IsNullOrEmpty(studentId))
+            {
+                TempData["ErrorMessage"] = "Please login first.";
+                return View("/Views/Login.cshtml");
+            }
+
             var message = await _accountService.SaveFeedbackAsync(studentId, feedbackRating, feedbackContent);
             if (message == "The feeadback saved successfully.")
             {
@@ -243,8 +225,6 @@ namespace attendance1.Web.Controllers
                 TempData["ErrorMessage"] = "An error occured whele submitting your feedback: " + message + " Please try again.";
             }
 
-            Console.WriteLine(feedbackRating.ToString());
-            Console.WriteLine(feedbackContent);
             return RedirectToAction("TakeAttendancePage", "Attendance", new { studentId = studentId });
         }
     }

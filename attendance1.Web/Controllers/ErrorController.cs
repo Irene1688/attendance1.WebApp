@@ -1,28 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using attendance1.Web.Data;
-using System.Data.SqlClient;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.AspNetCore.Mvc.Razor;
-using attendance1.Web.Models;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
-using System.Reflection;
-using System.Security.Claims;
-using attendance1.Web.Services;
-using System.Data;
-using NuGet.Protocol.Core.Types;
-using DeviceDetectorNET;
-using DeviceDetectorNET.Cache;
-using DeviceDetectorNET.Parser;
-using UAParser;
-using System.Management;
-using System.Net.NetworkInformation;
-using DeviceDetectorNET.Class.Device;
-using attendance1.Web.Models.PageModels;
 using System.Net;
 using System.Text.RegularExpressions;
-using System.Xml.Linq;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
 
 namespace attendance1.Web.Controllers
@@ -38,7 +16,6 @@ namespace attendance1.Web.Controllers
         [HttpGet]
         public IActionResult AccessDenied()
         {
-            //return StatusCode(403);
             var info = new
             {
                 StatusCode = "403",

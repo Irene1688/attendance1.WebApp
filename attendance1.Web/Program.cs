@@ -3,15 +3,11 @@ using attendance1.Web.Services;
 using attendance1.Web.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using attendance1.Web.Helpers;
-using DeviceDetectorNET.Parser.Device;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.CodeAnalysis.Scripting;
 using NLog;
 using NLog.Web;
 using System;
 using Microsoft.AspNetCore.DataProtection;
 
-//var logger = NLog.LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
 var logger = NLog.LogManager.GetCurrentClassLogger();
 
 try
@@ -20,7 +16,7 @@ try
 
     var loggerFactory = LoggerFactory.Create(builder =>
     {
-        //builder.ClearProviders(); // clear default asp.net configure, better is no used
+        //builder.ClearProviders(); // clear default asp.net configure, better is dont used
         builder.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
     });
 
@@ -50,7 +46,44 @@ try
             //options.ExpireTimeSpan = TimeSpan.FromDays(14); // effective in 14 days
             options.SlidingExpiration = true;
             options.AccessDeniedPath = "/Error/AccessDenied";
+            options.Cookie.HttpOnly = true; // 使 Cookie 只通过 HTTP 传输
+            options.Cookie.SameSite = SameSiteMode.Lax;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.None;
+            options.Events = new CookieAuthenticationEvents
+            {
+                OnSigningIn = context =>
+                {
+                    // log login events
+                    context.HttpContext.RequestServices.GetRequiredService<ILogger<AuthLoggingMiddleware>>()
+                        .LogInformation("User is signing in: {User}", context.Principal.Identity.Name);
+                    return Task.CompletedTask;
+                },
+                OnSignedIn = context =>
+                {
+                    // log login success event
+                    context.HttpContext.RequestServices.GetRequiredService<ILogger<AuthLoggingMiddleware>>()
+                        .LogInformation("User signed in successfully: {User}", context.Principal.Identity.Name);
+                    return Task.CompletedTask;
+                },
+                OnValidatePrincipal = context =>
+                {
+                    // log validate event
+                    context.HttpContext.RequestServices.GetRequiredService<ILogger<AuthLoggingMiddleware>>()
+                        .LogInformation("Validating user: {User}", context.Principal.Identity.Name);
+                    return Task.CompletedTask;
+                }
+            };
+
         });
+
+    // configure session 
+    builder.Services.AddDistributedMemoryCache(); // session need memory cache
+    builder.Services.AddSession(options =>
+    {
+        options.IdleTimeout = TimeSpan.FromDays(14);// Session effective time
+        options.Cookie.HttpOnly = true;
+        options.Cookie.IsEssential = true;
+    });
 
     // authrizate user login and account role
     builder.Services.AddAuthorization();
@@ -85,6 +118,7 @@ try
         app.UseHsts();
     }
 
+
     //app.UseHttpsRedirection();
     app.UseStaticFiles();
     app.UseStaticFiles(new StaticFileOptions
@@ -92,6 +126,9 @@ try
         ServeUnknownFileTypes = true,
         DefaultContentType = "application/json"
     });
+
+    app.UseSession();
+    app.UseMiddleware<AuthLoggingMiddleware>();
 
     app.UseRouting();
 
@@ -128,41 +165,6 @@ finally
     // Ensure to flush and stop internal timers/threads before application-exit
     NLog.LogManager.Shutdown();
 }
-
-#region [to do list]
-//1. authorization 要根据情况做好重定向(403/access denied) v
-//2. 可能需要做全局授权
-//3. 禁止返回到登录页面 v
-//4. 做login的alert和 v
-//5. logout功能 (要禁止backward) v
-//5. 做header footer 前端 v
-//6. 清楚cookie的按钮 -> logout v
-//7. 确保remember me的功能有效
-//8. 重新登录，刷掉里面的cookie，添加lecturerId
-//9. 测试功能，list出class v
-//10. 换成view，重新做authorized v
-//11. 如果add class的programme换成admin加的话，后端逻辑就不是保存programme进入数据库，而是获取id，存入数据库,
-//    admin那边的就要限制，不能有重复的programme v
-//12. add class时，如果已经insert了一些东西然后出现报错返回，返回之前要把insert的东西discard v
-//13. add class的message display v
-//14. indexLec的modal标题和功能测试(generate code) v
-//15. testing temp data can pass or not (add class success message) v
-//16. 优化add class
-//17. 试试看app js和query能不能用外部引入 v
-//18. 给classDay做限制，星期一开始 v
-//19， close modal要清楚填的数据
-//20. 给弹窗自定义css
-//21. 给数据库的device table做限制，不要重复的数据插入，不要有冗余 v
-//22. add student attendance single student再烤炉要不要让deiceId allow null (db table) v
-//23. 给dropdown menu添加间距
-//24. 给manifest加截图
-//25. device service 分离 v
-//26. student id if null required login again v
-//27. 给js check pattern重写，源码在AdminPage.js
-//28. edit-profile: password安全新不高
-//29. class attendance page的change status modal关了之后数据initial
-
-#endregion
 
 #region BackUp
 //_ValidationScriptsPartial.cshtml

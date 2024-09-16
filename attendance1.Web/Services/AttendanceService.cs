@@ -1,8 +1,6 @@
 ﻿using attendance1.Web.Data;
 using attendance1.Web.Models;
 using LiteDB;
-using Microsoft.VisualBasic;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 
@@ -41,8 +39,7 @@ namespace attendance1.Web.Services
         {
             try
             {
-                string query = @"
-                                  INSERT INTO attendanceRecord (attendanceCode, date, startTime, endTime, courseID) OUTPUT INSERTED.recordID
+                string query = @" INSERT INTO attendanceRecord (attendanceCode, date, startTime, endTime, courseID) OUTPUT INSERTED.recordID
                                   VALUES (@AttendanceCode, @Date, @StartTime, @EndTime, @CourseID)";
 
                 SqlParameter[] parameters =
@@ -67,9 +64,6 @@ namespace attendance1.Web.Services
 
         public async Task<AttendanceMdl> FetchValidAttendanceCodeFromDatabaseAsync(string studentAttendanceCode, DateTime studentSubmitDateTime)
         {
-            //var now = DateTime.Now;
-            //var currentDate = now.Date;
-            //var currentTime = now.TimeOfDay;
             var studentSubmitDate = studentSubmitDateTime.Date;
             var studentSubmitTime = studentSubmitDateTime.TimeOfDay;
 
