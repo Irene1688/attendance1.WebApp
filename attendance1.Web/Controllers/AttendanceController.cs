@@ -184,26 +184,10 @@ namespace attendance1.Web.Controllers
             return RedirectToAction("TakeAttendancePage", "Attendance");
         }
 
-        // debug
-        private string GetCurrentStudentId()
-        {
-            string accRole = HttpContext.User.FindFirstValue(ClaimTypes.Role);
-            if (!string.IsNullOrWhiteSpace(accRole) && accRole == "Student")
-            {
-                //string studentId = UserSchoolRoleID;
-                //return studentId;
-                return "Success gain accRole in contoller";
-            }
-            return null;
-        }
-
         [HttpGet]
         public async Task<IActionResult> TakeAttendancePage()
         {
-            //var studentId = _accountService.GetCurrentStudentId();
-            // debug
-            var message = GetCurrentStudentId;
-            _logger.LogError("message:"+  message);
+            var studentId = _accountService.GetCurrentStudentId();
             if (string.IsNullOrEmpty(studentId))
             {
                 TempData["ErrorMessage"] = "Please login first.";

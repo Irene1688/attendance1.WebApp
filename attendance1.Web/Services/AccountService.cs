@@ -543,9 +543,7 @@ namespace attendance1.Web.Services
         public string GetCurrentStudentId() 
         {
             string accRole = AccRole;
-            // debug
-            _logger.LogError("accRole1: " + AccRole);
-            _logger.LogError("accRole: " + accRole);
+
             if (!string.IsNullOrWhiteSpace(accRole) && accRole == "Student")
             {
                 string studentId = UserSchoolRoleID;

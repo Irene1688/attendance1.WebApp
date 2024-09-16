@@ -311,7 +311,7 @@ namespace attendance1.Web.Services
                             return "Failed to update UUID (browser id).";
                         }
                         return $"Success:{deviceId}";
-                    }
+                    } 
                     else if (uuidStatus == "first-assign")
                     {
                         // first-assign = student click register but the device code is found
