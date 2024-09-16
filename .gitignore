@@ -361,3 +361,8 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/attendance1.Web/Data/DatabaseScripts.sql
+*.json
+/attendance1.Web/wwwroot/js/Shared/Login.js
+/attendance1.Web/NLog.config
+/attendance1.Web.sln

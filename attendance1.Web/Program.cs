@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.Scripting;
 using NLog;
 using NLog.Web;
 using System;
+using Microsoft.AspNetCore.DataProtection;
 
 //var logger = NLog.LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
 var logger = NLog.LogManager.GetCurrentClassLogger();
@@ -23,11 +24,18 @@ try
         builder.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
     });
 
+
+
     #region services region
     // Add services to the container.
-    
+
     // using NLog to log exception and error
     builder.Host.UseNLog();
+
+    // Configure Data Protection
+    builder.Services.AddDataProtection()
+        .PersistKeysToFileSystem(new DirectoryInfo(@"C:\IISWebsite\Student Attendance Management System\UserKeys")) // Specify your path
+        .SetApplicationName("Student Attendance Management System"); // Set a unique application name if needed
 
     builder.Services.AddRazorPages();
     builder.Services.AddTransient<DatabaseContext>();
