@@ -28,9 +28,9 @@ namespace attendance1.Web.Services
             return codeValidTime switch
             {
                 "30 sec" => TimeSpan.FromSeconds(30),
+                "45 sec" => TimeSpan.FromSeconds(45),
                 "1 Min" => TimeSpan.FromMinutes(1),
-                "3 Min" => TimeSpan.FromMinutes(3),
-                "5 Min" => TimeSpan.FromMinutes(5),
+                //"5 Min" => TimeSpan.FromMinutes(5),
                 _ => TimeSpan.Zero
             };
         }
