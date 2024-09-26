@@ -80,7 +80,7 @@ namespace attendance1.Web.Services
                 if (result != null && result.Rows.Count > 0)
                 {
                     // student ID existed, not allow to register
-                    string message = "The student ID has been registered. Duplicate register action is not allowed. Please select login.";
+                    string message = "The student ID has been registered. Duplicate register action is not allowed. Please select login to proceed.";
                     return new List<string> { message };
                 }
 
@@ -176,7 +176,7 @@ namespace attendance1.Web.Services
                 //register
                 if (UuidStatus == "re-use")
                 {
-                    string errorMessage = "This device is register with another student ID. Please try another device.";
+                    string errorMessage = "This device is registered. Please select login to proceed.";
                     userDetail.Add(errorMessage);
                     return userDetail;
                 }

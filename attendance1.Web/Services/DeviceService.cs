@@ -201,7 +201,7 @@ namespace attendance1.Web.Services
                 }
                 else
                 {
-                    // no found device code
+                    // no found device code (device not existed)
                     if (uuidStatus == "first-assign")
                     {
                         // check uuid existed or not

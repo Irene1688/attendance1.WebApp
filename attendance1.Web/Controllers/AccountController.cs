@@ -50,6 +50,7 @@ namespace attendance1.Web.Controllers
         #region login
         [HttpGet]
         [Route("/Login")]
+        // check login for student if they enter route (/login)
         public IActionResult Login()
         {
             var role = _accountService.GetCurrentUserRole();
