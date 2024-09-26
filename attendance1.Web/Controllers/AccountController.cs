@@ -100,7 +100,7 @@ namespace attendance1.Web.Controllers
                 {
                     "Admin" => RedirectToAction("GetProgramme", "Admin"),
                     "Lecturer" => RedirectToAction("GetClass", "Class"),
-                    "Student" => RedirectToAction("TakeAttendancePage", "Attendance", new {studentId = studentID }),
+                    "Student" => RedirectToAction("TakeAttendancePage", "Attendance"),
                     _ => StatusCode(StatusCodes.Status400BadRequest),
                 };
             }
