@@ -253,7 +253,7 @@ namespace attendance1.Web.Services
                             var studentIDresult = await _databaseContext.ExecuteQueryAsync(checkStudentIDQuery, checkStudentIDParameters);
                             if (studentIDresult != null && studentIDresult.Rows.Count > 0)
                             {
-                                // student existed
+                                // student id existed in studentDevice table
                                 _logger.LogWarning("Student" + studentID + "has stored in student device table, cannot register the current device.");
                                 return "This device is not the device you registered, please use the registered device to proceed. If you want to change your binding device, please contact admin to remove your current binding device.";
                             }
