@@ -43,7 +43,7 @@
                         @TempData["ErrorMessage"]
                     </div>
                 }
-                <div id="device-type-error" class="prompt-text text-danger m-b-10" style="display: none; font-size: 1.5rem;"><i class=" mdi mdi-alert-circle-outline"></i> Please use your phone to proceed.</div>
+                <div id="device-type-error" class="prompt-text text-danger m-b-10" style="display: none; font-size: 1.5rem;"><i class=" mdi mdi-alert-circle-outline"></i>You need to use your phone to proceed instead of other device type.</div>
 @*                 <div id="device-registered-error" class="prompt-text text-danger m-b-10" style="display: none; font-size: 1.5rem; text-align: justify;"><i class=" mdi mdi-alert-circle-outline"></i> This device has been registered. Duplicate register is not allowed.</div> *@
 
                 <div class="main">
@@ -51,7 +51,7 @@
                     <div class="login">
 
                         <form class="form" asp-controller="Account" asp-action="Login" id="student-login-form" method="post">
-                            <div id="device-type-error" class="prompt-text m-b-0" style="display: none; color: white;"><i class=" mdi mdi-alert-circle-outline"></i> Please use your phone to proceed.</div>
+                            <div id="device-type-error" class="prompt-text m-b-0" style="display: none; color: white;"><i class=" mdi mdi-alert-circle-outline"></i>You need to use your phone to proceed instead of other device type.</div>
                             
                             <div style="flex-direction: column; align-items: center;">
                                 <label for="chk" class="login-label" aria-hidden="true">

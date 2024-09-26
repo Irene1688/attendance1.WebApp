@@ -71,6 +71,7 @@ namespace attendance1.Web.Services
         {
             try
             {
+                // check student id existed or not
                 string fetchQuey = @"SELECT studentID FROM userDetail WHERE studentID = @studentID";
                 SqlParameter[] fetchParameters =
                 {
@@ -84,6 +85,7 @@ namespace attendance1.Web.Services
                     return new List<string> { message };
                 }
 
+                // student ID does not existed, register the student
                 string insertStudentQuery = @"INSERT INTO userDetail (userName, studentID, accRole) OUTPUT INSERTED.userID VALUES (@Username, @StudentID, @Role);";
 
                 SqlParameter[] insertParameters =
@@ -173,18 +175,23 @@ namespace attendance1.Web.Services
             var studentDeviceInfo =  _deviceService.GetDeviceInfoAsync(deviceInfo);
             if (IsRegister)
             {
-                //register
-                if (UuidStatus == "re-use")
-                {
-                    string errorMessage = "This device is register with another student ID. Please try another device.";
-                    userDetail.Add(errorMessage);
-                    return userDetail;
-                }
-                else
-                {
-                    // uuid status == first assign
-                    userDetail = await RegisterNewStudentAsync(loginInput);
-                }
+                // register student to db
+                userDetail = await RegisterNewStudentAsync(loginInput);
+
+                #region 原版本
+                ////register
+                //if (UuidStatus == "re-use")
+                //{
+                //    string errorMessage = "This device is register with another student ID. Please try another device.";
+                //    userDetail.Add(errorMessage);
+                //    return userDetail;
+                //}
+                //else
+                //{
+                //    // uuid status == first assign
+                //    userDetail = await RegisterNewStudentAsync(loginInput);
+                //}
+                #endregion
             }
             else
             {
@@ -195,6 +202,7 @@ namespace attendance1.Web.Services
             if (studentDeviceInfo == null || userDetail.Count == 0)
             {
                 //Error occured while getting device infomation or student infomation
+                _logger.LogError("Account Services, ValidateStudentAsync method: Failed to get device infomation or student infomation");
                 return new List<string>();
             }
 
