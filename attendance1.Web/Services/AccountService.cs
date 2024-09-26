@@ -97,6 +97,7 @@ namespace attendance1.Web.Services
 
                 int newUserId = await _databaseContext.ExecuteScalarAsync<int>(insertStudentQuery, insertParameters);
 
+                _logger.LogInformation("StudentID " + loginInput.StudentID + "sucess registration process.");
                 return new List<string> { newUserId.ToString(), loginInput.StudentID, loginInput.Role };
             }
             catch (Exception ex)
@@ -175,18 +176,23 @@ namespace attendance1.Web.Services
             var studentDeviceInfo =  _deviceService.GetDeviceInfoAsync(deviceInfo);
             if (IsRegister)
             {
-                //register
-                if (UuidStatus == "re-use")
-                {
-                    string errorMessage = "This device is register with another student ID. Please try another device.";
-                    userDetail.Add(errorMessage);
-                    return userDetail;
-                }
-                else
-                {
-                    // uuid status == first assign
-                    userDetail = await RegisterNewStudentAsync(loginInput);
-                }
+                // register student to db
+                userDetail = await RegisterNewStudentAsync(loginInput);
+
+                #region 原版本
+                ////register
+                //if (UuidStatus == "re-use")
+                //{
+                //    string errorMessage = "This device is register with another student ID. Please try another device.";
+                //    userDetail.Add(errorMessage);
+                //    return userDetail;
+                //}
+                //else
+                //{
+                //    // uuid status == first assign
+                //    userDetail = await RegisterNewStudentAsync(loginInput);
+                //}
+                #endregion
             }
             else
             {

@@ -4,6 +4,9 @@ using System.Data.SqlClient;
 using System.Net.NetworkInformation;
 using System.Text;
 using System.Security.Cryptography;
+using DeviceDetectorNET.Class;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
+using UAParser;
 
 
 namespace attendance1.Web.Services
@@ -12,11 +15,13 @@ namespace attendance1.Web.Services
     {
         private readonly DatabaseContext _databaseContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ILogger _logger;
 
-        public DeviceService(DatabaseContext databaseContext, IHttpContextAccessor httpContextAccessor)
+        public DeviceService(DatabaseContext databaseContext, IHttpContextAccessor httpContextAccessor, ILogger logger)
         {
             _databaseContext = databaseContext;
             _httpContextAccessor = httpContextAccessor;
+            _logger = logger;
         }
 
         //public string GetMacAddress()
@@ -124,6 +129,7 @@ namespace attendance1.Web.Services
                     if (originalStudentID != studentID || originalStudentID.ToLower() != studentDeviceInfo.StudentId)
                     {
                         // generally impossible occured
+                        _logger.LogWarning("Student " + studentID + "failed to validate device because student id not same as the db student id with the device.");
                         return $"This device is registered with another student ID: {originalStudentID}.";
                     }
 
@@ -132,6 +138,7 @@ namespace attendance1.Web.Services
                     {
                         // success login with the device
                         // tested, ok
+                        _logger.LogInformation("Student " + studentID + "success to validate the device.");
                         return $"Success:{deviceId}";
                     }
                     else if (uuidStatus == "re-use" && originalUUID != studentDeviceInfo.UUID)
@@ -147,10 +154,12 @@ namespace attendance1.Web.Services
                         {
                             string UuidBindedStudentId = result.Rows[0]["studentID"].ToString();
                             // tested, ok
+                            _logger.LogWarning("Stduent " + studentID + "failed to validate device because the used uuid is belong to another student id in db.");
                             return $"This device is registered with another student ID: {UuidBindedStudentId}.";
                         }
                         else
                         {
+                            // generally impossible occur, because uuid must existed 
                             // uuid does not existed
                             string updateUUIDQuery = "UPDATE studentDevice SET uuID = @UUID WHERE studentID = @studentID AND deviceCode = @deviceCode AND deviceID = @deviceId";
 
@@ -165,8 +174,10 @@ namespace attendance1.Web.Services
                             if (result2 <= -1)
                             {
                                 // tested, ok
+                                _logger.LogWarning("Stduent " + studentID + "failed to validate device because failed to update the uuid of the student. Info: uuid status: re-use.");
                                 return "Failed to update UUID (browser id).";
                             }
+                            _logger.LogInformation("Stduent " + studentID + "success validate the device and returned device id.");
                             return $"Success:{deviceId}";
                         }
                         
@@ -187,22 +198,26 @@ namespace attendance1.Web.Services
                         if (result2 <= -1)
                         {
                             // tested, ok
+                            _logger.LogWarning("Stduent " + studentID + "failed to validate device because failed to update the uuid of the student. Info: uuid status: re-assign.");
                             return "Failed to update UUID (browser id).";
                         }
+                        _logger.LogInformation("Stduent " + studentID + "success validate the device and returned device id.");
                         return $"Success:{deviceId}";
                     } 
                     else if (uuidStatus == "first-assign")
                     {
                         // first-assign = student click register but the device code is found
                         // tested, ok
+                        _logger.LogWarning("Stduent " + studentID + "click register but the device code is found");
                         return $"Found duplicate register action!";
                     }
+                    _logger.LogError($"Stduent " + studentID + "meet unknown status. Debug Info: uuid status: {uuidStatus}; original uuid: {originalUUID}; current uuid: {studentDeviceInfo.UUID}");
                     return $"Unknown status. Debug Info: uuid status: {uuidStatus}; original uuid: {originalUUID}; current uuid: {studentDeviceInfo.UUID}";
                 }
                 else
                 {
                     // no found device code (device not existed)
-                    if (uuidStatus == "first-assign")
+                    if (uuidStatus == "first-assign" || uuidStatus == "re-use")
                     {
                         // check uuid existed or not
                         string fetchQuery = @"SELECT studentID FROM studentDevice WHERE uuID = @UUID";
@@ -213,17 +228,38 @@ namespace attendance1.Web.Services
                         var result = await _databaseContext.ExecuteQueryAsync(fetchQuery, fetchParamater);
                         if (result != null && result.Rows.Count > 0)
                         {
+                            // uuid existed 
                             string UuidBindedStudentId = result.Rows[0]["studentID"].ToString();
                             if (studentID != UuidBindedStudentId)
                             {
+                                _logger.LogWarning("Student" + studentID + "try to register device with a uuid that already registered and used by other student: " + UuidBindedStudentId + ".");
                                 return $"This device is registered with another student ID: {UuidBindedStudentId}.";
                             }
+                            _logger.LogWarning("Student" + studentID + "try to register device with not existed device code but uuid already in db. Means different device used.");
                             return "This device is not the device you registered, please use the registered device to proceed. If you want to change your binding device, please contact admin to remove your current binding device.";
                         }
                         else
                         {
                             // uuid does not existed
-                            // first-assign: student register, deivce does not existed, register the device
+                            // first-assign or re-use: student register, deivce does not existed, register the device
+
+                            // 1. check student id existed
+                            string checkStudentIDQuery = @"SELECT studentID, deviceCode, deviceID FROM studentDevice WHERE studentID = @studentID";
+                            SqlParameter[] checkStudentIDParameters =
+                            {
+                                new SqlParameter("@studentID", studentID)
+                            };
+
+                            var studentIDresult = await _databaseContext.ExecuteQueryAsync(checkStudentIDQuery, checkStudentIDParameters);
+                            if (studentIDresult != null && studentIDresult.Rows.Count > 0)
+                            {
+                                // student existed
+                                _logger.LogWarning("Student" + studentID + "has stored in student device table, cannot register the current device.");
+                                return "This device is not the device you registered, please use the registered device to proceed. If you want to change your binding device, please contact admin to remove your current binding device.";
+                            }
+
+                            // student does not existed
+                            // register the device 
                             string insertDeviceQuery = @"INSERT INTO studentDevice (studentID, deviceType, bindDate, deviceCode, uuID) OUTPUT INSERTED.deviceID VALUES (@StudentID, @DeviceType, @BindDate, @DeviceCode, @UUID);";
 
                             SqlParameter[] insertDeviceParameters = {
@@ -243,8 +279,10 @@ namespace attendance1.Web.Services
                             return "Faile to register this device. Please try again.";
                         }
                     }
-                    else if (uuidStatus == "re-use" || uuidStatus == "re-assign")
+                    
+                    if (uuidStatus == "re-use" || uuidStatus == "re-assign")
                     {
+                        // device is not existed
                         // check the student id is in database or not 
                         string checkStudentIDQuery = @"SELECT studentID, deviceCode, deviceID FROM studentDevice WHERE studentID = @studentID";
                         SqlParameter[] checkStudentIDParameters =
@@ -255,6 +293,7 @@ namespace attendance1.Web.Services
                         var result3 = await _databaseContext.ExecuteQueryAsync(checkStudentIDQuery, checkStudentIDParameters);
                         if (result3 != null && result3.Rows.Count > 0)
                         {
+                            // student id existed in student device table (db)
                             // check uuid existed 
                             // check uuid existed or not
                             string fetchQuery = @"SELECT studentID FROM studentDevice WHERE uuID = @UUID";
@@ -268,12 +307,15 @@ namespace attendance1.Web.Services
                                 string UuidBindedStudentId = result.Rows[0]["studentID"].ToString();
                                 if (studentID != UuidBindedStudentId)
                                 {
+                                    _logger.LogWarning("Student" + studentID + "try to register device with a uuid that already registered and used by other student: " + UuidBindedStudentId + ".");
                                     return $"This device is registered with another student ID: {UuidBindedStudentId}.";
                                 }
+                                _logger.LogWarning("Student" + studentID + "try to register device with not existed device code but uuid already in db. Means different device used.");
                                 return "This device is not the device you registered, please use the registered device to proceed. If you want to change your binding device, please contact admin to remove your current binding device.";
                             }
                             else
                             {
+                                // uuid does not existed in db and device code not found
                                 // student has registered to database
                                 string deviceCode = result3.Rows[0]["deviceCode"].ToString();
                                 string deviceId = result3.Rows[0]["deviceID"].ToString();
@@ -295,6 +337,7 @@ namespace attendance1.Web.Services
                                     if (result4 > -1)
                                     {
                                         // tested, ok
+                                        _logger.LogInformation("Student" + studentID + "success change the binding device.");
                                         return $"Success:{deviceId.ToString()}";
                                     }
                                     return "Failed to rebind a new device to your student ID. Please try again.";
@@ -313,16 +356,24 @@ namespace attendance1.Web.Services
                                         var result4 = await _databaseContext.ExecuteQueryAsync(fetchStudentIdQuery, fetchStudentIdParamater);
                                         if (result4 != null && result4.Rows.Count > 0)
                                         {
+                                            // generally impossible occur because device code is not found
+                                            // uuid found
                                             string UuidBindedStudentId = result4.Rows[0]["studentID"].ToString();
                                             if (studentID != UuidBindedStudentId)
                                             {
+                                                _logger.LogWarning("Student" + studentID + "try to register device with a uuid that already registered and used by other student: " + UuidBindedStudentId + ".");
                                                 return $"This device is registered with another student ID: {UuidBindedStudentId}.";
                                             }
+                                            _logger.LogWarning("Student" + studentID + "try to register device with not existed device code but uuid already in db. Means different device used.");
                                             return "This device is not the device you registered, please use the registered device to proceed. If you want to change your binding device, please contact admin to remove your current binding device.";
                                         }
+
+                                        // uuid not found
+                                        _logger.LogWarning("Student" + studentID + "use a uuid that is re-use but not found in db. Failed to validate device.");
                                         return "This device is not the device you registered, please use the registered device to proceed. If you want to change your binding device, please contact admin to remove your current binding device.";
                                     }
                                     // the student has device code but no same as the current login device code
+                                    _logger.LogWarning("Student" + studentID + "has device code but no same as the current login device code.");
                                     return "This device is not the device you registered, please use the registered device to proceed. If you want to change your binding device, please contact admin to remove your current binding device.";
                                 }
                             }
