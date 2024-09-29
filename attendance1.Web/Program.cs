@@ -3,9 +3,7 @@ using attendance1.Web.Services;
 using attendance1.Web.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using attendance1.Web.Helpers;
-using NLog;
 using NLog.Web;
-using System;
 using Microsoft.AspNetCore.DataProtection;
 
 var logger = NLog.LogManager.GetCurrentClassLogger();
