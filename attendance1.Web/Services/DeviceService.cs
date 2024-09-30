@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using DeviceDetectorNET.Class;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 using UAParser;
+using attendance1.Web.Controllers;
 
 
 namespace attendance1.Web.Services
@@ -17,7 +18,7 @@ namespace attendance1.Web.Services
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger _logger;
 
-        public DeviceService(DatabaseContext databaseContext, IHttpContextAccessor httpContextAccessor, ILogger logger)
+        public DeviceService(DatabaseContext databaseContext, IHttpContextAccessor httpContextAccessor, ILogger<DeviceService> logger)
         {
             _databaseContext = databaseContext;
             _httpContextAccessor = httpContextAccessor;
