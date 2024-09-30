@@ -10,7 +10,8 @@ body {
     .container .box {
         border: 2px solid rgba(153,179,204, 0.222);
         box-shadow: 0 4px 8px 0 rgba(153, 179, 204, 0.1), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-        background-color: rgba(153,179,204, 0.011);
+        /*background-color: rgba(153,179,204, 0.011);*/
+        background-color: rgb(6 12 17 / 43%);
     }
 
 /*Submit Attendance label*/

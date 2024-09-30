@@ -255,6 +255,30 @@ namespace attendance1.Web.Services
                             if (studentIDresult != null && studentIDresult.Rows.Count > 0)
                             {
                                 // student id existed in studentDevice table
+                                // rebind a device
+                                var deviceID = studentIDresult.Rows[0]["deviceID"];
+                                var deviceCode = studentIDresult.Rows[0]["deviceCode"];
+                                if (deviceCode.ToString() == "default-device-code")
+                                {
+                                    string updateDeviceQuery = @"UPDATE studentDevice SET deviceType = @deviceType, bindDate = @bindDate, deviceCode = @deviceCode, uuID = @uuid WHERE deviceID = @deviceID AND studentID = @studentID;";
+                                    SqlParameter[] updateDeviceParameters = {
+                                        new SqlParameter("@studentID", studentID),
+                                        new SqlParameter("@deviceID", Convert.ToInt32(deviceID)),
+                                        new SqlParameter("@deviceType", studentDeviceInfo.DeviceType),
+                                        new SqlParameter("@bindDate", DateTime.Today),
+                                        new SqlParameter("@deviceCode", studentDeviceInfo.EncodeDeviceCodeWithoutUUID),
+                                        new SqlParameter("@uuid", studentDeviceInfo.UUID)
+                                    };
+
+                                    var result4 = await _databaseContext.ExecuteScalarAsync<int>(updateDeviceQuery, updateDeviceParameters);
+                                    if (result4 > -1)
+                                    {
+                                        // tested, ok
+                                        _logger.LogInformation("Student" + studentID + "success change the binding device.");
+                                        return $"Success:{deviceID}";
+                                    }
+                                    return "Failed to rebind a new device to your student ID. Please try again.";
+                                }
                                 _logger.LogWarning("Student" + studentID + "has stored in student device table, cannot register the current device.");
                                 return "This device is not the device you registered, please use the registered device to proceed. If you want to change your binding device, please contact admin to remove your current binding device.";
                             }

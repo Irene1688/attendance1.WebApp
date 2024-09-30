@@ -86,11 +86,18 @@
 
                 <div class="error-details-content">
                     <strong>Helpful Tip:</strong> <br />
-                    <pre>If you believe this is an error, please take a screenshot and contact our technical support by clicking the "Technical Support" button. We'll work to resolve the issue as quickly as possible. Thank you for your patience!</pre>
+                    <pre style="font-family: 'Open Sans', sans-serif;">If you believe this is an error, please take a screenshot and contact our technical support by clicking the "Technical Support" button. We'll work to resolve the issue as quickly as possible. Thank you for your patience!</pre>
                 </div>
 
             </div>
         }
+
+        <div class="button-container">
+            <a asp-controller="Account" asp-action="CheckLogin" class="error-page-button">Back</a>
+
+            <a href="https://forms.gle/2X5GEs8sK9GLbv2f9" class="error-page-button" target="_blank" rel="noopener noreferrer">Technical Support</a>
+        </div>
+        
     </div>
 
     <!--
@@ -102,6 +109,25 @@
             <use href="#ghost" />
         </svg>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const errorPageButtons = document.querySelectorAll('.error-page-button');
+            const buttonContainer = document.querySelector('.button-container');
+
+            errorPageButtons.forEach(button => {
+                if (/Mobi|Android|iPhone/i.test(navigator.userAgent)) {
+                    button.style.fontSize = '2.2rem';
+                    buttonContainer.style.marginTop = '90px';
+                    buttonContainer.style.marginBottom = '6rem';
+                } else {
+                    button.style.fontSize = '16px';
+                    buttonContainer.style.marginTop = '3rem';
+                }
+            });
+        });
+
+    </script>
 
     </body>
 </html>

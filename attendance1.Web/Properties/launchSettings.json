@@ -4,6 +4,8 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
+      "applicationUrl": "http://192.168.0.172:32608",
+      "sslPort": 44377
         // "applicationUrl": "http://localhost:32608",
         "applicationUrl": "http://10.200.14.215:32608",
         "sslPort": 44377
@@ -36,7 +38,7 @@
       //"applicationUrl": "http://*:port",
       //"sslPort": 0,  // configured 44377 in line 8
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Production"
       }
     }
   }

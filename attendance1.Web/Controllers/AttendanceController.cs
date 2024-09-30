@@ -132,9 +132,9 @@ namespace attendance1.Web.Controllers
             if (studentDeviceId <= 0)
             {
                 //device does not existed
-                message = "Invalid device used. Please re-login and try again.";
+                message = "Your binded devive has been removed. Please re-login and try again.";
                 TempData["ErrorMessage"] = message;
-                return RedirectToAction("TakeAttendancePage", "Attendance");
+                return View("Views/Login.cshtml");
             }
 
             var IsDuplicate = await _attendanceService.CheckDuplicateAttendanceAsync(studentId, studentDeviceId,validAttendanceCode.AttendanceId);

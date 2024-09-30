@@ -7,7 +7,6 @@ function preventBack() {
         null
 };
 
-
 // mobile add padding top
 document.addEventListener("DOMContentLoaded", function () {
     var body = document.body;
@@ -21,6 +20,23 @@ document.addEventListener("DOMContentLoaded", function () {
         chk.checked = true;
     } else {
         chk.checked = false;
+    }
+
+    // change css slayout for container height to display help message
+    const isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
+    if (isMobile) {
+        const outterContainer = document.getElementById('outter-container');
+        const innerContainer = document.getElementById('inner-container');
+        if (outterContainer && innerContainer) {
+            innerContainer.style.height = '';
+            innerContainer.style.minHeight = '100%';
+            outterContainer.style.padding = '';
+        }
+    } else {
+        const innerContainer = document.getElementById('inner-container');
+        if (innerContainer) {
+            innerContainer.style.height = '100vh';
+        }
     }
 
     preventBack();
