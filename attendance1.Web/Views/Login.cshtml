@@ -51,6 +51,48 @@
                 text-decoration: underline;
                 color: cornflowerblue;
             }
+
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .primary-button {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: none;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            background: white;
+            color: rebeccapurple;
+            transition: all 0.2s;
+        }
+
+            .primary-button:hover {
+                background: #f0f0f0;
+                transform: translateY(-1px);
+            }
+
+        .secondary-button {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: transparent;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+            .secondary-button:hover {
+                border-color: white;
+                background: rgba(255, 255, 255, 0.1);
+            }
     </style>
 </head>
 
@@ -68,14 +110,13 @@
                     </div>
                 }
                 <div id="device-type-error" class="prompt-text text-danger m-b-10" style="display: none; font-size: 1.5rem;"><i class=" mdi mdi-alert-circle-outline"></i>You need to use your phone to proceed instead of other device type.</div>
-@*                 <div id="device-registered-error" class="prompt-text text-danger m-b-10" style="display: none; font-size: 1.5rem; text-align: justify;"><i class=" mdi mdi-alert-circle-outline"></i> This device has been registered. Duplicate register is not allowed.</div> *@
 
                 <div class="main">
                     <input type="checkbox" id="chk" aria-hidden="true">
                     <div class="login">
 
-                        <form class="form" asp-controller="Account" asp-action="Login" id="student-login-form" method="post">
-                            <div id="device-type-error" class="prompt-text m-b-0" style="display: none; color: white;"><i class=" mdi mdi-alert-circle-outline"></i>You need to use your phone to proceed instead of other device type.</div>
+                        <form class="student-login-form" style="min-height: max-content;" asp-controller="Account" asp-action="Login" id="student-login-form" method="post">
+                            @* <div id="device-type-error" class="prompt-text m-b-0" style="display: none; color: white;"><i class=" mdi mdi-alert-circle-outline"></i>You need to use your phone to proceed instead of other device type.</div> *@
                             
                             <div style="flex-direction: column; align-items: center;">
                                 <label for="chk" class="login-label" aria-hidden="true">
@@ -97,25 +138,25 @@
                                 <div id="student-id-empty" class="prompt-text m-b-0" style="display: none; color: white;"><i class=" mdi mdi-alert-circle-outline"></i> Student ID is required.</div>
                                 <div id="student-id-error" class="prompt-text m-b-0" style="display: none; color: white;"><i class=" mdi mdi-alert-circle-outline"></i> Format of Student ID incorrect.</div>
                             </div>
-
-                            @* <div class="checkbox checkbox-purple" style="margin: 0; padding: 0px 24px;">
-                                <input id="checkbox-signup-student" asp-for="RememberMe" type="checkbox" checked>
-                                <label for="checkbox-signup-student" style="font-size: 1.5rem; margin: 0; color: white;">
-                                    Remember me
-                                </label>
-                            </div> *@
-                            
-                            <div class="in-a-row" style="gap: 20px; height: 100px;">
+                            <div class="button-container">
+        <button id="student-login-button" type="submit" class="primary-button">
+            Log in
+        </button>
+        <button id="student-register-button" type="submit" class="secondary-button">
+            First time using? Register Now
+        </button>
+    </div>
+                            @* <div class="in-a-row" style="gap: 20px; height: 100px;">
                                 <button id="student-register-button" type="submit" style="background-color: white; color: rebeccapurple;">Register</button>
                                 <button id="student-login-button" type="submit">Log in</button>
-                            </div>
+                            </div> *@
+
                         </form>
                     </div>
 
                     <div class="register">
-                        <form class="form" asp-controller="Account" asp-action="Login" id="staff-login-form" method="post" style="padding-bottom: 60px;">
+                        <form class="form lecturer-login-form" asp-controller="Account" asp-action="Login" id="staff-login-form" method="post" style="padding-bottom: 60px;">
                             <label class="login-label" for="chk" aria-hidden="true">Staff</label>
-                            @* <input type="hidden" asp-for="Role" value="Staff"> *@
 
                             <div>
                                 <input class="input" type="text" id="staff-username" asp-for="Username" placeholder="Username" required="">
@@ -158,7 +199,7 @@
                                 </label>
                             </div>
 
-                            <button type="submit" id="staff-login-button" style="min-height: 40px;">Log in</button>
+                            <button class="lecture-login-button" type="submit" id="staff-login-button" style="min-height: 40px;">Log in</button>
                         </form>
                     </div>
                 </div>
@@ -199,3 +240,4 @@
 
 </body>
 </html>
+

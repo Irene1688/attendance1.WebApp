@@ -676,7 +676,7 @@ a:focus {
 .pagination-split li {
   margin-left: 5px;
   display: inline-block;
-  float: left;
+  /* float: left; */
 }
 .pagination-split li:first-child {
   margin-left: 0;
@@ -784,6 +784,7 @@ a:focus {
   line-height: 2.5em;
   border-radius: 50%;
   -webkit-mask-image: none;
+  mask-image: none;
 }
 .waves-input-wrapper {
   border-radius: 0.2em;
@@ -1023,6 +1024,7 @@ a:focus {
 .title-block {
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1122,11 +1124,18 @@ a:focus {
     }
 }
 
-.form {
+.lecturer-login-form {
     display: flex;
     flex-direction: column;
     gap: 30px;
     padding: 24px;
+}
+
+.student-login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 35px;
+  padding: 24px;
 }
 
 /*checkbox to switch from sign up to login*/
@@ -1190,7 +1199,7 @@ a:focus {
     }
 
 #chk:checked ~ .register {
-    transform: translateY(-65%);
+    transform: translateY(-67%);
 }
 
     #chk:checked ~ .register .login-label {
@@ -1203,7 +1212,7 @@ a:focus {
     margin: 5% 0 5%;
 }
 /*Button*/
-.form button {
+.form .lecture-login-button {
     width: 85%;
     height: 40px;
     margin: 12px auto 5%;
@@ -1217,6 +1226,8 @@ a:focus {
     transition: .2s ease-in;
 }
 
-    .form button:hover {
+    .form .lecture-login-button:hover {
         background-color: #6d44b8;
     }
+
+

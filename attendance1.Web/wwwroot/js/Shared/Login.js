@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
         chk.checked = false;
     }
 
-    // change css slayout for container height to display help message
+    // change css layout for container height to display help message
     const isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
     if (isMobile) {
         const outterContainer = document.getElementById('outter-container');
@@ -89,18 +89,21 @@ document.getElementById('chk').addEventListener('click', function () {
     var prompts = document.querySelectorAll('.prompt-text');
     const container = document.querySelector('.main');
     const registerContainer = document.querySelector('.register');
+    const studentLoginForm = document.getElementById('student-login-form');
     prompts.forEach(function (prompt) {
         prompt.style.display = 'none';
     });
 
     container.style.height = '580px';
     registerContainer.style.height = '500px';
+    studentLoginForm.style.gap = '35px';
 });
 
 // change the container height & save the ui role to storage
 document.getElementById('chk').addEventListener('change', function () {
     const registerContainer = document.querySelector('.register');
     const prompts = document.querySelectorAll('.prompt-text');
+    const studentLoginForm = document.getElementById('student-login-form');
 
     let allPromptsHidden = true;
     prompts.forEach(function (prompt) {
@@ -112,14 +115,21 @@ document.getElementById('chk').addEventListener('change', function () {
     if (this.checked) {
         localStorage.setItem('login-ui', 'staff');
         if (allPromptsHidden) {
-            registerContainer.style.transform = 'translateY(-65%)';
+            registerContainer.style.transform = 'translateY(-67%)';
             registerContainer.style.minHeight = '580px';
+            studentLoginForm.style.gap = '35px';
         } else {
             registerContainer.style.transform = 'translateY(-75%)';
+            studentLoginForm.style.gap = '20px';
         }
     } else {
         localStorage.setItem('login-ui', 'student');
         registerContainer.style.transform = 'translateY(1%)';
+        if (allPromptsHidden) {
+            studentLoginForm.style.gap = '35px';
+        } else {
+            studentLoginForm.style.gap = '20px';
+        }
     }
 });
 
@@ -207,7 +217,9 @@ function validateForm() {
 // student login
 document.getElementById('student-login-button').addEventListener('click', function (event) {
     event.preventDefault();
+    const studentLoginForm = document.getElementById('student-login-form');
     if (validateForm()) {
+        studentLoginForm.style.gap = '35px';
         let userIdentifier;
         let uuidStatus;
         var uuid = localStorage.getItem('UUID'); 
@@ -257,6 +269,16 @@ document.getElementById('student-login-button').addEventListener('click', functi
     else {
         const container = document.querySelector('.main');
         container.style.height = '640px';
+        const prompts = document.querySelectorAll('.prompt-text');
+        
+        // calculate the number of prompts that displays
+        let numberOfPrompts = 0;
+        prompts.forEach(function (prompt) {
+            if (prompt.style.display !== 'none') {
+                numberOfPrompts++;
+            }
+        });
+        studentLoginForm.style.gap = `${35 - numberOfPrompts * 5}px`;
         //container.style.height = '640px';
     }
 });
@@ -264,7 +286,9 @@ document.getElementById('student-login-button').addEventListener('click', functi
 // student register
 document.getElementById('student-register-button').addEventListener('click', function (event) {
     event.preventDefault();
+    const studentLoginForm = document.getElementById('student-login-form');
     if (validateForm()) {
+        studentLoginForm.style.gap = '35px';
         var uuid = localStorage.getItem('UUID');
         let uuidStatus;
 
@@ -311,6 +335,16 @@ document.getElementById('student-register-button').addEventListener('click', fun
     else {
         const container = document.querySelector('.main');
         container.style.height = '640px';
+        
+        // calculate the number of prompts that displays
+        const prompts = document.querySelectorAll('.prompt-text');
+        let numberOfPrompts = 0;
+        prompts.forEach(function (prompt) {
+            if (prompt.style.display !== 'none') {
+                numberOfPrompts++;
+            }
+        });
+        studentLoginForm.style.gap = `${35 - numberOfPrompts * 5}px`;
         //container.style.height = '580px';
     }
 });
@@ -378,7 +412,6 @@ function checkStaffRoleEmpty(errorId) {
 //function validate the staff login form before submitting
 document.getElementById('staff-login-button').addEventListener('click', function (event) {
     event.preventDefault();
-
     var valid = true;
 
     valid &= checkEmpty('staff-username', 'staff-username-empty');
@@ -391,6 +424,8 @@ document.getElementById('staff-login-button').addEventListener('click', function
     if (valid) {
         //document.getElementById('staff-login-form').submit();
         var form = document.getElementById('staff-login-form');
+        form.style.gap = '30px';
+
         var hiddenInput = document.createElement('input');
         hiddenInput.setAttribute('type', 'hidden');
         hiddenInput.setAttribute('name', 'IsRegister');
@@ -405,7 +440,18 @@ document.getElementById('staff-login-button').addEventListener('click', function
         const innerContainer = document.querySelector('.register');
         innerContainer.style.minHeight = '580px';
 
-        innerContainer.style.transform = 'translateY(-65%)';
+        innerContainer.style.transform = 'translateY(-67%)';
+        const staffLoginForm = document.getElementById('staff-login-form');
+        staffLoginForm.style.gap = '25px';
 
+        // calculate the number of prompts that displays
+        const prompts = document.querySelectorAll('.prompt-text');
+        let numberOfPrompts = 0;
+        prompts.forEach(function (prompt) {
+            if (prompt.style.display !== 'none') {
+                numberOfPrompts++;
+            }
+        });
+        staffLoginForm.style.gap = `${30 - numberOfPrompts * 3}px`;
     }
 });

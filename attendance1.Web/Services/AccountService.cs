@@ -6,8 +6,6 @@ using System.Security.Claims;
 using attendance1.Web.Models;
 using System.Data;
 
-
-
 namespace attendance1.Web.Services
 {
     public class AccountService

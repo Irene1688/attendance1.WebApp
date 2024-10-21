@@ -58,9 +58,12 @@
 	                    <div class="col-md-8">
                             <select asp-for="ProgrammeId" class="form-control" data-style="btn-default" id="programme-select" required>
                                 <option value="" disabled selected style="display:none;">Select Programme</option>
-                                @foreach (var programme in Model.ProgrammeDropDownMenu)
+                                @if (Model.ProgrammeDropDownMenu != null)
                                 {
-                                    <option value="@programme.ProgrammeId">@programme.Programme</option>
+                                    @foreach (var programme in Model.ProgrammeDropDownMenu)
+                                    {
+                                        <option value="@programme.ProgrammeId">@programme.Programme</option>
+                                    }
                                 }
                             </select>
                             <div id="programme-empty" class="text-danger prompt-text" style="display: none;"><i class=" mdi mdi-alert-circle-outline"></i> Please select a programme.</div>
