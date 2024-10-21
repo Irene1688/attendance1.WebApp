@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using DeviceDetectorNET.Class;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 using UAParser;
+using attendance1.Web.Controllers;
 
 
 namespace attendance1.Web.Services
