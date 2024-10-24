@@ -120,7 +120,7 @@ document.getElementById('chk').addEventListener('change', function () {
             studentLoginForm.style.gap = '35px';
         } else {
             registerContainer.style.transform = 'translateY(-75%)';
-            studentLoginForm.style.gap = '20px';
+            studentLoginForm.style.gap = '35px';
         }
     } else {
         localStorage.setItem('login-ui', 'student');
@@ -128,7 +128,7 @@ document.getElementById('chk').addEventListener('change', function () {
         if (allPromptsHidden) {
             studentLoginForm.style.gap = '35px';
         } else {
-            studentLoginForm.style.gap = '20px';
+            studentLoginForm.style.gap = '35px';
         }
     }
 });
@@ -278,7 +278,7 @@ document.getElementById('student-login-button').addEventListener('click', functi
                 numberOfPrompts++;
             }
         });
-        studentLoginForm.style.gap = `${35 - numberOfPrompts * 5}px`;
+        studentLoginForm.style.gap = `${45 - numberOfPrompts * 5}px`;
         //container.style.height = '640px';
     }
 });
@@ -344,7 +344,7 @@ document.getElementById('student-register-button').addEventListener('click', fun
                 numberOfPrompts++;
             }
         });
-        studentLoginForm.style.gap = `${35 - numberOfPrompts * 5}px`;
+        studentLoginForm.style.gap = `${45 - numberOfPrompts * 5}px`;
         //container.style.height = '580px';
     }
 });
