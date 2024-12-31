@@ -98,6 +98,9 @@
         <link href="~/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
         <link href="~/plugins/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" />
         <link href="~/plugins/bootstrap-touchspin/css/jquery.bootstrap-touchspin.min.css" rel="stylesheet" />
+
+        <!-- Print attendance css -->
+        <link href="~/css/lecturer/print-attendance.css" rel="stylesheet" />
     </head>
     <body>
         <div id="data-enrolled-student" style="display: none;">@Html.Raw(Json.Serialize(Model.EnrolledStudents))</div>
@@ -229,7 +232,7 @@
                 <h3 class="">@Model.ClassDetails.CourseCode @Model.ClassDetails.ClassName</h3>
                 <div  class="in-a-block">
                     <div class="checkbox" style="margin: 5px;">
-                            <input type="checkbox" id="showPastNoAttendance" checked>
+                        <input type="checkbox" id="showPastNoAttendance" checked>
                     <label for="showPastNoAttendance">Show past days without attendance record</label>
                     </div>
                       
@@ -251,7 +254,13 @@
                 </div>
 
                 <div class="btn-group m-t-5" style="float: right;">
-                    <button type="button" class="btn btn-default waves-effect"onclick="toggleStyle()"><i class="mdi mdi-invert-colors" style="padding-right: 10px;"></i>Change Style</button>
+                    <a asp-controller ="Class" asp-action="PrintAttendance" asp-route-id="@Model.ClassDetails.CourseId" type="button" class="btn btn-default waves-effect btn-print">
+                        <i class="mdi mdi-printer" style="padding-right: 10px;"></i>Print
+                    </a>
+                    
+                    <button type="button" class="btn btn-default waves-effect"onclick="toggleStyle()">
+                        <i class="mdi mdi-invert-colors" style="padding-right: 10px;"></i>Change Style
+                    </button>
                     <div class="btn-group">
                         <button type="button" id="" class="btn btn-default waves-effect" data-toggle="dropdown" aria-expanded="false"><i class="mdi mdi-menu"></i> </button>
                         <ul id="" class="dropdown-menu dropdown-menu-right" >

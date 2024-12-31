@@ -112,7 +112,7 @@ $(document).ready(function () {
 
     var latestDate = new Date(latestAttendanceDateStr)
     var formattedLatestDate = formatDate(latestDate)
-   
+
     var presentCount = totalAttendance.filter(function (attendance) {
         var formattedAttendanceDate = formatDate(new Date(attendance.dateAndTime));
         //console.log(formattedAttendanceDate);
@@ -160,7 +160,7 @@ function updateWeekHeaders() {
     $('thead .week-header').each(function () {
         var attendanceDays = 0;
         var noAttendanceDays = 0;
-        
+
 
         var weekHeader = $(this);
         //var startIndex = weekHeader.index();
@@ -169,7 +169,7 @@ function updateWeekHeaders() {
             previousStartIndex = startIndex;
         }
         else {
-            var startIndex = previousStartIndex + weekLengths[weekIndex-1];
+            var startIndex = previousStartIndex + weekLengths[weekIndex - 1];
             previousStartIndex = startIndex;
         }
 
@@ -523,7 +523,7 @@ function validateSelection() {
         selectionEmptyError.style.display = "block";
         return false;
     }
-    return true; 
+    return true;
 }
 
 //validate delete class day form
@@ -575,8 +575,8 @@ document.addEventListener("DOMContentLoaded", function () {
     // List to store changed statuses
     var changedStatuses = [];
     var initialStatuses = {};
-    
-   
+
+
     // Function to handle Change status button click
     function handleChangeStatusClick(event) {
         var button = event.target;
@@ -640,7 +640,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Attach click event listener to all Change status buttons
     var changeStatusButtons = document.querySelectorAll(".change-status-btn");
-    changeStatusButtons.forEach(function(button) {
+    changeStatusButtons.forEach(function (button) {
         button.addEventListener("click", handleChangeStatusClick);
     });
 
@@ -660,7 +660,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     //if (hasChanges) {
                     //    prompt.style.display = "none";
                     //} else {   
-                        prompt.style.display = "block";
+                    prompt.style.display = "block";
                 });
 
                 // Optionally, scroll to the top to show the message clearly
@@ -725,6 +725,90 @@ function closeChangeStatusModal(studentId) {
     prompts.forEach(function (prompt) {
         prompt.style.display = 'none';
     });
+}
+function printTable() {
+    function printTable() {
+    // 获取当前课程ID
+    const courseId = document.querySelector('input[name="courseId"]').value;
+    
+    // 构建打印页面URL，包含当前样式
+    const printUrl = `/Lecturer/PrintAttendance/${courseId}?style=${currentStyle}`;
+    
+    // 打开新窗口
+    window.open(printUrl, '_blank');
+}
+}
+
+function updatePrintWeekHeaders(table, showPast, showFuture, weekLengths) {
+    var weekHeaders = table.querySelectorAll('thead .week-header');
+    var dateHeaders = table.querySelectorAll('thead tr:nth-child(2) th');
+    var rows = table.querySelectorAll('tbody tr');
+    
+    var weekIndex = 0;
+    var previousStartIndex = 0;
+
+    // 首先标记所有future-no-attendance的日期
+    let futureNoDates = new Set();
+    dateHeaders.forEach((header, index) => {
+        if (header.getAttribute('data-type') === 'future-no-attendance' ||
+            header.classList.contains('future-no-attendance')) {
+            futureNoDates.add(index);
+        }
+    });
+
+    weekHeaders.forEach(weekHeader => {
+        var startIndex = weekHeader.cellIndex === 1 ? 2 : previousStartIndex + weekLengths[weekIndex - 1];
+        var endIndex = startIndex + weekLengths[weekIndex];
+        previousStartIndex = startIndex;
+
+        var visibleDays = 0;
+        for (let i = startIndex; i < endIndex; i++) {
+            let dateHeader = dateHeaders[i];
+            let type = dateHeader.getAttribute('data-type');
+            
+            // 检查列类型
+            let isPastNoAttendance = type === 'past-no-attendance';
+            let isFutureNoAttendance = futureNoDates.has(i);
+
+            if (isPastNoAttendance) {
+                // 隐藏过去未记录的列
+                dateHeader.style.display = 'none';
+                rows.forEach(row => row.cells[i].style.display = 'none');
+            } else if (isFutureNoAttendance) {
+                // 显示未来的列，设置灰色背景并清空内容
+                visibleDays++;
+                let greyColor = '#edebeb';
+                
+                // 设置表头样式
+                dateHeader.style.backgroundColor = greyColor;
+                
+                // 设置表体样式
+                rows.forEach(row => {
+                    let cell = row.cells[i];
+                    cell.style.backgroundColor = greyColor;
+                    if (cell.classList.contains('cell')) {
+                        cell.innerHTML = ''; // 清空出勤状态
+                    }
+                });
+            } else {
+                // 显示有出勤记录的列
+                visibleDays++;
+            }
+        }
+
+        if (visibleDays === 0) {
+            weekHeader.style.display = 'none';
+        } else {
+            weekHeader.setAttribute('colspan', visibleDays);
+        }
+        weekIndex++;
+    });
+
+    // 隐藏整个 tfoot
+    let tfoot = table.querySelector('tfoot');
+    if (tfoot) {
+        tfoot.style.display = 'none';
+    }
 }
 
 

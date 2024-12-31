@@ -1,0 +1,371 @@
+﻿@model ClassAttendanceMdl
+@{
+    Layout = null;
+}
+@functions {
+    private string GetAttendanceClass1(string day)
+    {
+        var date = DateTime.ParseExact(day.Split(' ')[0], "dd/MM/yyyy", null);
+        var attendanceId = day.Split('.')[1];
+
+        if (date < DateTime.Today && attendanceId == "0")
+        {
+            return "past-no-attendance";
+        }
+        else if (date >= DateTime.Today && attendanceId == "0")
+        {
+            return "future-no-attendance";
+        }
+        return string.Empty;
+    }
+}
+@functions {
+    private string GetAttendanceClass(string day)
+    {
+        var date = DateTime.ParseExact(day.Split(' ')[0], "dd/MM/yyyy", null);
+        var attendanceId = day.Split('.')[1];
+
+        if (date < DateTime.Today && attendanceId == "0")
+        {
+            return "past-no-attendance";
+        }
+        else if (date >= DateTime.Today && attendanceId == "0")
+        {
+            return "future-no-attendance";
+        } else
+        {
+            return "attendance";
+        }
+        //return string.Empty;
+    }
+
+    private int NoAttendanceDayCount(string mode, List<string> days)
+    {
+        int future = 0;
+        int past = 0;
+        foreach (var day in days)
+        {
+            var type = GetAttendanceClass(day);
+            if (type == "future-no-attendance")
+            {
+                future++;
+            }
+            else if (type == "past-no-attendance")
+            {
+                past++;
+            }
+        }
+        if (mode == "showFuture")
+        {
+            return future;
+        }
+        else
+        {
+            return past;
+        }
+    }
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Print Attendance - @Model.ClassDetails.ClassName</title>
+    <link href="~/assets/css/icons.css" rel="stylesheet" />
+    <link href="~/css/lecturer/print-attendance.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div id="thead-data-week-length" style="display: none;">@Html.Raw(Json.Serialize(Model.WeekDetails.Select(week => week.AllClassDays.Count())))</div>
+
+    <div class="print-section">
+        <div class="print-header">
+            <img src="~/assets/images/UTSlogo3.png" alt="Organization Logo">
+            <div class="print-org-info">
+                <h2>University Technology Sarawak (UTS)</h2>
+                <p>No.1 Jalan Universiti, 96000 Sibu, Sarawak, Malaysia.</p>
+                <p>School of Computing and Creative Media</p>
+            </div>
+        </div>
+
+        <div class="print-course-info">
+            <p class="print-course-title">@Model.ClassDetails.CourseCode @Model.ClassDetails.ClassName</h3>
+            <p class="print-course-session">@Model.ClassDetails.ClassSession</p>
+            <table class="info-table">
+                <tr>
+                    <td><strong>Attendance For:</strong> Lectures, Tutorials</td>
+                    <td><strong>Lecturer Name:</strong> Lecturer Name</td>
+                </tr>
+                <tr>
+                    <td><strong>Total Students:</strong> @Model.EnrolledStudents.Count</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="row">
+                <div class="view">
+                    <div class="wrapper">
+                        <table id="attendance-table" class="table table-colored table-bordered table-inverse m-b-0">
+                            <thead>
+                                <tr>
+                                    <th class="sticky-col first-col" colspan="2" style="border-right: 1px solid #000 !important;"></th>
+                                    @foreach (var week in Model.WeekDetails)
+                                    {
+                                        var totalDays = week.AllClassDays.Count(day => {
+                                            var type = GetAttendanceClass(day);
+                                            return !(type == "past-no-attendance" || type == "future-no-attendance");
+                                        });
+                                        totalDays += NoAttendanceDayCount("showPast", week.AllClassDays);
+                                        totalDays += NoAttendanceDayCount("showFuture", week.AllClassDays);
+                                        var weekStyle = totalDays == 0 ? "none;" : "";
+
+                                        <th class="text-center week-header" colspan="@totalDays" style="display: @weekStyle">Week @week.WeekIndex</th>
+                                    }
+                                @{
+                                    var totalAllClassDays = Model.WeekDetails.SelectMany(week => week.AllClassDays).Count();
+                                    int colIndex = totalAllClassDays + 3;
+                                }
+                                <th class="text-center sticky-col last-col" colspan="2" style="border-left: 2px solid #000 !important;" data-sort-column="@colIndex" title="Click to sort the column">
+                                    Attendance Rate
+                                </th>
+                            </tr>
+                            <tr>
+                                <th class="sticky-col first-col text-center" data-sort-column="0" title="Click to sort the column">
+                                    Student ID
+                                </th>
+                                <th class="sticky-col second-col text-center" data-sort-column="1" title="Click to sort the column">
+                                    Name
+                                </th>
+                                @foreach (var week in Model.WeekDetails)
+                                {
+                                    foreach (var day in week.AllClassDays)
+                                    {
+                                        var dayClass = GetAttendanceClass(day);
+                                        var date = day.Split('.')[0];
+                                        var shortDate = $"{date.Split('/')[0]}/{date.Split('/')[1]}";
+                                        if (date.Contains('-'))
+                                        {
+                                            var freqNum = (day.Split('-')[1]).Split('.')[0];
+                                            var fullDate = $"{shortDate}-{freqNum}";
+                                            <th class="text-center @dayClass date-col" data-type="@dayClass">@fullDate</th>
+                                        }
+                                        else
+                                        {
+                                            var fullDate = shortDate;
+                                            <th class="text-center @dayClass date-col" data-type="@dayClass">@fullDate</th>
+                                        }
+                                        @* <th class="text-center @dayClass" data-type="@dayClass">@day.Split('.')[0]</th> *@
+                                       
+                                        
+                                        }
+                                    }
+                                    <th class="text-center sticky-col last-2-col">Present Classes</th>
+                                    <th class="text-center sticky-col last-col">Present Rate</th>
+                                </tr>
+                            </thead>
+                                <tbody id="attendance-tbody">
+                                @{
+                                    var dayAttendanceCounts = new Dictionary<string, int>();
+                                    foreach (var week in Model.WeekDetails)
+                                    {
+                                        foreach (var day in week.AllClassDays)
+                                        {
+                                            dayAttendanceCounts[day] = 0;
+                                        }
+                                    }
+
+                                    int totalClassesOverall = 0;
+                                    int attendedClassesOverall = 0;
+                                }
+
+                                @foreach (var student in Model.EnrolledStudents)
+                                {
+                                    int totalClasses = 0;
+                                    int attendedClasses = 0;
+
+                                    <tr>
+                                        <td class="sticky-col first-col">
+                                            @* <a href="#custom-modal-student-profile-@student.StudentID" data-id="@student.StudentID" data-animation="fadein" data-plugin="custommodal" data-overlaySpeed="200" data-overlayColor="#36404a" style="text-decoration:underline; font-style:italic; color: black;">
+                                                @student.StudentID
+                                            </a> *@
+                                             <a href="#custom-width-modal-student-profile-@student.StudentID" data-id="@student.StudentID" data-animation="fadein" data-plugin="custommodal" data-overlaySpeed="200" data-overlayColor="#36404a" style="text-decoration:underline; font-style:italic; color: black;">
+                                                @student.StudentID
+                                            </a>
+                                            @* <button class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target="#custom-width-modal-student-profile-@student.StudentID">Custom width Modal</button> *@
+
+                                           
+                                        </td>
+                                        <td class="sticky-col second-col">@student.Name</td>
+                                        @foreach (var week in Model.WeekDetails)
+                                        {
+                                            foreach (var day in week.AllClassDays)
+                                            {
+                                                var date = DateTime.ParseExact(day.Split(' ')[0], "dd/MM/yyyy", null);
+                                                var attendanceId = day.Split('.')[1];
+                                                var showPastNoAttendance = date < DateTime.Today && attendanceId == "0";
+                                                var showFutureNoAttendance = date >= DateTime.Today && attendanceId == "0";
+
+                                                if (showFutureNoAttendance) // The day is in the future or today and hasn't taken attendance
+                                                {
+                                                    <td class="future-no-attendance" style="background-color: #edebeb;"></td>
+                                                }
+                                                else if (showPastNoAttendance) // The day hasn't taken attendance
+                                                {
+                                                    <td class="text-center past-no-attendance">-</td>
+                                                }
+                                                else // The day had took attendance
+                                                {
+                                                    var attendance = Model.StudentAttendance
+                                                        .FirstOrDefault(a => a.StudentId == student.StudentID && a.DateAndTime.Date == date.Date && a.AttendanceId.ToString() == attendanceId);
+
+                                                    bool isAttended = attendance != null;
+                                                    if (isAttended)
+                                                    {
+                                                        attendedClasses++;
+                                                        dayAttendanceCounts[day]++;
+                                                        attendedClassesOverall++;
+                                                    }
+                                                    
+                                                    <td class="text-center cell">
+                                                        @if (isAttended)
+                                                        {
+                                                            <i class="mdi mdi-check" style="color: #4bd396;"></i>
+                                                        }
+                                                        else
+                                                        {
+                                                            <i class="mdi mdi-close" style="color: #fa6e7b;"></i>
+                                                        }
+                                                    </td>
+                                                    totalClasses++;
+                                                    totalClassesOverall++;
+                                                }
+                                            }
+                                        }
+                                        @{
+                                            var attendanceRate = totalClasses == 0 ? 0 : (double)attendedClasses / totalClasses * 100;
+                                        }
+                                        <td class="text-center sticky-col last-2-col" style="background-color: white; box-shadow:-3px 1px 7px -1px #0000002e;">@attendedClasses / @totalClasses</td>
+                                        <td class="text-center sticky-col last-col" style="background-color: white;">@attendanceRate.ToString("0.##")%</td>
+                                    </tr>
+
+
+                                }
+                            </tbody>
+                            <tfoot id="attendance-tfoot">
+                                <tr>
+                                    <td class="sticky-col first-col text-center" style="border-right: 1px solid #000 !important;" colspan="2">Total Attendance</td>
+                                    @foreach (var week in Model.WeekDetails)
+                                    {
+                                        foreach (var day in week.AllClassDays)
+                                        {
+                                            var date = DateTime.ParseExact(day.Split(' ')[0], "dd/MM/yyyy", null);
+                                            var attendanceId = day.Split('.')[1];
+                                            var showPastNoAttendance = date < DateTime.Today && attendanceId == "0";
+                                            var showFutureNoAttendance = date >= DateTime.Today && attendanceId == "0";
+
+                                            if (showFutureNoAttendance) // The day is in the future or today and hasn't taken attendance
+                                            {
+                                                <td class="table-bordered future-no-attendance" style="background-color: #edebeb;"></td>
+                                            }
+                                            else if (showPastNoAttendance) // The day hasn't taken attendance
+                                            {
+                                                <td class="table-bordered text-center past-no-attendance">No Record</td>
+                                            }
+                                            else
+                                            {
+                                                <td class="table-bordered text-center">@dayAttendanceCounts[day] / @Model.EnrolledStudents.Count</td>
+                                            }
+                                        }
+                                    }
+                                    @{var totalAttendanceRate = totalClassesOverall == 0 ? 0 : (double)attendedClassesOverall / totalClassesOverall * 100;}
+                                    <td class="text-center table-bordered sticky-col last-col" style="background-color: white; border-left: 2px solid #000 !important;" colspan="2">@totalAttendanceRate.ToString("0.##")%</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+
+                        <div class="text-danger text-center m-t-10 m-b-10" style="display:none;" id="no-found-row">
+                            <i class="mdi mdi-alert-outline"></i>
+                            <b>
+                                No found.
+                            </b>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+
+    <script>
+    window.onload = function() {
+        hideNoAttendanceDays();
+    };
+
+    function hideNoAttendanceDays() {
+        // 隐藏过去和未来无考勤的单元格
+        document.querySelectorAll('.past-no-attendance, .future-no-attendance').forEach(el => {
+            el.style.display = 'none';
+        });
+        
+        // 更新周标题的colspan
+        updateWeekHeaders();
+    }
+
+    function updateWeekHeaders() {  
+        var showPast = false;
+        var showFuture = false;
+        var weekLengths = JSON.parse(document.getElementById('thead-data-week-length').textContent);
+
+        var weekIndex = 0;
+        var previousStartIndex = 0;
+
+        $('thead .week-header').each(function () {
+            var attendanceDays = 0;
+            var noAttendanceDays = 0;
+
+
+            var weekHeader = $(this);
+        //var startIndex = weekHeader.index();
+            if (weekHeader.index() == 1) {
+                var startIndex = 2;
+                previousStartIndex = startIndex;
+            }
+            else {
+                var startIndex = previousStartIndex + weekLengths[weekIndex - 1];
+                previousStartIndex = startIndex;
+            }
+
+        //var startIndex = 1 + weekLengths[weekIndex];
+            var endIndex = startIndex + weekLengths[weekIndex];
+        //var endIndex = startIndex + parseInt(weekHeader.attr('colspan'));
+
+        // Iterate over the days in the current week
+            $('thead tr:nth-child(2) th').slice(startIndex, endIndex).each(function () {
+                var type = $(this).attr('data-type'); // Get the type of the day
+                this.outerHTML;
+
+                if (type === 'future-no-attendance' && showFuture) {
+                    noAttendanceDays++;
+                } else if (type === 'past-no-attendance' && showPast) {
+                    noAttendanceDays++;
+                } else if (type === 'attendance') {
+                    attendanceDays++;
+                }
+            });
+
+            // 计算新的 colspan 值
+            var newColspan = attendanceDays + noAttendanceDays;
+
+            // 根据新的 colspan 值设置周标题的显示
+            if (newColspan == 0) {
+                weekHeader.hide(); // 如果新的 colspan 为 0，隐藏当前周标题
+            } else {
+                weekHeader.attr('colspan', newColspan).show(); // 否则设置新的 colspan 并显示当前周标题
+            }
+            weekIndex++;
+        });
+    }
+
+    </script>
+
+</body>
+</html>

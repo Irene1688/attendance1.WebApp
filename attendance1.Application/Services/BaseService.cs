@@ -1,0 +1,87 @@
+﻿using attendance1.Application.Common.Logging;
+using attendance1.Application.Common.Response;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace attendance1.Application.Services
+{
+    public abstract class BaseService
+    {
+        private readonly ILogger<BaseService> _logger;
+        private readonly LogContext _logContext;
+
+        public BaseService(ILogger<BaseService> logger, LogContext logContext)
+        {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _logContext = logContext ?? throw new ArgumentNullException(nameof(logContext));
+        }
+
+        private string FormatLogMessage(string message, string? methodName)
+        {
+            var timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff");
+            
+            var methodInfo = !string.IsNullOrEmpty(methodName) 
+                ? $"[Method: {methodName}]" 
+                : string.Empty;
+            
+            var userInfo = !string.IsNullOrEmpty(_logContext.GetUserInfo()) 
+                ? $"[User: {_logContext.GetUserInfo()}]" 
+                : string.Empty;
+            return $"{timestamp} | {userInfo} in {methodInfo} : {message}";
+        }
+
+        protected async Task<Result<T>> ExecuteAsync<T>(Func<Task<T>> action, string errorMessage, [CallerMemberName] string? methodName = null)
+        {
+            try
+            {
+                var result = await action();
+                LogInfo("Operation Successful", methodName);
+                return Result<T>.SuccessResult(result);
+            }
+            catch (Exception ex)
+            {
+                LogError("Operation Failed", ex, methodName);
+                return Result<T>.FailureResult($"{errorMessage}: {ex.Message}");
+            }
+        }
+
+        protected void LogInfo(string message, [CallerMemberName] string? methodName = null)
+        {
+            var logMessage = FormatLogMessage(message, methodName);
+            _logger.LogInformation(logMessage);
+        }
+
+        protected void LogWarning(string message, [CallerMemberName] string? methodName = null)
+        {
+            var logMessage = FormatLogMessage(message, methodName);
+            _logger.LogWarning(logMessage);
+        }
+
+        protected void LogError(string message, Exception? ex = null, [CallerMemberName] string? methodName = null)
+        {
+            var logMessage = FormatLogMessage(message, methodName);
+            if (ex != null)
+            {
+                _logger.LogError(ex, logMessage);
+            }
+            else
+            {
+                _logger.LogError(logMessage);
+            }
+        }
+
+        protected void LogDebug(string message, [CallerMemberName] string? methodName = null)
+        {
+            var logMessage = FormatLogMessage(message, methodName);
+            _logger.LogDebug(logMessage);
+        }
+
+    }
+
+}

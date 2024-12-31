@@ -1,0 +1,255 @@
+#attendance-table {
+    border: 2px solid #000 !important; /* 表格外边框 */
+    border-collapse: collapse;
+    width: 100%;
+}
+
+#attendance-table th,
+#attendance-table td,
+#attendance-table .sticky-col,
+#attendance-table .first-col,
+#attendance-table .second-col,
+#attendance-table .last-col,
+#attendance-table .last-2-col {
+    box-shadow: none !important;
+}
+
+#attendance-table th,
+#attendance-table td {
+    border: 1px solid #ddd !important; 
+    padding: 5px;
+}
+
+
+#attendance-table .sticky-col.second-col {
+    border-right: 1px solid #000 !important;
+}
+
+#attendance-table .sticky-col.last-2-col {
+    border-left: 2px solid #000 !important;
+}
+
+
+#attendance-table thead tr:nth-child(2) th {
+    border-bottom: 1px solid #000 !important;
+}
+
+
+#attendance-table .sticky-col.first-col a {
+    text-decoration: none !important;
+    color: inherit !important; 
+}
+
+#attendance-table .sticky-col.first-col a:hover {
+    text-decoration: none !important;
+}
+
+#attendance-table tfoot td {
+    border-top: 2px solid #000 !important;
+}
+
+td.sticky-col.first-col.text-center {
+    border-right: 1px solid #000 !important; 
+}
+
+#attendance-table .sticky-col.last-2-col,
+#attendance-table .sticky-col.last-col {
+    text-align: center !important;
+}
+
+#attendance-table td.cell {
+    padding: 0 !important; 
+    vertical-align: middle;
+    text-align: center;
+}
+
+/* title & header */
+.print-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 10px;
+}
+
+.print-header img {
+    height: 60px;
+    margin-right: 20px;
+}
+
+.print-course-title {
+    font-size: 25px;
+    font-weight: bold;
+    margin: 5px 0 !important;
+    text-align: center;
+}
+
+.print-course-session {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 5px 0 !important;
+    text-align: center;
+}
+
+.print-org-info {
+    flex: 1;
+}
+
+.print-org-info h2 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.print-org-info p {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+.print-course-info {
+    margin-bottom: 20px;
+}
+
+.info-table {
+    width: 100%;
+    margin: 20px 0;
+    border-collapse: collapse;
+}
+
+.info-table td {
+    padding: 5px 10px;
+    border: none;
+}
+
+
+@media print {
+    @page {
+        size: landscape;
+        margin: 0.5cm;
+    }
+
+    .print-section,
+    .print-section * {
+        visibility: visible;
+    }
+
+    .print-section {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        page-break-inside: avoid !important;
+    }
+
+    .print-course-info {
+        margin-bottom: 10px;
+    }
+
+    .print-course-title {
+        font-size: 20px !important;
+    }
+
+    .print-course-session {
+        font-size: 15px !important;
+    }
+
+    .info-table {
+        font-size: 10px !important;
+        width: 100%;
+        margin-bottom: 10px;
+        border-collapse: collapse;
+    }
+
+    .info-table td {
+        text-align: left;
+        padding: 5px 10px !important;
+        border: none;
+    }
+
+    #attendance-table {
+        font-size: 8px !important;
+    }
+
+    th,
+    td {
+        border: 1px solid #000;
+        padding: 2px !important;
+        text-align: center;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+
+    thead {
+        background-color: #f0f0f0 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* 确保表格在打印时不会被分页 */
+    thead {
+        display: table-header-group;
+    }
+
+    tbody {
+        display: table-row-group;
+    }
+
+    tr {
+        page-break-inside: avoid;
+    }
+
+    #attendance-table .sticky-col.first-col {
+        min-width: 50px !important;
+        width: 50px !important;
+        max-width: 50px !important;
+        text-align: left !important;
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+
+    #attendance-table .sticky-col.second-col {
+        min-width: 65px !important;
+        width: 65px !important;
+        max-width: 65px !important;
+        text-align: left !important;
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+
+    #attendance-table .date-col {
+        min-width: 8px !important;
+        width: 8px !important;
+        max-width: 8px !important;
+        text-align: center !important;
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+
+    #attendance-table td.cell {
+        min-width: 8px !important;
+        width: 8px !important;
+        max-width: 8px !important;
+        padding: 0 !important;
+        font-size: 8px !important;
+    }
+
+    #attendance-table td.cell i.mdi-check {
+        color: rgb(60, 155, 15) !important;
+    }
+
+    #attendance-table td.cell i.mdi-close {
+        color: rgb(255, 23, 23) !important;
+    }
+
+    #attendance-table .sticky-col.last-2-col,
+    #attendance-table .sticky-col.last-col {
+        min-width: 31px !important;
+        width: 31px !important;
+        max-width: 31px !important;
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+}

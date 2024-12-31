@@ -111,6 +111,53 @@ namespace attendance1.Web.Controllers
 
         [Authorize(Roles = "Lecturer")]
         [HttpGet]
+        public async Task<IActionResult> PrintAttendance(int id)
+        {
+            if (id <= 0)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+            int courseId = id;
+
+            var courseDetails = await _classService.GetCourseDetailsForCurrentClassAsync(courseId);
+            if (courseDetails.CourseId <= 0)
+            {
+                TempData["ErrorMessage"] = "Class not found. Please add the class first.";
+                return RedirectToAction("AddClass", "Class");
+            }
+
+            var enrolledStudents = await _classService.GetEnrolledStudentsForCurrentClassAsync(courseId);
+            if (enrolledStudents.Count <= 0 )
+            {
+                TempData["PromptMessage"] = "No student found. Please add the student first.";
+            }
+            
+            var regularClassDays = _classService.ChangeRegularClassDayToIntListAsync(courseDetails.ClassDays);
+            if (regularClassDays.Count <= 0 )
+            {
+                throw new Exception("Lost class day for generating classAttendance page.");
+            }
+
+            var extraClassDays = await _classService.GetExtraClassDayForCurrentClassAsync(courseId);
+            
+            var latestAttendanceDate = await _classService.GetLatestAttendanceDateForCurrentClassAsync(courseId);
+
+            var weekDetails = await _classService.GetAllClassWeekWithDaysForCurrentClassAsync(courseDetails.StartDate, courseDetails.EndDate, regularClassDays, extraClassDays);
+
+            var model = new ClassAttendanceMdl
+            {
+                ClassDetails = courseDetails,
+                EnrolledStudents = enrolledStudents,
+                ClassDays = regularClassDays,
+                StudentAttendance = await _classService.GetStudentAttendanceForCurrentClassAsync(courseId, enrolledStudents.Select(s => s.StudentID).ToList()),
+                LatestAttendanceDate = latestAttendanceDate,
+                WeekDetails = weekDetails,
+            };
+            return View("/Views/Lecturer/PrintAttendance.cshtml", model);
+        }
+
+        [Authorize(Roles = "Lecturer")]
+        [HttpGet]
         public async Task<IActionResult> EditClass(int id)
         {
             if (id <= 0)

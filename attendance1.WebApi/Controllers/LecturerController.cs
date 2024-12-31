@@ -1,0 +1,135 @@
+﻿using attendance1.Application.DTOs.Common;
+using attendance1.Application.DTOs.Lecturer;
+using attendance1.Application.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+
+namespace attendance1.WebApi.Controllers
+{
+    [ApiController]
+    [Route("[controller]")]
+    [Authorize(Policy = "LecturerOnly")]
+    public class LecturerController : ControllerBase
+    {
+        private readonly ILectureService _lectureService;
+        private readonly ILogger<LecturerController> _logger;
+
+        public LecturerController(ILectureService lectureService, ILogger<LecturerController> logger)
+        {
+            _lectureService = lectureService ?? throw new ArgumentNullException(nameof(lectureService));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
+        [HttpPost("getClasses")]
+        public async Task<ActionResult<List<GetLecturerClassRequestDto>>> GetCoursesByLecturerId([FromBody] DataIdRequestDto requestDto)
+        {
+            var classes = await _lectureService.GetClassesOfLecturerAsync(requestDto);
+            return Ok(classes);
+        }
+
+        [HttpPost("getClassDetails")]
+        public async Task<ActionResult<GetClassDetailsResponseDto>> GetClassDetails([FromBody] DataIdRequestDto requestDto)
+        {
+            var classDetails = await _lectureService.GetClassDetailsAsync(requestDto);
+            return Ok(classDetails);
+        }
+
+        [HttpPost("getClassDetailsWithAttendanceData")]
+        public async Task<ActionResult<GetClassDetailsWithAttendanceDataResponseDto>> GetClassDetailsWithAttendanceData([FromBody] DataIdRequestDto requestDto)
+        {
+            var classDetails = await _lectureService.GetClassDetailsWithAttendanceDataAsync(requestDto);
+            return Ok(classDetails);
+        }
+
+        [HttpPost("createNewClass")]
+        public async Task<ActionResult<DataIdResponseDto>> CreateNewClass([FromBody] CreateClassRequestDto requestDto)
+        {
+            var newClassId = await _lectureService.CreateNewClassAsync(requestDto);
+            return Ok(newClassId);
+        }
+
+        [HttpPost("editClassDetails")]
+        public async Task<ActionResult<bool>> EditClassDetails([FromBody] EditClassRequestDto requestDto)
+        {
+            var result = await _lectureService.EditClassAsync(requestDto);
+            return Ok(result);
+        }
+
+        [HttpPost("deleteClass")]
+        public async Task<ActionResult<bool>> DeleteClass([FromBody] DeleteRequestDto requestDto)
+        {
+            var result = await _lectureService.DeleteClassAsync(requestDto);
+            return Ok(result);
+        }
+
+        [HttpPost("addStudentToClass")]
+        public async Task<ActionResult<bool>> AddStudentToClass([FromBody] AddStudentToClassRequestDto requestDto)
+        {
+            var result = await _lectureService.AddStudentToClassAsync(requestDto);
+            return Ok(result);
+        }
+
+        [HttpPost("removeStudentFromClass")]
+        public async Task<ActionResult<bool>> RemoveStudentFromClass([FromBody] RemoveStudentFromClassRequestDto requestDto)
+        {
+            var result = await _lectureService.RemoveStudentFromClassAsync(requestDto);
+            return Ok(result);
+        }
+
+        [HttpPost("addStudentToTutorial")]
+        public async Task<ActionResult<bool>> AddStudentToTutorial([FromBody] AddStudentToTutorialRequestDto requestDto)
+        {
+            var result = await _lectureService.AddStudentToTutorialAsync(requestDto);
+            return Ok(result);
+        }
+
+        [HttpPost("removeStudentFromTutorial")]
+        public async Task<ActionResult<bool>> RemoveStudentFromTutorial([FromBody] RemoveStudentFromTutorialRequestDto requestDto)
+        {
+            var result = await _lectureService.RemoveStudentFromTutorialAsync(requestDto);
+            return Ok(result);
+        }
+
+        [HttpPost("createNewTutorial")]
+        public async Task<ActionResult<bool>> CreateNewTutorial([FromBody] CreateTutorialRequestDto requestDto)
+        {
+            var result = await _lectureService.CreateNewTutorialAsync(requestDto);
+            return Ok(result);
+        }
+
+        [HttpPost("editTutorial")]
+        public async Task<ActionResult<bool>> EditTutorial([FromBody] EditTutorialRequestDto requestDto)
+        {
+            var result = await _lectureService.EditTutorialAsync(requestDto);
+            return Ok(result);
+        }
+
+        [HttpPost("deleteTutorial")]
+        public async Task<ActionResult<bool>> DeleteTutorial([FromBody] DeleteRequestDto requestDto)
+        {
+            var result = await _lectureService.DeleteTutorialAsync(requestDto);
+            return Ok(result);
+        }
+
+        [HttpPost("generateAttendanceCode")]
+        public async Task<ActionResult<GetAttendanceCodeResponseDto>> GenerateAttendanceCode([FromBody] CreateAttendanceCodeRequestDto requestDto)
+        {
+            var result = await _lectureService.GenerateAttendanceCodeAsync(requestDto);
+            return Ok(result);
+        }
+
+        [HttpPost("insertAbsentStudentAttendance")]
+        public async Task<ActionResult<bool>> InsertAbsentStudentAttendance([FromBody] CreateAbsentStudentAttendanceRequestDto requestDto)
+        {
+            var result = await _lectureService.InsertAbsentStudentAttendanceAsync(requestDto);
+            return Ok(result);
+        }
+
+        [HttpPost("editAttendanceData")]
+        public async Task<ActionResult<bool>> EditAttendanceData([FromBody] EditAttendanceDataRequestDto requestDto)
+        {
+            var result = await _lectureService.ChangeAttendanceDataOfStudentAsync(requestDto);
+            return Ok(result);
+        }
+    }
+}
