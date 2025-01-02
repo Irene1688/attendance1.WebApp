@@ -8,9 +8,9 @@ namespace attendance1.Infrastructure.Persistence.Contexts;
 
 public partial class ApplicationDbContext : DbContext
 {
-    public ApplicationDbContext()
-    {
-    }
+    // public ApplicationDbContext()
+    // {
+    // }
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)

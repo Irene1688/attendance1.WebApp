@@ -1,15 +1,19 @@
+using attendance1.Application.Common.Logging;
 using attendance1.Domain.Entities;
 using attendance1.Domain.Interfaces;
 using attendance1.Infrastructure.Persistence.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using attendance1.Application.Extensions;
 
 namespace attendance1.Infrastructure.Persistence.Repositories
 {
     public class AttendanceRepository : BaseRepository, IAttendanceRepository
     {
-        public AttendanceRepository(ILogger<AttendanceRepository> logger, ApplicationDbContext database)
-            : base(logger, database)
+        public AttendanceRepository(ILogger<AttendanceRepository> logger, 
+            IDbContextFactory<ApplicationDbContext> contextFactory, 
+            LogContext logContext)
+            : base(logger, contextFactory, logContext)
         {
         }
 
@@ -70,19 +74,23 @@ namespace attendance1.Infrastructure.Persistence.Repositories
 
         public async Task<List<StudentAttendance>> GetAttendanceDataByCourseIdAsync(int courseId)
         {
+            _logger.LogInfoWithContext("Starting repo method", _logContext.GetUserInfo());
             var attendanceData = await _database.StudentAttendances
                 .Where(a => a.CourseId == courseId)
                 .AsNoTracking()
                 .ToListAsync();
+            _logger.LogInfoWithContext("Completed repo method", _logContext.GetUserInfo());
             return attendanceData;
         }
 
         public async Task<List<StudentAttendance>> GetAttendanceDataByAttendanceCodeIdAsync(int attendanceRecordId)
         {
+            _logger.LogInfoWithContext("Starting repo method", _logContext.GetUserInfo());
             var attendanceData = await _database.StudentAttendances
                 .Where(a => a.RecordId == attendanceRecordId)
                 .AsNoTracking()
                 .ToListAsync();
+            _logger.LogInfoWithContext("Completed repo method", _logContext.GetUserInfo());
             return attendanceData;
         }
         
@@ -152,22 +160,26 @@ namespace attendance1.Infrastructure.Persistence.Repositories
         #region student: view & submit attendance
         public async Task<List<StudentAttendance>> GetAttendanceDataByStudentIdAsync(string studentId)
         {
+            _logger.LogInfoWithContext("Starting repo method", _logContext.GetUserInfo());
             var attendanceData = await _database.StudentAttendances
                 .Where(a => a.StudentId == studentId)
                 .Include(a => a.Course)
                 .Include(a => a.Record)
                 .AsNoTracking()
                 .ToListAsync();
+            _logger.LogInfoWithContext("Completed repo method", _logContext.GetUserInfo());
             return attendanceData;
         }
 
         public async Task<AttendanceRecord> GetAttendanceCodeDetailsByCodeAsync(string attendanceCode)
         {
+            _logger.LogInfoWithContext("Starting repo method", _logContext.GetUserInfo());
             var attendanceRecord = await _database.AttendanceRecords
                 .OrderByDescending(a => a.RecordId)
                 .Take(100)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(a => a.AttendanceCode == attendanceCode);
+            _logger.LogInfoWithContext("Completed repo method", _logContext.GetUserInfo());
             if (attendanceRecord == null)
                 throw new Exception("Attendance code not found");
 

@@ -83,7 +83,9 @@ namespace attendance1.Application.Services
 
                 user.RefreshToken = refreshToken;
                 user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpiryInDays);
-                await _userRepository.UpdateUserRefreshTokenAsync(user);
+                var isUpdated = await _userRepository.UpdateUserRefreshTokenAsync(user);
+                if (!isUpdated)
+                    throw new Exception("Failed to update refresh token");
 
                 return new LoginResponseDto
                 {

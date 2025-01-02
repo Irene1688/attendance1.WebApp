@@ -175,6 +175,7 @@ namespace attendance1.Application.Services
                         .ToList());
                 var response = lecturers.Select(lecturer => new GetLecturerResponseDto
                 {
+                    UserId = lecturer.UserId,
                     LecturerId = lecturer.LecturerId ?? string.Empty,
                     Name = lecturer.UserName ?? string.Empty, 
                     Email = lecturer.Email ?? string.Empty,
@@ -240,6 +241,7 @@ namespace attendance1.Application.Services
 
                     response.Add(new GetStudentResponseDto
                     {
+                        UserId = student.UserId,
                         StudentId = student.StudentId ?? string.Empty,
                         Name = student.UserName ?? string.Empty,
                         Email = student.Email ?? string.Empty,

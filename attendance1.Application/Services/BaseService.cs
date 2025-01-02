@@ -1,13 +1,8 @@
 ﻿using attendance1.Application.Common.Logging;
 using attendance1.Application.Common.Response;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+using attendance1.Application.Extensions;
 
 namespace attendance1.Application.Services
 {
@@ -22,65 +17,86 @@ namespace attendance1.Application.Services
             _logContext = logContext ?? throw new ArgumentNullException(nameof(logContext));
         }
 
-        private string FormatLogMessage(string message, string? methodName)
-        {
-            var timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff");
+        // private string FormatLogMessage(string message, string? methodName)
+        // {
+        //     var timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff");
             
-            var methodInfo = !string.IsNullOrEmpty(methodName) 
-                ? $"[Method: {methodName}]" 
-                : string.Empty;
+        //     var methodInfo = !string.IsNullOrEmpty(methodName) 
+        //         ? $"[Method: {methodName}]" 
+        //         : string.Empty;
             
-            var userInfo = !string.IsNullOrEmpty(_logContext.GetUserInfo()) 
-                ? $"[User: {_logContext.GetUserInfo()}]" 
-                : string.Empty;
-            return $"{timestamp} | {userInfo} in {methodInfo} : {message}";
-        }
+        //     var userInfo = !string.IsNullOrEmpty(_logContext.GetUserInfo()) 
+        //         ? $"[User: {_logContext.GetUserInfo()}]" 
+        //         : string.Empty;
+        //     return $"{timestamp} | {userInfo} in {methodInfo} : {message}";
+        // }
 
         protected async Task<Result<T>> ExecuteAsync<T>(Func<Task<T>> action, string errorMessage, [CallerMemberName] string? methodName = null)
         {
             try
             {
+                _logger.LogInfoWithContext($"Service method: {methodName} Started", _logContext.GetUserInfo(), methodName);
                 var result = await action();
-                LogInfo("Operation Successful", methodName);
+                _logger.LogInfoWithContext($"Service method: {methodName} Completed", _logContext.GetUserInfo(), methodName);
                 return Result<T>.SuccessResult(result);
             }
             catch (Exception ex)
             {
-                LogError("Operation Failed", ex, methodName);
+                LogError($"Service method: {methodName} Failed", ex, methodName);
                 return Result<T>.FailureResult($"{errorMessage}: {ex.Message}");
             }
         }
 
         protected void LogInfo(string message, [CallerMemberName] string? methodName = null)
         {
-            var logMessage = FormatLogMessage(message, methodName);
-            _logger.LogInformation(logMessage);
+            _logger.LogInfoWithContext(message, _logContext.GetUserInfo(), methodName);
         }
 
         protected void LogWarning(string message, [CallerMemberName] string? methodName = null)
         {
-            var logMessage = FormatLogMessage(message, methodName);
-            _logger.LogWarning(logMessage);
+            _logger.LogWarningWithContext(message, _logContext.GetUserInfo(), methodName);
         }
 
         protected void LogError(string message, Exception? ex = null, [CallerMemberName] string? methodName = null)
         {
-            var logMessage = FormatLogMessage(message, methodName);
-            if (ex != null)
-            {
-                _logger.LogError(ex, logMessage);
-            }
-            else
-            {
-                _logger.LogError(logMessage);
-            }
+            _logger.LogErrorWithContext(message, ex, _logContext.GetUserInfo(), methodName);
         }
 
         protected void LogDebug(string message, [CallerMemberName] string? methodName = null)
         {
-            var logMessage = FormatLogMessage(message, methodName);
-            _logger.LogDebug(logMessage);
+            _logger.LogDebugWithContext(message, _logContext.GetUserInfo(), methodName);
         }
+
+        // protected void LogInfo(string message, [CallerMemberName] string? methodName = null)
+        // {
+        //     var logMessage = FormatLogMessage(message, methodName);
+        //     _logger.LogInformation(logMessage);
+        // }
+
+        // protected void LogWarning(string message, [CallerMemberName] string? methodName = null)
+        // {
+        //     var logMessage = FormatLogMessage(message, methodName);
+        //     _logger.LogWarning(logMessage);
+        // }
+
+        // protected void LogError(string message, Exception? ex = null, [CallerMemberName] string? methodName = null)
+        // {
+        //     var logMessage = FormatLogMessage(message, methodName);
+        //     if (ex != null)
+        //     {
+        //         _logger.LogError(ex, logMessage);
+        //     }
+        //     else
+        //     {
+        //         _logger.LogError(logMessage);
+        //     }
+        // }
+
+        // protected void LogDebug(string message, [CallerMemberName] string? methodName = null)
+        // {
+        //     var logMessage = FormatLogMessage(message, methodName);
+        //     _logger.LogDebug(logMessage);
+        // }
 
     }
 

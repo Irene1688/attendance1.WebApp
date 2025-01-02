@@ -1,15 +1,19 @@
+using attendance1.Application.Common.Logging;
 using attendance1.Domain.Entities;
 using attendance1.Domain.Interfaces;
 using attendance1.Infrastructure.Persistence.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using attendance1.Application.Extensions;
 
 namespace attendance1.Infrastructure.Persistence.Repositories
 {
     public class ProgrammeRepository : BaseRepository, IProgrammeRepository
     {
-        public ProgrammeRepository(ILogger<ProgrammeRepository> logger, ApplicationDbContext database)
-            : base(logger, database)
+        public ProgrammeRepository(ILogger<ProgrammeRepository> logger, 
+            IDbContextFactory<ApplicationDbContext> contextFactory, 
+            LogContext logContext)
+            : base(logger, contextFactory, logContext)
         {
         }
 
@@ -22,6 +26,7 @@ namespace attendance1.Infrastructure.Persistence.Repositories
 
         public async Task<List<Programme>> GetAllProgrammeAsync(int pageNumber = 1, int pageSize = 15)
         {
+            _logger.LogInfoWithContext("Starting repo method", _logContext.GetUserInfo());
             var programmes = await _database.Programmes
                 .Where(p => p.IsDeleted == false)
                 .OrderBy(p => p.ProgrammeName)
@@ -29,6 +34,7 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
+            _logger.LogInfoWithContext("Completed repo method", _logContext.GetUserInfo());
             return programmes;
         }
 

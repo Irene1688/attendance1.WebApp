@@ -10,13 +10,13 @@ namespace attendance1.Infrastructure.Persistence.Contexts
 {
     public partial class ApplicationDbContext
     {
-        private readonly IConfiguration? _configuration;
+        // private readonly IConfiguration? _configuration;
 
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IConfiguration configuration)
-            : base(options)
-        {
-            _configuration = configuration;
-        }
+        // public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IConfiguration configuration)
+        //     : base(options)
+        // {
+        //     _configuration = configuration;
+        // }
 
         //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         //{
