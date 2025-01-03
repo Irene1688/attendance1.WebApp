@@ -24,21 +24,21 @@ namespace attendance1.WebApi.Controllers
         public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginRequestDto requestDto)
         {
             var result = await _authService.LoginAsync(requestDto);
-            return Ok(result);
+            return StatusCode((int)result.StatusCode, result);
         }
 
         [HttpPost("logout")]
         public async Task<ActionResult<bool>> Logout([FromBody] LogoutRequestDto requestDto)
         {
             var result = await _authService.LogoutAsync(requestDto);
-            return Ok(result);
+            return StatusCode((int)result.StatusCode, result);
         }
 
         [HttpPost("refreshToken")]
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequestDto requestDto)
         {
             var result = await _authService.RefreshAccessTokenAsync(requestDto);
-            return Ok(result);
+            return StatusCode((int)result.StatusCode, result);
         }
     }
 }

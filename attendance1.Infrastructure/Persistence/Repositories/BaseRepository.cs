@@ -26,6 +26,31 @@ namespace attendance1.Infrastructure.Persistence.Repositories
             _logContext = logContext ?? throw new ArgumentNullException(nameof(logContext));
         }
 
+        protected async Task<T> ExecuteGetAsync<T>(
+            Func<Task<T?>> action,
+            [CallerMemberName] string? methodName = null) 
+            where T : class
+        {
+            try 
+            {
+                _logger.LogInfoWithContext("Starting repo method...", _logContext.GetUserInfo(), methodName);
+                
+                var result = await action();
+                
+                _logger.LogInfoWithContext("Completed repo method", _logContext.GetUserInfo(), methodName);
+                
+                if (result == null)
+                    throw new Exception($"{typeof(T).Name} not found");
+                    
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogErrorWithContext($"Error in repo method: {ex.Message}", ex, _logContext.GetUserInfo(), methodName);
+                throw;
+            }
+        } 
+
         // transaction handling
         protected async Task<IDbContextTransaction> BeginTransactionAsync()
         {
@@ -64,7 +89,7 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                         using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
                         try
                         {
-                            _logger.LogInfoWithContext("Starting repo method: Begin database transaction", _logContext.GetUserInfo(), methodName);
+                            _logger.LogInfoWithContext("Starting repo method: Begin database transaction...", _logContext.GetUserInfo(), methodName);
                             var result = await action();
                             scope.Complete();
                             _logger.LogInfoWithContext("Completed repo method: Commit database transaction", _logContext.GetUserInfo(), methodName);

@@ -24,35 +24,35 @@ namespace attendance1.WebApi.Controllers
         public async Task<ActionResult<List<GetAttendanceRecordResponseDto>>> ViewAttendanceInCurrentWeek([FromBody] DataIdRequestDto requestDto)
         {
             var result = await _studentService.GetAttendanceInCurrentWeekAsync(requestDto);
-            return Ok(result);
+            return StatusCode((int)result.StatusCode, result);
         }
 
         [HttpPost("submitAttendance")]
         public async Task<ActionResult<bool>> SubmitAttendance([FromBody] CreateAttendanceRecordRequestDto requestDto)
         {
             var result = await _studentService.SubmitAttendanceAsync(requestDto);
-            return Ok(result);
+            return StatusCode((int)result.StatusCode, result);
         }
 
         [HttpPost("getEnrollmentClasses")]
         public async Task<ActionResult<List<GetAttendanceRecordResponseDto>>> GetEnrollmentClasses([FromBody] DataIdRequestDto requestDto)
         {
             var result = await _studentService.GetEnrollmentClassesAsync(requestDto);
-            return Ok(result);
+            return StatusCode((int)result.StatusCode, result);
         }
 
         [HttpPost("getClassDetailsWithAttendance")]
         public async Task<ActionResult<GetClassDetailsWithAttendanceResponseDto>> GetClassDetailsWithAttendance([FromBody] DataIdRequestDto requestDto)
         {
             var result = await _studentService.GetClassDetailsWithAttendanceByStudentIdAsync(requestDto);
-            return Ok(result);
+            return StatusCode((int)result.StatusCode, result);
         }
 
         [HttpPost("getAllAttendance")]
         public async Task<ActionResult<List<GetAttendanceRecordResponseDto>>> GetAllAttendance([FromBody] DataIdRequestDto requestDto)
         {
             var result = await _studentService.GetAllAttendanceByStudentIdAsync(requestDto);
-            return Ok(result);
+            return StatusCode((int)result.StatusCode, result);
         }
 
     }

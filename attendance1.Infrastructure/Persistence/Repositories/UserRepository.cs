@@ -48,70 +48,53 @@ namespace attendance1.Infrastructure.Persistence.Repositories
         #region login
         public async Task<UserDetail?> GetUserByEmailAsync(string email)
         {
-            _logger.LogInfoWithContext("Starting repo method", _logContext.GetUserInfo());
-            var user = await _database.UserDetails
+            return await ExecuteGetAsync(async () => await _database.UserDetails
                 .FirstOrDefaultAsync(u => u.Email == email 
-                    && u.IsDeleted == false);
-            _logger.LogInfoWithContext("Completed repo method", _logContext.GetUserInfo());
-            return user;
+                    && u.IsDeleted == false));
         }
         #endregion
 
         #region User CRUD
         public async Task<List<UserDetail>> GetAllLecturerAsync(int pageNumber = 1, int pageSize = 15)
         {
-            _logger.LogInfoWithContext("Starting repo method", _logContext.GetUserInfo());
-            var lecturers = await _database.UserDetails
+            return await ExecuteGetAsync(async () => await _database.UserDetails
                 .Where(u => u.AccRole == AccRoleEnum.Lecturer.ToString() 
                     && u.IsDeleted == false)
                 .OrderBy(u => u.LecturerId)
                 .AsNoTracking()
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
-                .ToListAsync();
-            _logger.LogInfoWithContext("Completed repo method", _logContext.GetUserInfo());
-            return lecturers;
+                .ToListAsync());
         }
 
         public async Task<List<UserDetail>> GetAllStudentAsync(int pageNumber = 1, int pageSize = 15)
         {
-            _logger.LogInfoWithContext("Starting repo method", _logContext.GetUserInfo());
-            var students = await _database.UserDetails
+            return await ExecuteGetAsync(async () => await _database.UserDetails
                 .Where(u => u.AccRole == AccRoleEnum.Student.ToString() 
                     && u.IsDeleted == false)
                 .OrderBy(u => u.StudentId)
                 .AsNoTracking()
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
-                .ToListAsync();
-            _logger.LogInfoWithContext("Completed repo method", _logContext.GetUserInfo());
-            return students;
+                .ToListAsync());
         }
 
         public async Task<List<string>> GetAllExistedStudentIdAsync()
         {
-            _logger.LogInfoWithContext("Starting repo method", _logContext.GetUserInfo());
-            var students = await _database.UserDetails
+            return await ExecuteGetAsync(async () => await _database.UserDetails
                 .Where(u => u.AccRole == AccRoleEnum.Student.ToString() 
                     && u.IsDeleted == false)
                 .Select(u => u.StudentId ?? string.Empty)
-                .ToListAsync();
-            _logger.LogInfoWithContext("Completed repo method", _logContext.GetUserInfo());
-            return students;
+                .ToListAsync());
         }
 
         public async Task<UserDetail> GetUserByCampusIdAsync(int userId, string campusId)
         {
-            _logger.LogInfoWithContext("Starting repo method", _logContext.GetUserInfo());
-            var user = await _database.UserDetails
+            return await ExecuteGetAsync(async () => await _database.UserDetails
                 .AsNoTracking()
                 .FirstOrDefaultAsync(u => u.UserId == userId 
                     && u.IsDeleted == false 
-                    && (u.StudentId == campusId || u.LecturerId == campusId));
-            _logger.LogInfoWithContext("Completed repo method", _logContext.GetUserInfo());
-            if (user == null)
-                throw new Exception("User not found");
-            return user;
+                    && (u.StudentId == campusId || u.LecturerId == campusId)));
         }
 
         public async Task<bool> CreateUserAsync(UserDetail userDetail)
@@ -213,58 +196,39 @@ namespace attendance1.Infrastructure.Persistence.Repositories
         #region Get one property
         public async Task<string> GetLecturerNameByLecturerIdAsync(string lecturerId)
         {
-            _logger.LogInfoWithContext("Starting repo method", _logContext.GetUserInfo());
-            var lecturer = await _database.UserDetails
+            return await ExecuteGetAsync(async () => await _database.UserDetails
                 .Where(u => u.LecturerId == lecturerId 
                     && u.AccRole == AccRoleEnum.Lecturer.ToString())
                 .Select(u => u.UserName)
-                .FirstOrDefaultAsync();
-            if (lecturer == null)
-                throw new Exception("Lecturer not found");
-            _logger.LogInfoWithContext("Completed repo method", _logContext.GetUserInfo());
-            return lecturer;
+                .FirstOrDefaultAsync());
         }
         
         public async Task<string> GetStudentNameByStudentIdAsync(string studentId)
         {
-            _logger.LogInfoWithContext("Starting repo method", _logContext.GetUserInfo());
-            var student = await _database.UserDetails
+            return await ExecuteGetAsync(async () => await _database.UserDetails
                 .Where(u => u.StudentId == studentId 
                     && u.AccRole == AccRoleEnum.Student.ToString()
                     && u.IsDeleted == false)
                 .Select(u => u.UserName)
-                .FirstOrDefaultAsync();
-
-            if (student == null)
-                throw new Exception("Student not found");
-            _logger.LogInfoWithContext("Completed repo method", _logContext.GetUserInfo());
-            return student;
+                .FirstOrDefaultAsync());
         }
         
         public async Task<string> GetUserPasswordByUserIdAsync(int userId)
         {   
-            _logger.LogInfoWithContext("Starting repo method", _logContext.GetUserInfo());
-            var password = await _database.UserDetails
+            return await ExecuteGetAsync(async () => await _database.UserDetails
                 .Where(u => u.UserId == userId 
                     && u.IsDeleted == false)
                 .Select(u => u.UserPassword)
-                .FirstOrDefaultAsync();
-            if (password == null)
-                throw new Exception("User not found");
-            _logger.LogInfoWithContext("Completed repo method", _logContext.GetUserInfo());
-            return password;
+                .FirstOrDefaultAsync());
         }
         #endregion
 
         #region refresh token
         public async Task<UserDetail?> GetUserByRefreshTokenAsync(string refreshToken)
         {
-            _logger.LogInfoWithContext("Starting repo method", _logContext.GetUserInfo());
-            var user = await _database.UserDetails
+            return await ExecuteGetAsync(async () => await _database.UserDetails
                 .FirstOrDefaultAsync(u => u.RefreshToken == refreshToken
-                && u.IsDeleted == false);
-            _logger.LogInfoWithContext("Completed repo method", _logContext.GetUserInfo());
-            return user;
+                && u.IsDeleted == false));
         }
 
         public async Task<bool> UpdateUserRefreshTokenAsync(UserDetail user)

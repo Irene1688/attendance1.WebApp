@@ -47,7 +47,8 @@ namespace attendance1.Application.Extensions
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = jwtSettings.Issuer,
                     ValidAudience = jwtSettings.Audience,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key))
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key)),
+                    ClockSkew = TimeSpan.Zero
                 };
 
                 options.Events = new JwtBearerEvents
@@ -84,7 +85,7 @@ namespace attendance1.Application.Extensions
                             var result = JsonSerializer.Serialize(new
                             {
                                 status = 401,
-                                message = "Token has expired"
+                                message = "Token has expired",
                             });
                             await context.Response.WriteAsync(result);
                         }

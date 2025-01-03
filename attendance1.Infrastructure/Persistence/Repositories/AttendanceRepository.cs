@@ -74,24 +74,18 @@ namespace attendance1.Infrastructure.Persistence.Repositories
 
         public async Task<List<StudentAttendance>> GetAttendanceDataByCourseIdAsync(int courseId)
         {
-            _logger.LogInfoWithContext("Starting repo method", _logContext.GetUserInfo());
-            var attendanceData = await _database.StudentAttendances
+            return await ExecuteGetAsync(async () => await _database.StudentAttendances
                 .Where(a => a.CourseId == courseId)
                 .AsNoTracking()
-                .ToListAsync();
-            _logger.LogInfoWithContext("Completed repo method", _logContext.GetUserInfo());
-            return attendanceData;
+                .ToListAsync());
         }
 
         public async Task<List<StudentAttendance>> GetAttendanceDataByAttendanceCodeIdAsync(int attendanceRecordId)
         {
-            _logger.LogInfoWithContext("Starting repo method", _logContext.GetUserInfo());
-            var attendanceData = await _database.StudentAttendances
+            return await ExecuteGetAsync(async () => await _database.StudentAttendances
                 .Where(a => a.RecordId == attendanceRecordId)
                 .AsNoTracking()
-                .ToListAsync();
-            _logger.LogInfoWithContext("Completed repo method", _logContext.GetUserInfo());
-            return attendanceData;
+                .ToListAsync());
         }
         
         public async Task<bool> InsertAbsentStudentAttendanceAsync(int courseId, int attendanceCodeId)
@@ -160,30 +154,21 @@ namespace attendance1.Infrastructure.Persistence.Repositories
         #region student: view & submit attendance
         public async Task<List<StudentAttendance>> GetAttendanceDataByStudentIdAsync(string studentId)
         {
-            _logger.LogInfoWithContext("Starting repo method", _logContext.GetUserInfo());
-            var attendanceData = await _database.StudentAttendances
+            return await ExecuteGetAsync(async () => await _database.StudentAttendances
                 .Where(a => a.StudentId == studentId)
                 .Include(a => a.Course)
                 .Include(a => a.Record)
                 .AsNoTracking()
-                .ToListAsync();
-            _logger.LogInfoWithContext("Completed repo method", _logContext.GetUserInfo());
-            return attendanceData;
+                .ToListAsync());
         }
 
         public async Task<AttendanceRecord> GetAttendanceCodeDetailsByCodeAsync(string attendanceCode)
         {
-            _logger.LogInfoWithContext("Starting repo method", _logContext.GetUserInfo());
-            var attendanceRecord = await _database.AttendanceRecords
+            return await ExecuteGetAsync(async () => await _database.AttendanceRecords
                 .OrderByDescending(a => a.RecordId)
                 .Take(100)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(a => a.AttendanceCode == attendanceCode);
-            _logger.LogInfoWithContext("Completed repo method", _logContext.GetUserInfo());
-            if (attendanceRecord == null)
-                throw new Exception("Attendance code not found");
-
-            return attendanceRecord;
+                .FirstOrDefaultAsync(a => a.AttendanceCode == attendanceCode));
         }
 
         public async Task<bool> CreateAttendanceDataAsync(StudentAttendance studentAttendance)

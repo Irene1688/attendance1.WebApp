@@ -68,18 +68,12 @@ namespace attendance1.Infrastructure.Persistence.Repositories
         #region course CRUD
         public async Task<Course> GetCourseDetailsAsync(int courseId)
         {
-            _logger.LogInfoWithContext("Starting repo method", _logContext.GetUserInfo());  
-            var course = await _database.Courses
+            return await ExecuteGetAsync(async () => await _database.Courses
                 .Where(c => c.CourseId == courseId && c.IsDeleted == false)
                 .Include(c => c.Programme)
                 .Include(c => c.Semester)
                 .AsNoTracking()
-                .FirstOrDefaultAsync();
-            _logger.LogInfoWithContext("Completed repo method", _logContext.GetUserInfo());
-            if (course == null)
-                throw new Exception("Class not found");
-
-            return course;
+                .FirstOrDefaultAsync());
         }
 
         public async Task<int> CreateNewCourseAsync(Course course, CourseSemester semester, List<Tutorial> tutorials, List<EnrolledStudent> students)
@@ -204,8 +198,7 @@ namespace attendance1.Infrastructure.Persistence.Repositories
 
         public async Task<List<Course>> GetAllCourseAsync(int pageNumber = 1, int pageSize = 15)
         {
-            _logger.LogInfoWithContext("Starting repo method", _logContext.GetUserInfo());
-            var courses = await _database.Courses
+            return await ExecuteGetAsync(async () => await _database.Courses
                 .Where(c => c.IsDeleted == false)
                 .OrderBy(c => c.CourseName)
                 .Include(c => c.Programme)
@@ -214,100 +207,78 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .AsNoTracking()
-                .ToListAsync();
-            _logger.LogInfoWithContext("Completed repo method", _logContext.GetUserInfo());
-            return courses;
+                .ToListAsync());
         }
 
         public async Task<Course> GetCourseDetailsWithStudentsAndTutorialsAsync(int courseId)
         {
-            _logger.LogInfoWithContext("Starting repo method", _logContext.GetUserInfo());
-            var course = await _database.Courses
+            return await ExecuteGetAsync(async () => await _database.Courses
                 .Where(c => c.CourseId == courseId && c.IsDeleted == false)
                 .Include(c => c.Programme)
                 .Include(c => c.Semester)
                 .Include(c => c.EnrolledStudents)
                 .Include(c => c.Tutorials)
                 .AsNoTracking()
-                .FirstOrDefaultAsync();
-
-            if (course == null)
-                throw new Exception("Class not found");
-            _logger.LogInfoWithContext("Completed repo method", _logContext.GetUserInfo());
-            return course;
+                .FirstOrDefaultAsync());
         }
 
         public async Task<List<Course>> GetCoursesByLecturerIdAsync(string lectureId)
         {
-            _logger.LogInfoWithContext("Starting repo method", _logContext.GetUserInfo());
-            var courses = await _database.Courses
+            return await ExecuteGetAsync(async () => await _database.Courses
                 .Where(c => c.LecturerId == lectureId && c.IsDeleted == false)
                 .AsNoTracking()
-                .ToListAsync();
-            _logger.LogInfoWithContext("Completed repo method", _logContext.GetUserInfo());
-            return courses;
+                .ToListAsync());
         }
         
         public async Task<List<Course>> GetCoursesByMultipleLecturerIdAsync(List<string> lecturerIds)
         {
-            _logger.LogInfoWithContext("Starting repo method", _logContext.GetUserInfo());
-            var courses = await _database.Courses
+            return await ExecuteGetAsync(async () => await _database.Courses
                 .Where(c => lecturerIds.Contains(c.LecturerId) 
                     && c.IsDeleted == false)
                 .Include(c => c.Semester)
                 .Include(c => c.EnrolledStudents)
                 .AsNoTracking()
-                .ToListAsync();
-            _logger.LogInfoWithContext("Completed repo method", _logContext.GetUserInfo());
-            return courses;
+                .ToListAsync());
         }
 
         public async Task<List<Course>> GetEnrollmentCoursesByStudentIdAsync(string studentId)
         {
-            _logger.LogInfoWithContext("Starting repo method", _logContext.GetUserInfo());
-            var courses = await _database.EnrolledStudents
+            return await ExecuteGetAsync(async () => await _database.EnrolledStudents
                 .Where(s => s.StudentId == studentId 
                     && s.IsDeleted == false)
                 .Select(s => s.Course)
                 .AsNoTracking()
-                .ToListAsync();
-            _logger.LogInfoWithContext("Completed repo method", _logContext.GetUserInfo());
-            return courses;
+                .ToListAsync());
         }
         
         public async Task<List<Course>> GetEnrollmentCoursesByMultipleStudentIdAsync(List<string> studentIds)
         {
-            _logger.LogInfoWithContext("Starting repo method", _logContext.GetUserInfo());
-            var courses = await _database.Courses
+            return await ExecuteGetAsync(async () => await _database.Courses
                 .Include(c => c.EnrolledStudents)
                 .Include(c => c.Semester)
                 .Include(c => c.Tutorials)
                 .Where(c => c.EnrolledStudents.Any(s => studentIds.Contains(s.StudentId)) 
                     && c.IsDeleted == false)
                 .AsNoTracking()
-                .ToListAsync();
-            _logger.LogInfoWithContext("Completed repo method", _logContext.GetUserInfo());
-            return courses;
+                .ToListAsync());
         }
         #endregion
         
         #region tutorial CRUD
         public async Task<string> GetTutorialNameByTutorialIdAsync(int tutorialId)
         {
-            _logger.LogInfoWithContext("Starting repo method", _logContext.GetUserInfo());
-            if (tutorialId <= 0)
-                return "No tutorial session.";
+            return await ExecuteGetAsync(async () =>
+            {
+                if (tutorialId <= 0)
+                    return "No tutorial session.";
 
-            var tutorialName = await _database.Tutorials
-                .Where(t => t.TutorialId == tutorialId 
-                    && t.IsDeleted == false)
-                .Select(t => t.TutorialName)
-                .FirstOrDefaultAsync();
-            _logger.LogInfoWithContext("Completed repo method", _logContext.GetUserInfo());
-            if (tutorialName == null)
-                throw new Exception("Tutorial not found");
-
-            return tutorialName;
+                var tutorialName = await _database.Tutorials
+                    .Where(t => t.TutorialId == tutorialId 
+                        && t.IsDeleted == false)
+                    .Select(t => t.TutorialName)
+                    .FirstOrDefaultAsync();
+                return tutorialName;
+            });
         }
         
         public async Task<bool> CreateNewTutorialAsync(Tutorial tutorial)

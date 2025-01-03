@@ -25,21 +25,22 @@ namespace attendance1.WebApi.Controllers
         public async Task<ActionResult<ViewProfileResponseDto>> ViewProfile([FromBody] DataIdRequestDto requestDto)
         {
             var result = await _userService.ViewProfileAsync(requestDto);
-            return Ok(result);
+            return StatusCode((int)result.StatusCode, result);
         }
 
         [HttpPost("editProfile")]
         public async Task<ActionResult<bool>> EditProfile([FromBody] EditProfileRequestDto requestDto)
         {
             var result = await _userService.EditProfileAsync(requestDto);
-            return Ok(result);
+            return StatusCode((int)result.StatusCode, result);
         }
 
         [HttpPost("changePassword")]
         public async Task<ActionResult<bool>> ChangePassword([FromBody] EditPasswordRequestDto requestDto)
         {
             var result = await _userService.ChangePasswordAsync(requestDto);
-            return Ok(result);
+            return StatusCode((int)result.StatusCode, result);
         }
     }
 }
+

@@ -3,6 +3,7 @@ using attendance1.Application.Common.Response;
 using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
 using attendance1.Application.Extensions;
+using System.Net;
 
 namespace attendance1.Application.Services
 {
@@ -31,19 +32,31 @@ namespace attendance1.Application.Services
         //     return $"{timestamp} | {userInfo} in {methodInfo} : {message}";
         // }
 
-        protected async Task<Result<T>> ExecuteAsync<T>(Func<Task<T>> action, string errorMessage, [CallerMemberName] string? methodName = null)
+        protected async Task<Result<T>> ExecuteAsync<T>(Func<Task<T>> action, 
+            string errorMessage, 
+            [CallerMemberName] string? methodName = null)
         {
             try
             {
-                _logger.LogInfoWithContext($"Service method: {methodName} Started", _logContext.GetUserInfo(), methodName);
+                _logger.LogInfoWithContext($"Service method: {methodName} Started...", _logContext.GetUserInfo(), methodName);
                 var result = await action();
+                if (result == null)
+                    return Result<T>.FailureResult(errorMessage, HttpStatusCode.NotFound);
                 _logger.LogInfoWithContext($"Service method: {methodName} Completed", _logContext.GetUserInfo(), methodName);
                 return Result<T>.SuccessResult(result);
             }
             catch (Exception ex)
             {
                 LogError($"Service method: {methodName} Failed", ex, methodName);
-                return Result<T>.FailureResult($"{errorMessage}: {ex.Message}");
+                var statusCode = ex switch
+                {
+                    UnauthorizedAccessException => HttpStatusCode.Unauthorized,
+                    ArgumentException => HttpStatusCode.BadRequest,
+                    InvalidOperationException => HttpStatusCode.BadRequest,
+                    KeyNotFoundException => HttpStatusCode.NotFound,
+                    _ => HttpStatusCode.InternalServerError
+                };
+                return Result<T>.FailureResult($"{errorMessage}: {ex.Message}", statusCode);
             }
         }
 
