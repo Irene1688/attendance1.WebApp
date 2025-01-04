@@ -241,5 +241,16 @@ namespace attendance1.Infrastructure.Persistence.Repositories
             });
         }
         #endregion
+
+        #region staff login
+        public async Task<List<UserDetail>> GetStaffByUsernameAsync(string username, string role)
+        {
+            return await ExecuteGetAsync(async () => await _database.UserDetails
+                .Where(u => u.UserName == username 
+                    && u.AccRole == role
+                    && u.IsDeleted == false)
+                .ToListAsync());
+        }
+        #endregion
     }
 }

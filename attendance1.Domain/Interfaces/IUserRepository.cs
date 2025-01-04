@@ -37,5 +37,9 @@ namespace attendance1.Domain.Interfaces
         Task<UserDetail?> GetUserByRefreshTokenAsync(string refreshToken);
         Task<bool> UpdateUserRefreshTokenAsync(UserDetail user);
         #endregion
+
+        #region staff login
+        Task<List<UserDetail>> GetStaffByUsernameAsync(string username, string role);
+        #endregion
     }
 }

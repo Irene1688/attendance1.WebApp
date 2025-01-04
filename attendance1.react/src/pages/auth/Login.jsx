@@ -1,0 +1,95 @@
+import { useState } from 'react';
+import { Helmet } from 'react-helmet-async';
+import { Alert, Collapse, Typography } from '@mui/material';
+import { LoginContainer, LoginPaper } from './styles/LoginStyles';
+import StudentLoginForm from './components/StudentLoginForm';
+import StaffLoginForm from './components/StaffLoginForm';
+import StaffToggle from './components/StaffToggle';
+import { useAuth } from './hooks/useAuth';
+import { formatPageTitle } from '../../utils/helpers';
+
+const Login = () => {
+  const [isStaffLogin, setIsStaffLogin] = useState(false);
+  const [helperTextCount, setHelperTextCount] = useState(0);
+  const { error, setError, handleLogin } = useAuth();
+
+  const handleHelperTextChange = (helperTextCount) => {
+    setHelperTextCount(helperTextCount);
+  };
+
+  const toggleLoginRole = () => {
+    setIsStaffLogin(!isStaffLogin);
+    setError(''); // clear error message
+  };
+
+  return (
+    <>
+      <Helmet>
+        <title>{formatPageTitle('Login')}</title>
+      </Helmet>
+      <LoginContainer maxWidth="sm">
+        <LoginPaper isStaff={isStaffLogin}>
+          <Typography 
+            variant="h1" 
+            onClick={toggleLoginRole} 
+            sx={{
+              marginTop: isStaffLogin ? 8 : 0,
+              marginBottom: 4,
+              color: isStaffLogin ? 'grey.800' : 'common.white',
+              fontWeight: 600,
+              fontSize: '2rem',
+              textAlign: 'center',
+              cursor: 'pointer',
+              '&:hover': { opacity: 0.8 }
+            }}
+          >
+            {isStaffLogin ? 'Staff Login' : 'Student Login'}
+          </Typography>
+          
+          {error && (
+            <Alert 
+              severity="error" 
+              sx={{ 
+                width: '100%', 
+                marginBottom: 2, 
+                borderRadius: 1,
+                '& .MuiAlert-message': {
+                  color: 'error.main'
+                }
+              }}
+            >
+              {typeof error === 'string' ? error : 'An error occurred. Please try again.'}
+            </Alert>
+          )}
+
+          <Collapse in={!isStaffLogin} timeout={900}>
+            <StudentLoginForm 
+              isStaff={isStaffLogin}
+              onSubmit={(values, formikHelpers) => handleLogin(values, formikHelpers, false)}
+              onHelperTextChange={handleHelperTextChange}
+            />
+          </Collapse>
+
+          <Collapse in={isStaffLogin} timeout={900}>
+            <StaffLoginForm 
+              isStaff={isStaffLogin}
+              onSubmit={(values, formikHelpers) => handleLogin(values, formikHelpers, true)}
+            />
+          </Collapse>
+
+          <StaffToggle 
+            onClick={toggleLoginRole} 
+            sx={{ display: 'block', textAlign: 'center' }}
+            isStaff={isStaffLogin}
+            error={error}
+            helperTextCount={helperTextCount}
+          >
+            {isStaffLogin ? 'Student Login' : 'Staff Login'}
+          </StaffToggle>
+        </LoginPaper>
+      </LoginContainer>
+    </>
+  );
+};
+
+export default Login; 

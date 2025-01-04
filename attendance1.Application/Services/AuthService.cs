@@ -72,7 +72,20 @@ namespace attendance1.Application.Services
             return Convert.ToBase64String(randomNumber);
         }
 
-        public async Task<Result<LoginResponseDto>> LoginAsync(LoginRequestDto requestDto)
+        private async Task<(string accessToken, string refreshToken)> HandleTokenGeneration(UserDetail user) 
+        {
+            var accessToken = GenerateAccessToken(user);
+            var refreshToken = GenerateRefreshToken();
+
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpiryInDays);
+            var isUpdated = await _userRepository.UpdateUserRefreshTokenAsync(user);
+            if (!isUpdated)
+                throw new Exception("Failed to update refresh token");
+            return (accessToken, refreshToken);
+        }
+
+        public async Task<Result<LoginResponseDto>> StudentLoginAsync(StudentLoginRequestDto requestDto)
         {
             return await ExecuteAsync(async () =>
             {
@@ -82,20 +95,39 @@ namespace attendance1.Application.Services
 
                 if (!BCrypt.Net.BCrypt.Verify(requestDto.Password, user.UserPassword)) 
                     throw new Exception("Incorrect password");
-                var accessToken = GenerateAccessToken(user);
-                var refreshToken = GenerateRefreshToken();
-
-                user.RefreshToken = refreshToken;
-                user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpiryInDays);
-                var isUpdated = await _userRepository.UpdateUserRefreshTokenAsync(user);
-                if (!isUpdated)
-                    throw new Exception("Failed to update refresh token");
-
+                
+                var (accessToken, refreshToken) = await HandleTokenGeneration(user);
                 return new LoginResponseDto
                 {
                     Name = user.UserName ?? string.Empty,
                     Role = user.AccRole ?? string.Empty,
                     CampusId = user.StudentId ?? string.Empty,
+                    AccessToken = accessToken,
+                    RefreshToken = refreshToken
+                };
+            },
+            "Failed to login");
+        }
+
+        public async Task<Result<LoginResponseDto>> StaffLoginAsync(StaffLoginRequestDto requestDto)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var existedStaffs = await _userRepository.GetStaffByUsernameAsync(requestDto.Username, requestDto.Role.ToString());
+                if (existedStaffs == null)
+                    throw new Exception("User not found");
+
+                var loginUser = existedStaffs.FirstOrDefault(staff => BCrypt.Net.BCrypt.Verify(requestDto.Password, staff.UserPassword));
+                if (loginUser == null)
+                    throw new Exception("Incorrect password");
+
+                var (accessToken, refreshToken) = await HandleTokenGeneration(loginUser);
+
+                return new LoginResponseDto
+                {
+                    Name = loginUser.UserName ?? string.Empty,
+                    Role = loginUser.AccRole ?? string.Empty,
+                    CampusId = loginUser.LecturerId ?? string.Empty,
                     AccessToken = accessToken,
                     RefreshToken = refreshToken
                 };

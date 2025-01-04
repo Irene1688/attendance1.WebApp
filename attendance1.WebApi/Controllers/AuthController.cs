@@ -20,10 +20,17 @@ namespace attendance1.WebApi.Controllers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        [HttpPost("login")]
-        public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginRequestDto requestDto)
+        [HttpPost("studentLogin")]
+        public async Task<ActionResult<LoginResponseDto>> StudentLogin([FromBody] StudentLoginRequestDto requestDto)
         {
-            var result = await _authService.LoginAsync(requestDto);
+            var result = await _authService.StudentLoginAsync(requestDto);
+            return StatusCode((int)result.StatusCode, result);
+        }
+
+        [HttpPost("staffLogin")]
+        public async Task<ActionResult<LoginResponseDto>> StaffLogin([FromBody] StaffLoginRequestDto requestDto)
+        {
+            var result = await _authService.StaffLoginAsync(requestDto);
             return StatusCode((int)result.StatusCode, result);
         }
 
