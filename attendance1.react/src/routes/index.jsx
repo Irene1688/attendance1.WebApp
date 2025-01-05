@@ -7,6 +7,7 @@ import Login from '../pages/auth/Login';
 // import LecturerDashboard from '../pages/lecturer/Dashboard';
 // import StudentDashboard from '../pages/student/Dashboard';
 import PrivateRoute from './PrivateRoute';
+import PublicRoute from './PublicRoute';
 import RootRedirect from './RootRedirect';
 
 export const router = createBrowserRouter([
@@ -16,7 +17,11 @@ export const router = createBrowserRouter([
   },
   {
     path: '/login',
-    element: <Login />
+    element: (
+      <PublicRoute>
+        <Login />
+      </PublicRoute>
+    )
   },
   {
     path: '/admin',
