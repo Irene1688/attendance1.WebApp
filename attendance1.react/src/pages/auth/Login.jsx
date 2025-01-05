@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Alert, Collapse, Typography } from '@mui/material';
-import { LoginContainer, LoginPaper } from './styles/LoginStyles';
-import StudentLoginForm from './components/StudentLoginForm';
-import StaffLoginForm from './components/StaffLoginForm';
-import StaffToggle from './components/StaffToggle';
-import { useAuth } from './hooks/useAuth';
+import { Collapse, Typography } from '@mui/material';
+import { LoginContainer, LoginPaper } from './Login.styles';
+import { StudentLoginForm, StaffLoginForm, LoginRoleToggle } from '../../components/Auth';
+import { PromptMessage } from '../../components/Common';
+import { useAuth } from '../../hooks/useAuth';
 import { formatPageTitle } from '../../utils/helpers';
 
 const Login = () => {
@@ -47,19 +46,17 @@ const Login = () => {
           </Typography>
           
           {error && (
-            <Alert 
-              severity="error" 
-              sx={{ 
-                width: '100%', 
-                marginBottom: 2, 
-                borderRadius: 1,
-                '& .MuiAlert-message': {
-                  color: 'error.main'
-                }
-              }}
-            >
-              {typeof error === 'string' ? error : 'An error occurred. Please try again.'}
-            </Alert>
+            <PromptMessage
+              open={true}
+              message={
+                typeof error === 'string' 
+                  ? error 
+                  : 'An error occurred. Please try again.'
+              }
+              severity="error"
+              fullWidth={true}
+              onClose={() => setError('')}
+            />
           )}
 
           <Collapse in={!isStaffLogin} timeout={900}>
@@ -77,7 +74,7 @@ const Login = () => {
             />
           </Collapse>
 
-          <StaffToggle 
+          <LoginRoleToggle 
             onClick={toggleLoginRole} 
             sx={{ display: 'block', textAlign: 'center' }}
             isStaff={isStaffLogin}
@@ -85,7 +82,7 @@ const Login = () => {
             helperTextCount={helperTextCount}
           >
             {isStaffLogin ? 'Student Login' : 'Staff Login'}
-          </StaffToggle>
+          </LoginRoleToggle>
         </LoginPaper>
       </LoginContainer>
     </>

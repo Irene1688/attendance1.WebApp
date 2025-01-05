@@ -1,46 +1,51 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
-import Login from '../pages/auth/Login';
+import AdminLayout from '../components/Layout/AdminLayout/AdminLayout';
 import AdminDashboard from '../pages/admin/Dashboard';
+import Login from '../pages/auth/Login';
+// import Programmes from '../pages/admin/Programmes';
+// import Courses from '../pages/admin/Courses';
 // import LecturerDashboard from '../pages/lecturer/Dashboard';
 // import StudentDashboard from '../pages/student/Dashboard';
 import PrivateRoute from './PrivateRoute';
+import RootRedirect from './RootRedirect';
 
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <Navigate to="/login" replace />
-  },
-  {
-    path: '*',
-    element: <Navigate to="/login" replace />
+    element: <RootRedirect />
   },
   {
     path: '/login',
     element: <Login />
   },
   {
-    path: '/admin/*',
+    path: '/admin',
     element: (
       <PrivateRoute role="Admin">
-        <AdminDashboard />
+        <AdminLayout />
       </PrivateRoute>
-    )
+    ),
+    children: [
+      {
+        index: true,
+        element: <Navigate to="/admin/dashboard" replace />
+      },
+      {
+        path: 'dashboard',
+        element: <AdminDashboard />
+      },
+      // {
+      //   path: 'programmes',
+      //   element: <Programmes />
+      // },
+      // {
+      //   path: 'courses/*',
+      //   element: <Courses />
+      // },
+    ]
   },
-  
-  // {
-  //   path: '/lecturer/*',
-  //   element: (
-  //     <PrivateRoute role="Lecturer">
-  //       <LecturerDashboard />
-  //     </PrivateRoute>
-  //   )
-  // },
-  // {
-  //   path: '/student/*',
-  //   element: (
-  //     <PrivateRoute role="Student">
-  //       <StudentDashboard />
-  //     </PrivateRoute>
-  //   )
-  // }
+  {
+    path: '*',
+    element: <Navigate to="/login" replace />
+  }
 ]); 

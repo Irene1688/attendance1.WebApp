@@ -3,7 +3,7 @@ import { RouterProvider } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { router } from './routes';
-import theme from './theme';
+import { theme } from './styles';
 
 function App() {
   return (

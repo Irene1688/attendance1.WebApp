@@ -1,6 +1,6 @@
 import { Formik } from 'formik';
-import { StyledForm, StyledTextField, LoginButton } from '../styles/LoginStyles';
-import { studentValidationSchema } from '../validations/loginValidation';
+import { StyledLoginForm, StyledLoginTextField, StyledLoginButton } from '../../../styles';
+import { studentLoginValidationSchema } from '../../../validations/schemas';
 
 const StudentLoginForm = ({ isStaff, onSubmit, onHelperTextChange }) => {
   return (
@@ -9,7 +9,7 @@ const StudentLoginForm = ({ isStaff, onSubmit, onHelperTextChange }) => {
         email: '',
         password: ''
       }}
-      validationSchema={studentValidationSchema}
+      validationSchema={studentLoginValidationSchema}
       onSubmit={onSubmit}
     >
       {({ isSubmitting, touched, errors, handleChange, handleBlur }) => {
@@ -17,12 +17,11 @@ const StudentLoginForm = ({ isStaff, onSubmit, onHelperTextChange }) => {
         (touched.password && errors.password ? 1 : 0);
 
         return (
-          <StyledForm noValidate>
-            <StyledTextField
+          <StyledLoginForm noValidate>
+            <StyledLoginTextField
               margin="normal"
               required
               fullWidth
-              id="email"
               label="Email"
               name="email"
               autoComplete="email"
@@ -36,14 +35,13 @@ const StudentLoginForm = ({ isStaff, onSubmit, onHelperTextChange }) => {
               placeholder="e.g. abc12345678@student.uts.edu.my"
               isStaff={isStaff}
             />
-            <StyledTextField
+            <StyledLoginTextField
               margin="normal"
               required
               fullWidth
               name="password"
               label="Password"
               type="password"
-              id="password"
               autoComplete="current-password"
               placeholder="Enter your password"
               onChange={handleChange}
@@ -55,7 +53,7 @@ const StudentLoginForm = ({ isStaff, onSubmit, onHelperTextChange }) => {
               helperText={touched.password && errors.password}
               isStaff={isStaff}
             />
-            <LoginButton
+            <StyledLoginButton
               type="submit"
               fullWidth
               variant="contained"
@@ -63,8 +61,8 @@ const StudentLoginForm = ({ isStaff, onSubmit, onHelperTextChange }) => {
               isStaff={isStaff}
             >
               {isSubmitting ? 'Logging in...' : 'Login'}
-            </LoginButton>
-          </StyledForm>
+            </StyledLoginButton>
+          </StyledLoginForm>
         );
       }}
     </Formik>

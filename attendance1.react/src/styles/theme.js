@@ -3,14 +3,14 @@ import { createTheme, alpha } from '@mui/material/styles';
 // 定义主要颜色变量
 const colors = {
   red: {
-    main: '#e63946',     // 鲜艳的红色
+    main: '#24292e',     // 鲜艳的红色
     light: '#ff4d5a',    // 较亮的红色
     dark: '#cc2936',     // 深红色
   },
   grey: {
-    main: '#2b2d42',     // 深灰色（替代纯黑）
-    light: '#8d99ae',    // 浅灰色
-    dark: '#1a1b2e',     // 更深的灰色
+    main: '#24292e',     // 深灰色（替代纯黑）
+    light: '#282e34',    // 浅灰色
+    dark: '#1f2428',     // 更深的灰色
   },
   white: {
     main: '#ffffff',     // 纯白
@@ -69,17 +69,6 @@ const theme = createTheme({
       900: colors.grey.dark,
     },
     divider: alpha(colors.grey.main, 0.12),
-    // 登录页面特定配色
-    login: {
-      title: colors.grey.main,
-      toggleButton: colors.grey.light,
-      inputBorder: colors.grey.light,
-      buttonBg: colors.red.main,
-      buttonHover: colors.red.dark,
-      background: colors.white.off,
-      paper: colors.white.main,
-      error: colors.red.main,
-    }
   },
   typography: {
     fontFamily: [
@@ -146,6 +135,47 @@ const theme = createTheme({
         },
       },
     },
+    MuiListItemText: {
+      styleOverrides: {
+        primary: {
+          fontSize: '1rem',
+          fontWeight: 500,
+          transition: 'all 0.2s ease-in-out'
+        },
+        secondary: {
+          fontSize: '0.975rem',
+          fontWeight: 400
+        }
+      }
+    },
+    MuiListItemIcon: {
+      styleOverrides: {
+        root: {
+          minWidth: 40,
+          color: 'inherit'
+        }
+      }
+    },
+    MuiListItemButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+          margin: '2px 8px',
+          padding: '8px 16px',
+          transition: 'all 0.2s ease-in-out',
+          '&:hover': {
+            backgroundColor: alpha(colors.white.main, 0.1)
+          }
+        }
+      }
+    },
+    MuiCollapse: {
+      styleOverrides: {
+        root: {
+          transition: 'all 0.3s ease-in-out'
+        }
+      }
+    }
   },
   shadows,
 });

@@ -1,7 +1,7 @@
 import { styled } from '@mui/material/styles';
 import { Link } from '@mui/material';
 
-export const StyledToggle = styled(Link, {
+export const StyledLoginRoleToggle = styled(Link, {
   shouldForwardProp: (prop) => !['isStaff', 'helperTextCount', 'error'].includes(prop)
 })(({ theme, isStaff, error, helperTextCount }) => ({
   width: '100%',

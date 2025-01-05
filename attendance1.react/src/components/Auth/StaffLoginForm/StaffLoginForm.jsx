@@ -1,7 +1,7 @@
 import { Formik } from 'formik';
 import { Box, RadioGroup, FormControlLabel, Radio, Typography } from '@mui/material';
-import { StyledForm, StyledTextField, LoginButton } from '../styles/LoginStyles';
-import { staffValidationSchema } from '../validations/loginValidation';
+import { StyledLoginForm, StyledLoginTextField, StyledLoginButton } from '../../../styles';
+import { staffLoginValidationSchema } from '../../../validations/schemas';
 
 const StaffLoginForm = ({ isStaff, onSubmit }) => {
   return (
@@ -11,16 +11,15 @@ const StaffLoginForm = ({ isStaff, onSubmit }) => {
         password: '',
         role: ''
       }}
-      validationSchema={staffValidationSchema}
+      validationSchema={staffLoginValidationSchema}
       onSubmit={onSubmit}
     >
       {({ isSubmitting, touched, errors, handleChange, handleBlur }) => (
-        <StyledForm noValidate>
-          <StyledTextField
+        <StyledLoginForm noValidate>
+          <StyledLoginTextField
             margin="normal"
             required
             fullWidth
-            id="username"
             label="Username"
             name="username"
             autoComplete="username"
@@ -31,14 +30,13 @@ const StaffLoginForm = ({ isStaff, onSubmit }) => {
             placeholder="Enter your username"
             isStaff={isStaff}
           />
-          <StyledTextField
+          <StyledLoginTextField
             margin="normal"
             required
             fullWidth
             name="password"
             label="Password"
             type="password"
-            id="password"
             autoComplete="current-password"
             onChange={handleChange}
             onBlur={handleBlur}
@@ -71,7 +69,7 @@ const StaffLoginForm = ({ isStaff, onSubmit }) => {
               </Typography>
             )}
           </Box>
-          <LoginButton
+          <StyledLoginButton
             type="submit"
             fullWidth
             variant="contained"
@@ -79,8 +77,8 @@ const StaffLoginForm = ({ isStaff, onSubmit }) => {
             isStaff={isStaff}
           >
             {isSubmitting ? 'Logging in...' : 'Login'}
-          </LoginButton>
-        </StyledForm>
+          </StyledLoginButton>
+        </StyledLoginForm>
       )}
     </Formik>
   );

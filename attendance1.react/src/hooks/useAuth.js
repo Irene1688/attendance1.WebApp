@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { authApi } from '../../../api/auth';
-import { setCredentials } from '../../../store/slices/authSlice';
+import { authApi } from '../api/auth';
+import { setCredentials } from '../store/slices/authSlice';
 
 export const useAuth = () => {
   const dispatch = useDispatch();
@@ -12,15 +12,17 @@ export const useAuth = () => {
   const handleLogin = async (values, { setSubmitting }, isStaff = false) => {
     try {
       setError('');
-      const loginData = isStaff ? {
-        username: values.username,
-        password: values.password,
-        role: values.role
-      } : {
-        email: values.email.toLowerCase(),
-        password: values.password,
-        role: 'Student'
-      };
+      const loginData = isStaff 
+        ? {
+            username: values.username,
+            password: values.password,
+            role: values.role
+          } 
+        : {
+            email: values.email.toLowerCase(),
+            password: values.password,
+            role: 'Student'
+          };
 
       const response = await authApi.staffLogin(loginData);
       if (!response.success && response.ErrorMessage !== "") {
@@ -40,6 +42,8 @@ export const useAuth = () => {
           ? '/admin/dashboard' 
           : '/lecturer/dashboard';
         navigate(dashboardPath);
+      } else {
+        navigate('/student/dashboard');
       }
     } catch (err) {
       console.error(`${isStaff ? 'Staff' : 'Student'} login error:`, err);
