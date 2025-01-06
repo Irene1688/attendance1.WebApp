@@ -10,8 +10,8 @@ export const styles = {
         duration: theme.transitions.duration.leavingScreen,
       }),
     ...(open && {
-      marginLeft: 320,
-      width: `calc(100% - 320px)`,
+      marginLeft: 250,
+      width: `calc(100% - 250px)`,
       transition: (theme) =>
         theme.transitions.create(['width', 'margin'], {
           easing: theme.transitions.easing.sharp,
@@ -20,10 +20,10 @@ export const styles = {
     }),
   }),
   menuButton: {
-    marginRight: (theme) => theme.spacing(5),
+    mr: 2,
     color: 'grey.600',
     '& .MuiSvgIcon-root': {
-      fontSize: '1.7rem',
+      fontSize: '1.25rem',
     },
     '&:hover': {
       color: 'primary.main'

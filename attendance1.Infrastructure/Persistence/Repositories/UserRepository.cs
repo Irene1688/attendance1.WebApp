@@ -52,9 +52,34 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                 .FirstOrDefaultAsync(u => u.Email == email 
                     && u.IsDeleted == false));
         }
+        
+        public async Task<List<UserDetail>> GetStaffByUsernameAsync(string username, string role)
+        {
+            return await ExecuteGetAsync(async () => await _database.UserDetails
+                .Where(u => u.UserName == username 
+                    && u.AccRole == role
+                    && u.IsDeleted == false)
+                .ToListAsync());
+        }
         #endregion
 
         #region User CRUD
+        public async Task<int> GetTotalLecturerAsync()
+        {
+            var result = await ExecuteGetAsync<object>(async () => 
+                await _database.UserDetails.CountAsync(u => u.AccRole == AccRoleEnum.Lecturer.ToString() 
+                    && u.IsDeleted == false));
+            return Convert.ToInt32(result ?? 0);
+        }
+
+        public async Task<int> GetTotalStudentAsync()
+        {
+            var result = await ExecuteGetAsync<object>(async () => 
+                await _database.UserDetails.CountAsync(u => u.AccRole == AccRoleEnum.Student.ToString() 
+                    && u.IsDeleted == false));
+            return Convert.ToInt32(result ?? 0);
+        }
+
         public async Task<List<UserDetail>> GetAllLecturerAsync(int pageNumber = 1, int pageSize = 15)
         {
             return await ExecuteGetAsync(async () => await _database.UserDetails
@@ -242,15 +267,5 @@ namespace attendance1.Infrastructure.Persistence.Repositories
         }
         #endregion
 
-        #region staff login
-        public async Task<List<UserDetail>> GetStaffByUsernameAsync(string username, string role)
-        {
-            return await ExecuteGetAsync(async () => await _database.UserDetails
-                .Where(u => u.UserName == username 
-                    && u.AccRole == role
-                    && u.IsDeleted == false)
-                .ToListAsync());
-        }
-        #endregion
     }
 }

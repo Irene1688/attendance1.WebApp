@@ -24,6 +24,13 @@ namespace attendance1.Infrastructure.Persistence.Repositories
             return IsExisted;
         }
 
+        public async Task<int> GetTotalProgrammeAsync()
+        {
+            var result = await ExecuteGetAsync<object>(async () => 
+                await _database.Programmes.CountAsync(p => p.IsDeleted == false));
+            return Convert.ToInt32(result ?? 0);
+        }
+
         public async Task<List<Programme>> GetAllProgrammeAsync(int pageNumber = 1, int pageSize = 15)
         {
             return await ExecuteGetAsync(async () => await _database.Programmes

@@ -6,6 +6,7 @@ namespace attendance1.Application.Interfaces
 {
     public interface IAdminService
     {
+        Task<Result<AllTotalCountResponseDto>> GetAllTotalCountAsync();
         #region programme CRUD
         Task<Result<bool>> CreateNewProgrammeAsync(CreateProgrammeRequestDto requestDto);
         Task<Result<PaginatedResult<GetProgrammeResponseDto>>> GetAllProgrammeAsync(PaginatedRequestDto requestDto);

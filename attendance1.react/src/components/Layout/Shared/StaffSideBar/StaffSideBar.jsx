@@ -46,7 +46,7 @@ const StaffSideBar = ({ menuItems = [], open = true, onExpand }) => {
         </SimpleBar>
       </Box>
       <Box sx={styles(theme).fixedBottomMenuContainer}>
-        <Typography variant="overline" sx={styles(theme).menuTitle(open)}>
+        <Typography variant="overline" sx={{...styles(theme).menuTitle(open), marginLeft: "3px"}}>
           Other
         </Typography>
         <List>

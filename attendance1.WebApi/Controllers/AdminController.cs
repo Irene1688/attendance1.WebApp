@@ -22,6 +22,13 @@ namespace attendance1.WebApi.Controllers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
+        [HttpPost("getAllTotalCount")]
+        public async Task<ActionResult<AllTotalCountResponseDto>> GetAllTotalCount()
+        {
+            var result = await _adminService.GetAllTotalCountAsync();
+            return StatusCode((int)result.StatusCode, result);
+        }
+
         #region Programme CRUD
         [HttpPost("createNewProgramme")]
         public async Task<ActionResult<bool>> CreateNewProgramme([FromBody] CreateProgrammeRequestDto requestDto)

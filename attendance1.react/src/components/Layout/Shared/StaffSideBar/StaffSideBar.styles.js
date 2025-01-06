@@ -2,12 +2,15 @@ import { alpha } from '@mui/material/styles';
 
 export const styles = (theme) => ({
   drawer: (open) => ({
-    width: open ? 320 : 80,
+    width: open ? 250 : 60,
     flexShrink: 0,
     whiteSpace: 'nowrap',
     boxSizing: 'border-box',
+    '& .MuiBox-root': {
+      padding: theme.spacing(0.3, 0.5),
+    },
     '& .MuiDrawer-paper': {
-      width: open ? 320 : 80,
+      width: open ? 250 : 60,
       boxSizing: 'border-box',
       backgroundColor: theme.palette.primary.main,
       borderRight: 'none',
@@ -39,14 +42,14 @@ export const styles = (theme) => ({
     justifyContent: 'center',
     borderBottom: '1px solid',
     borderColor: alpha(theme.palette.common.white, 0.1),
-    height: open ? 120 : 50,
+    height: open ? 90 : 65,
     transition: theme.transitions.create(['width', 'height', 'display'], {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
     })
   }),
   logo: (open) => ({
-    height:64,
+    height:54,
     width: 'auto',
     display: open ? 'block' : 'none',
     transition: theme.transitions.create(['width', 'height'], {
@@ -61,9 +64,9 @@ export const styles = (theme) => ({
   }),
   menuContainer: {
     padding: theme.spacing(2),
-    paddingTop: theme.spacing(3),
+    paddingTop: theme.spacing(1),
     '& .MuiList-root': {
-      padding: theme.spacing(1, 0)
+      padding: theme.spacing(0),
     }
   },
   fixedBottomMenuContainer: {

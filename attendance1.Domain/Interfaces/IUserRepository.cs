@@ -12,9 +12,12 @@ namespace attendance1.Domain.Interfaces
 
         # region login
         Task<UserDetail?> GetUserByEmailAsync(string email);
+        Task<List<UserDetail>> GetStaffByUsernameAsync(string username, string role);
         #endregion
 
         #region CRUD
+        Task<int> GetTotalLecturerAsync();
+        Task<int> GetTotalStudentAsync();
         Task<List<UserDetail>> GetAllLecturerAsync(int pageNumber = 1, int pageSize = 15);
         Task<List<UserDetail>> GetAllStudentAsync(int pageNumber = 1, int pageSize = 15);
         Task<List<string>> GetAllExistedStudentIdAsync();
@@ -36,10 +39,6 @@ namespace attendance1.Domain.Interfaces
         #region refresh token
         Task<UserDetail?> GetUserByRefreshTokenAsync(string refreshToken);
         Task<bool> UpdateUserRefreshTokenAsync(UserDetail user);
-        #endregion
-
-        #region staff login
-        Task<List<UserDetail>> GetStaffByUsernameAsync(string username, string role);
         #endregion
     }
 }

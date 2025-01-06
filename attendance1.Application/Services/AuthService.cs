@@ -85,6 +85,13 @@ namespace attendance1.Application.Services
             return (accessToken, refreshToken);
         }
 
+        private async Task<bool> UpdateUserRefreshToken(UserDetail user, string refreshToken, DateTime expiryTime)
+        {
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpiryTime = expiryTime;
+            return await _userRepository.UpdateUserRefreshTokenAsync(user);
+        }
+
         public async Task<Result<LoginResponseDto>> StudentLoginAsync(StudentLoginRequestDto requestDto)
         {
             return await ExecuteAsync(async () =>
@@ -97,6 +104,10 @@ namespace attendance1.Application.Services
                     throw new Exception("Incorrect password");
                 
                 var (accessToken, refreshToken) = await HandleTokenGeneration(user);
+                var isUpdated = await UpdateUserRefreshToken(user, refreshToken, DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpiryInDays));
+                if (!isUpdated)
+                    throw new Exception("Failed to update refresh token");
+
                 return new LoginResponseDto
                 {
                     Name = user.UserName ?? string.Empty,
@@ -122,6 +133,9 @@ namespace attendance1.Application.Services
                     throw new Exception("Incorrect password");
 
                 var (accessToken, refreshToken) = await HandleTokenGeneration(loginUser);
+                var isUpdated = await UpdateUserRefreshToken(loginUser, refreshToken, DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpiryInDays));
+                if (!isUpdated)
+                    throw new Exception("Failed to update refresh token");
 
                 return new LoginResponseDto
                 {
@@ -153,9 +167,9 @@ namespace attendance1.Application.Services
 
                 if (shouldRotateRefreshToken)
                 {
-                    user.RefreshToken = newRefreshToken;
-                    user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpiryInDays);
-                    await _userRepository.UpdateUserRefreshTokenAsync(user);
+                    var isUpdated = await UpdateUserRefreshToken(user, newRefreshToken, DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpiryInDays));
+                    if (!isUpdated)
+                        throw new Exception("Failed to update refresh token");
                 }
 
                 return new LoginResponseDto

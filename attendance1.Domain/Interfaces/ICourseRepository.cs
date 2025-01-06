@@ -13,6 +13,7 @@ namespace attendance1.Domain.Interfaces
         #endregion
 
         #region course CRUD
+        Task<int> GetTotalCourseAsync();
         Task<Course> GetCourseDetailsAsync(int courseId);
         Task<int> CreateNewCourseAsync(Course course, CourseSemester semester, List<Tutorial> tutorials, List<EnrolledStudent> students);
         Task<bool> EditCourseAsync(Course course, CourseSemester semester);

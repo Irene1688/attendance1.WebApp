@@ -60,16 +60,16 @@ const AdminLayout = () => {
             flexGrow: 1,
             p: 3,
             mt: 8,
-            width: `calc(100% - ${sideBarOpen ? 320 : 80}px)`,
+            width: `calc(100% - ${sideBarOpen ? 250 : 60}px)`,
             transition: (theme) =>
               theme.transitions.create(['width', 'margin'], {
                 easing: theme.transitions.easing.sharp,
                 duration: theme.transitions.duration.leavingScreen,
-              }),
-            ml: `${sideBarOpen ? 320 : 80}px`,
+              }), 
             position: 'relative',
             overflow: 'hidden'
           }}
+          // ml: `${sideBarOpen ? 320 : 80}px`,
         >
           <Outlet /> {/* sub routes components will be rendered here */}
         </Box>

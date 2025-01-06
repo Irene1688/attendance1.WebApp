@@ -28,6 +28,27 @@ namespace attendance1.Application.Services
             _attendanceRepository = attendanceRepository ?? throw new ArgumentNullException(nameof(attendanceRepository));
         }
 
+        public async Task<Result<AllTotalCountResponseDto>> GetAllTotalCountAsync()
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var counts = await Task.WhenAll(
+                    _programmeRepository.GetTotalProgrammeAsync(),
+                    _userRepository.GetTotalLecturerAsync(),
+                    _userRepository.GetTotalStudentAsync(),
+                    _courseRepository.GetTotalCourseAsync()
+                );
+
+                return new AllTotalCountResponseDto
+                {
+                    TotalProgrammes = counts[0],
+                    TotalLecturers = counts[1],
+                    TotalStudents = counts[2],
+                    TotalCourses = counts[3],
+                };
+            }, "Failed to get total count of data");
+        }
+
         #region programme CRUD
         public async Task<Result<bool>> CreateNewProgrammeAsync(CreateProgrammeRequestDto requestDto) 
         {

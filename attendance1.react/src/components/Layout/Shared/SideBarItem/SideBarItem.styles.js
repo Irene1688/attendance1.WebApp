@@ -2,11 +2,14 @@ import { alpha } from '@mui/material/styles';
 
 export const styles = (theme) => ({
   menuItem: (isActive, collapsed) => ({
+    mb: 0.5,
+    py: 0.75,
+    px: collapsed ? 1 : 2,
+    mx: collapsed ? 0 : 0.5,
+    borderRadius: 1,
+    justifyContent: collapsed ? 'center' : 'flex-start',
     color: isActive ? theme.palette.common.white : alpha(theme.palette.common.white, 0.7),
     backgroundColor: isActive ? alpha(theme.palette.common.white, 0.15) : 'transparent',
-    ml: collapsed ? theme.spacing(-1) : theme.spacing(0),
-    mr: collapsed ? theme.spacing(0) : theme.spacing(0),
-    justifyContent: collapsed ? 'center' : 'flex-start',
     '&:hover': {
       backgroundColor: isActive 
         ? alpha(theme.palette.common.white, 0.2) 
@@ -22,16 +25,16 @@ export const styles = (theme) => ({
     }
   }),
   icon: (collapsed) => ({
-    height: collapsed ? 40 : 'auto',
+    height: collapsed ? 30 : 'auto',
     alignItems: 'center',
     minWidth: collapsed ? 'auto' : 40,
-    mr: collapsed ? 0 : 2,
+    mr: 0,
     '& .MuiSvgIcon-root': {
-      fontSize: collapsed ? '1.75rem' : '1.5rem',
+      fontSize: collapsed ? '1.3rem' : '1.25rem',
       transition: theme.transitions.create('font-size', {
         duration: theme.transitions.duration.shorter
       })
-    }
+    },
   }),
   expandIcon: {
     fontSize: '1.25rem'

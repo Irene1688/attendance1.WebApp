@@ -66,6 +66,13 @@ namespace attendance1.Infrastructure.Persistence.Repositories
         #endregion
 
         #region course CRUD
+        public async Task<int> GetTotalCourseAsync()
+        {
+            var result = await ExecuteGetAsync<object>(async () => 
+                await _database.Courses.CountAsync(c => c.IsDeleted == false));
+            return Convert.ToInt32(result ?? 0);
+        }
+
         public async Task<Course> GetCourseDetailsAsync(int courseId)
         {
             return await ExecuteGetAsync(async () => await _database.Courses

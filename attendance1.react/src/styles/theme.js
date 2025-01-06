@@ -3,7 +3,7 @@ import { createTheme, alpha } from '@mui/material/styles';
 // 定义主要颜色变量
 const colors = {
   red: {
-    main: '#24292e',     // 鲜艳的红色
+    main: '#ff4d5a',     // 鲜艳的红色
     light: '#ff4d5a',    // 较亮的红色
     dark: '#cc2936',     // 深红色
   },
@@ -16,6 +16,16 @@ const colors = {
     main: '#ffffff',     // 纯白
     off: '#f8f9fa',      // 灰白色
     dark: '#edf2f4',     // 较深的白色
+  },
+  green: {
+    main: '#28a745',     // 较深的绿色
+    light: '#28a745',    // 较亮的绿色
+    dark: '#218838',     // 深绿色
+  },
+  purple: {
+    main: '#6f42c1',     // 紫色
+    light: '#6f42c1',    // 较亮的紫色
+    dark: '#563d7c',     // 深紫色
   }
 };
 
@@ -36,10 +46,10 @@ const theme = createTheme({
         dark: colors.grey.dark,
         contrastText: colors.white.main,
     },
-    secondary: { // red
-        main: colors.red.main,
-        light: colors.red.light,
-        dark: colors.red.dark,
+    secondary: { // purple
+        main: colors.purple.main,
+        light: colors.purple.light,
+        dark: colors.purple.dark,
         contrastText: colors.white.main,
     },
     text: {
@@ -55,6 +65,16 @@ const theme = createTheme({
         main: colors.red.main,
         light: colors.red.light,
         dark: colors.red.dark,
+    },
+    success: {
+        main: colors.green.main,
+        light: colors.green.light,
+        dark: colors.green.dark,
+    },
+    white: {
+      main: colors.white.main,
+      off: colors.white.off,
+      dark: colors.white.dark,
     },
     grey: {
       50: colors.white.off,
@@ -82,6 +102,11 @@ const theme = createTheme({
     ].join(','),
     h1: {
       fontSize: '2rem',
+      fontWeight: 600,
+      color: colors.grey.main,
+    },
+    h6: {
+      fontSize: '1.25rem',
       fontWeight: 600,
       color: colors.grey.main,
     },
@@ -138,12 +163,12 @@ const theme = createTheme({
     MuiListItemText: {
       styleOverrides: {
         primary: {
-          fontSize: '1rem',
+          fontSize: '0.85rem',
           fontWeight: 500,
           transition: 'all 0.2s ease-in-out'
         },
         secondary: {
-          fontSize: '0.975rem',
+          fontSize: '0.75rem',
           fontWeight: 400
         }
       }
@@ -160,8 +185,8 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 8,
-          margin: '2px 8px',
-          padding: '8px 16px',
+          margin: '2px 4px',
+          padding: '6px 16px',
           transition: 'all 0.2s ease-in-out',
           '&:hover': {
             backgroundColor: alpha(colors.white.main, 0.1)

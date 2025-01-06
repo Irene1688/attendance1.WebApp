@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Collapse, Typography } from '@mui/material';
 import { LoginContainer, LoginPaper } from './Login.styles';
@@ -11,6 +12,13 @@ const Login = () => {
   const [isStaffLogin, setIsStaffLogin] = useState(false);
   const [helperTextCount, setHelperTextCount] = useState(0);
   const { error, setError, handleLogin } = useAuth();
+  const location = useLocation();
+
+  const [notification, setNotification] = useState({
+    message: '',
+    severity: 'info',
+    show: false
+  });
 
   const handleHelperTextChange = (helperTextCount) => {
     setHelperTextCount(helperTextCount);
@@ -19,6 +27,36 @@ const Login = () => {
   const toggleLoginRole = () => {
     setIsStaffLogin(!isStaffLogin);
     setError(''); // clear error message
+    setNotification(prev => ({ ...prev, show: false })); // 清除通知
+  };
+
+  // 处理路由传递的消息
+  useEffect(() => {
+    if (location.state?.message) {
+      setNotification({
+        message: location.state.message,
+        severity: location.state.severity || 'info',
+        show: true
+      });
+    }
+  }, [location]);
+
+  // 处理错误消息
+  useEffect(() => {
+    if (error) {
+      setNotification({
+        message: typeof error === 'string' ? error : 'An error occurred. Please try again.',
+        severity: 'error',
+        show: true
+      });
+    }
+  }, [error]);
+
+  const handleCloseNotification = () => {
+    setNotification(prev => ({ ...prev, show: false }));
+    if (notification.severity === 'error') {
+      setError(''); // 如果是错误消息，同时清除错误状态
+    }
   };
 
   return (
@@ -44,18 +82,16 @@ const Login = () => {
           >
             {isStaffLogin ? 'Staff Login' : 'Student Login'}
           </Typography>
-          
-          {error && (
+
+          {/* 统一的消息提示组件 */}
+          {notification.show && (
             <PromptMessage
               open={true}
-              message={
-                typeof error === 'string' 
-                  ? error 
-                  : 'An error occurred. Please try again.'
-              }
-              severity="error"
+              message={notification.message}
+              severity={notification.severity}
               fullWidth={true}
-              onClose={() => setError('')}
+              onClose={handleCloseNotification}
+              sx={{ mb: 2 }}
             />
           )}
 
