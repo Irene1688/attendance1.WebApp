@@ -1,71 +1,82 @@
-import { useState } from 'react';
+import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { setCredentials, logout } from '../store/slices/authSlice';
 import { authApi } from '../api/auth';
-import { setCredentials } from '../store/slices/authSlice';
+import { useApiError } from './useApiError';
 
 export const useAuth = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [error, setError] = useState('');
+  const { error, loading, handleApiCall, setError, clearError } = useApiError();
 
-  const handleLogin = async (values, { setSubmitting }, isStaff = false) => {
+  const handleLogin = useCallback(async (values, formikHelpers, isStaff) => {
     try {
-      setError('');
       const loginData = isStaff 
         ? {
             username: values.username,
             password: values.password,
             role: values.role
-          } 
+          }
         : {
             email: values.email.toLowerCase(),
             password: values.password,
             role: 'Student'
           };
 
-      const response = await authApi.staffLogin(loginData);
-      if (!response.success && response.ErrorMessage !== "") {
-        setError(response.ErrorMessage);
-        return;
-      }
+      await handleApiCall(
+        () => isStaff ? authApi.staffLogin(loginData) : authApi.studentLogin(loginData),
+        (data) => {
+          const { name, role, campusId, accessToken, refreshToken } = data;
+          dispatch(setCredentials({
+            user: { name, role, campusId },
+            accessToken,
+            refreshToken
+          }));
 
-      const { name, role, campusId, accessToken, refreshToken } = response.data;
-      dispatch(setCredentials({
-        user: { name, role, campusId },
-        accessToken,
-        refreshToken,
-      }));
+          let redirectPath;
+          if (isStaff) {
+            redirectPath = role === 'Admin' ? '/admin/dashboard' : '/lecturer/dashboard';
+          } else {
+            redirectPath = '/student/dashboard';
+          }
 
-      if (isStaff) {
-        const dashboardPath = values.role === 'Admin' 
-          ? '/admin/dashboard' 
-          : '/lecturer/dashboard';
-        navigate(dashboardPath);
-      } else {
-        navigate('/student/dashboard');
-      }
+          localStorage.removeItem('returnPath');
+          navigate(redirectPath);
+        }
+      );
     } catch (err) {
-      console.error(`${isStaff ? 'Staff' : 'Student'} login error:`, err);
-      handleError(err, setError);
-    } finally {
-      setSubmitting(false);
+      formikHelpers?.setSubmitting(false);
     }
-  };
+  }, [dispatch, navigate, handleApiCall]);
 
-  const handleError = (err, setError) => {
-    if (typeof err.response?.data === 'object') {
-      setError(err.response.data.message || JSON.stringify(err.response.data));
-    } else if (err.response?.data) {
-      setError(err.response.data);
-    } else {
-      setError(err.message || 'Login failed. Please try again.');
+  const handleLogout = useCallback(async () => {
+    try {
+      const logoutData = {
+        accessToken: localStorage.getItem('accessToken'),
+        refreshToken: localStorage.getItem('refreshToken')
+      }
+
+      await handleApiCall(
+        () => authApi.logout(logoutData),
+        () => {
+          dispatch(logout());
+          navigate('/login');
+        }
+      );
+    } catch (err) {
+      // even logout failed, also clear local auth info
+      dispatch(logout());
+      navigate('/login');
     }
-  };
+  }, [dispatch, navigate, handleApiCall]);
 
   return {
     error,
     setError,
-    handleLogin
+    clearError,
+    loading,
+    handleLogin,
+    handleLogout
   };
 }; 

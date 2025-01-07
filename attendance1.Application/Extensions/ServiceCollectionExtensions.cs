@@ -48,7 +48,9 @@ namespace attendance1.Application.Extensions
                     ValidIssuer = jwtSettings.Issuer,
                     ValidAudience = jwtSettings.Audience,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key)),
-                    ClockSkew = TimeSpan.Zero
+                    ClockSkew = TimeSpan.Zero,
+                    RequireExpirationTime = true,
+                    RequireSignedTokens = true
                 };
 
                 options.Events = new JwtBearerEvents
@@ -68,6 +70,7 @@ namespace attendance1.Application.Extensions
                     OnForbidden = async context =>
                     {
                         context.Response.StatusCode = 403;
+                        context.Response.Headers.Append("Forbidden", "true");
                         context.Response.ContentType = "application/json";
                         var result = JsonSerializer.Serialize(new
                         {
@@ -78,7 +81,7 @@ namespace attendance1.Application.Extensions
                     },
                     OnAuthenticationFailed = async context =>
                     {
-                        if (context.Exception is SecurityTokenExpiredException)
+                        if (context.Exception is SecurityTokenExpiredException tokenException)
                         {
                             context.Response.Headers.Append("Token-Expired", "true");
                             context.Response.StatusCode = 401;

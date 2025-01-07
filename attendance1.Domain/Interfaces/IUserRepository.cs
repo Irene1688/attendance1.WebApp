@@ -38,7 +38,7 @@ namespace attendance1.Domain.Interfaces
 
         #region refresh token
         Task<UserDetail?> GetUserByRefreshTokenAsync(string refreshToken);
-        Task<bool> UpdateUserRefreshTokenAsync(UserDetail user);
+        Task<bool> UpdateUserRefreshTokenAsync(UserDetail user, string newRefreshToken, DateTime? expiryTime);
         #endregion
     }
 }

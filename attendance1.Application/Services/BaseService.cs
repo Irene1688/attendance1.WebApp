@@ -34,15 +34,19 @@ namespace attendance1.Application.Services
 
         protected async Task<Result<T>> ExecuteAsync<T>(Func<Task<T>> action, 
             string errorMessage, 
-            [CallerMemberName] string? methodName = null)
+            [CallerMemberName] string? methodName = null,
+            string? loginUserInfo = null)
         {
             try
             {
-                _logger.LogInfoWithContext($"Service method: {methodName} Started...", _logContext.GetUserInfo(), methodName);
+                var userInfo = methodName?.Contains("Login") == true 
+                    ? loginUserInfo 
+                    : _logContext.GetUserInfo();
+                _logger.LogInfoWithContext($"Service method: {methodName} Started...", userInfo, methodName);
                 var result = await action();
                 if (result == null)
                     return Result<T>.FailureResult(errorMessage, HttpStatusCode.NotFound);
-                _logger.LogInfoWithContext($"Service method: {methodName} Completed", _logContext.GetUserInfo(), methodName);
+                _logger.LogInfoWithContext($"Service method: {methodName} Completed", userInfo, methodName);
                 return Result<T>.SuccessResult(result);
             }
             catch (Exception ex)

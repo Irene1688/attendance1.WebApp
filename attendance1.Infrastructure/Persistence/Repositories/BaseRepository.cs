@@ -13,9 +13,9 @@ namespace attendance1.Infrastructure.Persistence.Repositories
     {
         protected readonly ILogger<BaseRepository> _logger;
         protected readonly LogContext _logContext;
-        //protected readonly ApplicationDbContext _database;
         protected readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
-        protected ApplicationDbContext _database => _contextFactory.CreateDbContext();
+        private ApplicationDbContext? _currentDatabase;
+        protected ApplicationDbContext _database => _currentDatabase ?? _contextFactory.CreateDbContext();
 
         public BaseRepository(ILogger<BaseRepository> logger, 
             IDbContextFactory<ApplicationDbContext> contextFactory, 
@@ -40,7 +40,7 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                 _logger.LogInfoWithContext("Completed repo method", _logContext.GetUserInfo(), methodName);
                 
                 if (result == null)
-                    throw new Exception($"{typeof(T).Name} not found");
+                    throw new KeyNotFoundException($"{typeof(T).Name} not found");
                     
                 return result;
             }
@@ -59,53 +59,36 @@ namespace attendance1.Infrastructure.Persistence.Repositories
 
         protected async Task<T> ExecuteWithTransactionAsync<T>(Func<Task<T>> action, [CallerMemberName] string? methodName = null)
         {
-            // var strategy = _database.Database.CreateExecutionStrategy();
-            // return await strategy.ExecuteAsync<object?, T>(
-            //     state: default,
-            //     operation: async (dbContext, _, cancellationToken) =>
-            //     {
-            //         await using var transaction = await BeginTransactionAsync();
-            //         try
-            //         {
-            //             var result = await action();
-            //             await transaction.CommitAsync(cancellationToken);
-            //             return result;
-            //         }
-            //         catch (Exception ex)
-            //         {
-            //             await transaction.RollbackAsync(cancellationToken);
-            //             _logger.LogError(ex, "Transaction failed. Rolled back.");
-            //             throw;
-            //         }
-            //     },
-            //     verifySucceeded: null,
-            //     cancellationToken: CancellationToken.None
-            // );
+            _currentDatabase = _contextFactory.CreateDbContext();
             var strategy = _database.Database.CreateExecutionStrategy();
-                return await strategy.ExecuteAsync<object?, T>(
-                    state: default,
-                    operation: async (dbContext, _, cancellationToken) =>
+            
+            try 
+            {
+                return await strategy.ExecuteAsync(async () =>
+                {
+                    await using var transaction = await _database.Database.BeginTransactionAsync();
+                    try
                     {
-                        using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-                        try
-                        {
-                            _logger.LogInfoWithContext("Starting repo method: Begin database transaction...", _logContext.GetUserInfo(), methodName);
-                            var result = await action();
-                            scope.Complete();
-                            _logger.LogInfoWithContext("Completed repo method: Commit database transaction", _logContext.GetUserInfo(), methodName);
-                            return result;
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.LogErrorWithContext("Error in repo method: Failed to commit database transaction. Rolled back.", ex, _logContext.GetUserInfo(), methodName);
-                            throw;
-                        }
-                    },
-                    verifySucceeded: null,
-                    cancellationToken: CancellationToken.None
-                );
+                        _logger.LogInfoWithContext("Starting repo method: Begin database transaction...", _logContext.GetUserInfo(), methodName);
+                        var result = await action();
+                        await _database.SaveChangesAsync();
+                        await transaction.CommitAsync();
+                        _logger.LogInfoWithContext("Completed repo method: Commit database transaction", _logContext.GetUserInfo(), methodName);
+                        return result;
+                    }
+                    catch (Exception ex)
+                    {
+                        await transaction.RollbackAsync();
+                        _logger.LogErrorWithContext("Error in repo method: Failed to commit database transaction. Rolled back.", ex, _logContext.GetUserInfo(), methodName);
+                        throw;
+                    }
+                });
+            }
+            finally
+            {
+                await _currentDatabase.DisposeAsync();
+                _currentDatabase = null;
+            }
         }
-
-
     }
 }

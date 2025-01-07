@@ -5,47 +5,30 @@ import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import { StatCard, PromptMessage, Loader } from '../../components/Common';
 import { adminApi } from '../../api/admin';
+import { useApiError } from '../../hooks/useApiError';
 
 const AdminDashboard = () => {
-  // State management
-  const [dashboardData, setDashboardData] = useState({
-    counts: {
-      totalProgrammes: 0,
-      totalLecturers: 0,
-      totalStudents: 0,
-      totalCourses: 0
-    },
-    loading: true,
-    error: ''
+  const [counts, setCounts] = useState({
+    totalProgrammes: 0,
+    totalLecturers: 0,
+    totalStudents: 0,
+    totalCourses: 0
   });
 
-  // Destructure state for easier access
-  const { counts, loading, error } = dashboardData;
+  const { 
+    error, 
+    loading, 
+    handleApiCall, 
+    clearError 
+  } = useApiError();
 
   // Fetch dashboard data
   const fetchDashboardData = useCallback(async () => {
-    try {
-      const response = await adminApi.getAllTotalCount();
-      if (!response.success) {
-        throw new Error(response.errorMessage || 'Failed to fetch dashboard data');
-      }
-      setDashboardData(prev => ({
-        ...prev,
-        counts: response.data,
-        error: ''
-      }));
-    } catch (err) {
-      setDashboardData(prev => ({
-        ...prev,
-        error: err.message || 'An error occurred while fetching dashboard data'
-      }));
-    } finally {
-      setDashboardData(prev => ({
-        ...prev,
-        loading: false
-      }));
-    }
-  }, []);
+    await handleApiCall(
+      () => adminApi.getAllTotalCount(),
+      (data) => setCounts(data)
+    );
+  }, [handleApiCall]);
 
   useEffect(() => {
     fetchDashboardData();
@@ -85,25 +68,21 @@ const AdminDashboard = () => {
 
   return (
     <Box>
-      {/* Error Message */}
       {error && (
         <PromptMessage
           open={Boolean(error)}
           message={error}
           severity="error"
           fullWidth
-          onClose={() => setDashboardData(prev => ({ ...prev, error: '' }))}
+          onClose={clearError}
           sx={{ mb: 2 }}
         />
       )}
 
       {loading && (
-        <Loader 
-          message="Loading dashboard data..."
-        />
+        <Loader message="Loading dashboard data..." />
       )}
 
-      {/* Stats Grid */}
       <Grid container spacing={3}>
         {dashboardStats.map((stat, index) => (
           <Grid item xs={12} sm={6} md={3} key={index}>

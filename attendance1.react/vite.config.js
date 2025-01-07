@@ -20,8 +20,8 @@ export default defineConfig({
           proxy.options = {
             ...proxy.options,
             rejectUnauthorized: false,
-            timeout: 6000,
-            proxyTimeout: 6000,
+            timeout: 10000,
+            proxyTimeout: 10000,
             keepAlive: false
           };
 
@@ -53,6 +53,21 @@ export default defineConfig({
               res.end(JSON.stringify({
                 status: 401,
                 message: "Token has expired"
+              }));
+              return;
+            }
+
+            if (proxyRes.statusCode === 403 && proxyRes.headers['forbidden'] === 'true') {
+              console.log('[Vite Proxy] Forbidden response');
+              Object.keys(proxyRes.headers).forEach(key => {
+                res.setHeader(key, proxyRes.headers[key]);
+              });
+              
+              res.statusCode = 403;
+              
+              res.end(JSON.stringify({
+                status: 403,
+                message: "You do not have permission to access this resource"
               }));
               return;
             }

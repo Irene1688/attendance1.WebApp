@@ -11,6 +11,7 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { styles } from './SideBarItem.styles';
+import { useAuth } from '../../../../hooks/useAuth';
 
 const SideBarItem = ({ 
   icon: Icon,
@@ -22,6 +23,7 @@ const SideBarItem = ({
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { handleLogout } = useAuth();
   const [open, setOpen] = useState(false);
   const theme = useTheme();
 
@@ -46,7 +48,12 @@ const SideBarItem = ({
       } else {
         setOpen(!open);
       }
-    } else {
+      return;
+    }
+    
+    if (path === '/logout') {
+      handleLogout();
+     } else {
       navigate(path);
     }
   };

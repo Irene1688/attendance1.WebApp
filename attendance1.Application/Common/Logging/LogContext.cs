@@ -17,7 +17,7 @@ namespace attendance1.Application.Common.Logging
             var user = _httpContextAccessor.HttpContext?.User;
 
             if (user?.Identity?.IsAuthenticated != true)
-                return "Unauthorized User - Anonymous";
+                return "User haven't completed login - Anonymous";
 
             var name = user.Identity.Name;
             var role = user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;

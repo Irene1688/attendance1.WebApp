@@ -256,11 +256,22 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                 && u.IsDeleted == false));
         }
 
-        public async Task<bool> UpdateUserRefreshTokenAsync(UserDetail user)
+        public async Task<bool> UpdateUserRefreshTokenAsync(UserDetail user, string newRefreshToken, DateTime? expiryTime)
         {
             return await ExecuteWithTransactionAsync(async () =>
             {
-                _database.UserDetails.Update(user);
+                var thisUser = await _database.UserDetails
+                    .AsTracking()
+                    .FirstOrDefaultAsync(u => u.IsDeleted == false 
+                        && u.UserId == user.UserId);
+                    
+                if (thisUser == null)
+                    throw new KeyNotFoundException(nameof(thisUser));
+                
+                thisUser.RefreshToken = newRefreshToken;
+                if (expiryTime != null)
+                    thisUser.RefreshTokenExpiryTime = expiryTime;
+
                 await _database.SaveChangesAsync();
                 return true;
             });

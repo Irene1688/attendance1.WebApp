@@ -13,6 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
 using attendance1.Application.Common.Logging;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace attendance1.Application.Services
 {
@@ -47,19 +48,18 @@ namespace attendance1.Application.Services
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var now = DateTime.UtcNow;
+            var notBefore = now.AddSeconds(-30);
             var expires = now.AddHours(_jwtSettings.ExpiryInHours);
 
             var token = new JwtSecurityToken(
                 issuer: _jwtSettings.Issuer,
                 audience: _jwtSettings.Audience,
                 claims: claims,
-                notBefore: now,
+                notBefore: notBefore,
                 expires: expires,
                 signingCredentials: credentials);
 
             var accessToken = new JwtSecurityTokenHandler().WriteToken(token);
-            LogInfo("Access token generated");
-
             return accessToken;
         }
 
@@ -77,19 +77,17 @@ namespace attendance1.Application.Services
             var accessToken = GenerateAccessToken(user);
             var refreshToken = GenerateRefreshToken();
 
-            user.RefreshToken = refreshToken;
-            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpiryInDays);
-            var isUpdated = await _userRepository.UpdateUserRefreshTokenAsync(user);
+            var expiryTime = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpiryInDays);
+            var isUpdated = await UpdateUserRefreshToken(user, refreshToken, expiryTime);
+
             if (!isUpdated)
                 throw new Exception("Failed to update refresh token");
             return (accessToken, refreshToken);
         }
 
-        private async Task<bool> UpdateUserRefreshToken(UserDetail user, string refreshToken, DateTime expiryTime)
+        private async Task<bool> UpdateUserRefreshToken(UserDetail user, string refreshToken, DateTime? expiryTime)
         {
-            user.RefreshToken = refreshToken;
-            user.RefreshTokenExpiryTime = expiryTime;
-            return await _userRepository.UpdateUserRefreshTokenAsync(user);
+            return await _userRepository.UpdateUserRefreshTokenAsync(user, refreshToken, expiryTime);
         }
 
         public async Task<Result<LoginResponseDto>> StudentLoginAsync(StudentLoginRequestDto requestDto)
@@ -98,16 +96,13 @@ namespace attendance1.Application.Services
             {
                 var user = await _userRepository.GetUserByEmailAsync(requestDto.Email);
                 if (user == null)
-                    throw new Exception("User not found");
+                    throw new KeyNotFoundException("User not found");
 
                 if (!BCrypt.Net.BCrypt.Verify(requestDto.Password, user.UserPassword)) 
-                    throw new Exception("Incorrect password");
+                    throw new InvalidOperationException("Incorrect password");
                 
                 var (accessToken, refreshToken) = await HandleTokenGeneration(user);
-                var isUpdated = await UpdateUserRefreshToken(user, refreshToken, DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpiryInDays));
-                if (!isUpdated)
-                    throw new Exception("Failed to update refresh token");
-
+                
                 return new LoginResponseDto
                 {
                     Name = user.UserName ?? string.Empty,
@@ -117,7 +112,8 @@ namespace attendance1.Application.Services
                     RefreshToken = refreshToken
                 };
             },
-            "Failed to login");
+            "Failed to login",
+            loginUserInfo: $"Login attempt for student email: {requestDto.Email}");
         }
 
         public async Task<Result<LoginResponseDto>> StaffLoginAsync(StaffLoginRequestDto requestDto)
@@ -126,17 +122,14 @@ namespace attendance1.Application.Services
             {
                 var existedStaffs = await _userRepository.GetStaffByUsernameAsync(requestDto.Username, requestDto.Role.ToString());
                 if (existedStaffs == null)
-                    throw new Exception("User not found");
+                    throw new KeyNotFoundException("User not found");
 
                 var loginUser = existedStaffs.FirstOrDefault(staff => BCrypt.Net.BCrypt.Verify(requestDto.Password, staff.UserPassword));
                 if (loginUser == null)
-                    throw new Exception("Incorrect password");
+                    throw new InvalidOperationException("Incorrect password");
 
                 var (accessToken, refreshToken) = await HandleTokenGeneration(loginUser);
-                var isUpdated = await UpdateUserRefreshToken(loginUser, refreshToken, DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpiryInDays));
-                if (!isUpdated)
-                    throw new Exception("Failed to update refresh token");
-
+                
                 return new LoginResponseDto
                 {
                     Name = loginUser.UserName ?? string.Empty,
@@ -146,7 +139,8 @@ namespace attendance1.Application.Services
                     RefreshToken = refreshToken
                 };
             },
-            "Failed to login");
+            "Failed to login",
+            loginUserInfo: $"Login attempt for staff username: {requestDto.Username}, role: {requestDto.Role}");
         }
 
         public async Task<Result<LoginResponseDto>> RefreshAccessTokenAsync(RefreshTokenRequestDto requestDto)
@@ -156,10 +150,10 @@ namespace attendance1.Application.Services
                 var refreshToken = requestDto.RefreshToken;
                 var user = await _userRepository.GetUserByRefreshTokenAsync(refreshToken);
                 if (user == null || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
-                    throw new Exception("Invalid or expired refresh token");
+                    throw new InvalidOperationException("Invalid or expired refresh token");
 
                 // check if need to rotate refresh token, if the expiry time is less than half of the refresh token expiry time
-                var shouldRotateRefreshToken = user.RefreshTokenExpiryTime <= 
+                var shouldRotateRefreshToken = user.RefreshTokenExpiryTime <=
                     DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpiryInDays / 2);
 
                 var accessToken = GenerateAccessToken(user);
@@ -192,13 +186,11 @@ namespace attendance1.Application.Services
                 var accessToken = requestDto.AccessToken;
                 var user = await _userRepository.GetUserByRefreshTokenAsync(refreshToken);
                 if (user == null)
-                    throw new Exception("User not found");
+                    throw new KeyNotFoundException("User not found");
 
-                user.RefreshToken = null;
-                user.RefreshTokenExpiryTime = null;
-                await _userRepository.UpdateUserRefreshTokenAsync(user);
-
-                LogInfo("Logout successful");
+                var isUpdated = await UpdateUserRefreshToken(user, null, null);
+                if (!isUpdated)
+                    throw new Exception("Failed to remove token info in database");
 
                 return true;
             }, "Failed to logout");
