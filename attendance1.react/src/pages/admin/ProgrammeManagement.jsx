@@ -38,14 +38,13 @@ const ProgrammeManagement = () => {
 
   // hooks
   const { loading, handleApiCall } = useApiExecutor();
-
   const { message, showSuccessMessage, hideMessage } = useMessageContext();
-  
   const {
     page,
     rowsPerPage,
     total,
     setTotal,
+    setPage,
     handlePageChange,
     handleRowsPerPageChange,
     getPaginationParams
@@ -86,7 +85,7 @@ const ProgrammeManagement = () => {
   const handleSearch = useCallback((term) => {
     setSearchTerm(term);
     setPage(0);
-  }, []);
+  }, [setPage]);
 
   // crud operations
   const handleAddClick = () => {

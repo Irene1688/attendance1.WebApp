@@ -27,6 +27,7 @@ export const useApiExecutor = () => {
         if (error.response) {
           // get error message from server
           const messageFromServer = error.response.data?.errorMessage;
+          const messageFromClientServer = error.message;
           
           if (messageFromServer === "Failed to refresh token: Invalid or expired refresh token") {
             dispatch(logout());
@@ -35,8 +36,9 @@ export const useApiExecutor = () => {
             return;
           }
 
-          showErrorMessage(messageFromServer);
-          throw new Error(messageFromServer);
+          const errorMessage = messageFromServer || messageFromClientServer;
+          showErrorMessage(errorMessage);
+          throw new Error(errorMessage);
         } else if (error.request) {
           // Handle network errors
           const errorMessage = 'Network error. Please check your connection.';

@@ -6,7 +6,7 @@ import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import { StatCard, PromptMessage, Loader } from '../../components/Common';
 import { adminApi } from '../../api/admin';
 import { useApiExecutor } from '../../hooks/useApiExecutor';
-import { useMessage } from '../../hooks/useMessage';
+import { useMessageContext } from '../../contexts/MessageContext';
 const AdminDashboard = () => {
   const [counts, setCounts] = useState({
     totalProgrammes: 0,
@@ -15,7 +15,7 @@ const AdminDashboard = () => {
     totalCourses: 0
   });
 
-  const { message, hideMessage } = useMessage();
+  const { message, hideMessage } = useMessageContext();
   const { loading, handleApiCall } = useApiExecutor();
 
   // Fetch dashboard data
