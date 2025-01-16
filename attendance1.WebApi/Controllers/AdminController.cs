@@ -38,7 +38,7 @@ namespace attendance1.WebApi.Controllers
         }
 
         [HttpPost("getAllProgramme")]
-        public async Task<ActionResult<PaginatedResult<GetProgrammeResponseDto>>> GetAllProgramme([FromBody] PaginatedRequestDto requestDto)
+        public async Task<ActionResult<PaginatedResult<GetProgrammeResponseDto>>> GetAllProgramme([FromBody] GetProgrammeRequestDto requestDto)
         {
             var result = await _adminService.GetAllProgrammeAsync(requestDto);
             return StatusCode((int)result.StatusCode, result);

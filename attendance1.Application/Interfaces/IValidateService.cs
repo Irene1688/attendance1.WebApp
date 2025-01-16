@@ -1,3 +1,5 @@
+using attendance1.Domain.Interfaces;
+
 namespace attendance1.Application.Interfaces
 {
     public interface IValidateService
@@ -14,6 +16,7 @@ namespace attendance1.Application.Interfaces
         bool ValidatePasswordAsync(string oldPassword, string newPassword);
         Task<bool> ValidateOldPasswordCorrectAsync(int userId, string oldPassword);
 
-        Task<bool> HasProgrammeAsync(int programmeId);   
+        Task<bool> HasProgrammeAsync(int programmeId);
+        Task<bool> HasProgrammeNameExistedAsync(string programmeName);
     }
 }

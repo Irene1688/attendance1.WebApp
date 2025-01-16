@@ -1,35 +1,33 @@
 import { createTheme, alpha } from '@mui/material/styles';
 
-// 定义主要颜色变量
 const colors = {
   red: {
-    main: '#ff4d5a',     // 鲜艳的红色
-    light: '#ff4d5a',    // 较亮的红色
-    dark: '#cc2936',     // 深红色
+    main: '#ff4d5a',   
+    light: '#ff4d5a',  
+    dark: '#cc2936',    
   },
   grey: {
-    main: '#24292e',     // 深灰色（替代纯黑）
-    light: '#282e34',    // 浅灰色
-    dark: '#1f2428',     // 更深的灰色
+    main: '#24292e',    
+    light: '#282e34',   
+    dark: '#1f2428',    
   },
   white: {
-    main: '#ffffff',     // 纯白
-    off: '#f8f9fa',      // 灰白色
-    dark: '#edf2f4',     // 较深的白色
+    main: '#ffffff',    
+    off: '#f8f9fa',     
+    dark: '#edf2f4',  
   },
   green: {
-    main: '#28a745',     // 较深的绿色
-    light: '#28a745',    // 较亮的绿色
-    dark: '#218838',     // 深绿色
+    main: '#28a745',
+    light: '#28a745',  
+    dark: '#218838',    
   },
   purple: {
-    main: '#6f42c1',     // 紫色
-    light: '#6f42c1',    // 较亮的紫色
-    dark: '#563d7c',     // 深紫色
+    main: '#6f42c1',    
+    light: '#6f42c1',
+    dark: '#563d7c',    
   }
 };
 
-// 创建完整的阴影数组
 const shadows = Array(25).fill('').map((_, index) => {
   if (index === 0) return 'none';
   const y = index > 16 ? 1 : 0;
@@ -147,7 +145,7 @@ const theme = createTheme({
               borderColor: colors.grey.light,
             },
             '&.Mui-focused fieldset': {
-              borderColor: colors.red.main,
+              borderColor: colors.grey.light,
             },
           },
         },

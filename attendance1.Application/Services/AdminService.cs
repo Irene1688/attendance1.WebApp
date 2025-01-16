@@ -7,6 +7,8 @@ using attendance1.Application.Interfaces;
 using attendance1.Domain.Entities;
 using attendance1.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
+using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace attendance1.Application.Services
 {
@@ -26,6 +28,17 @@ namespace attendance1.Application.Services
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             _courseRepository = courseRepository ?? throw new ArgumentNullException(nameof(courseRepository));
             _attendanceRepository = attendanceRepository ?? throw new ArgumentNullException(nameof(attendanceRepository));
+        }
+
+        private string FormatName(string name)
+        {
+            var match = Regex.Match(name, @"([^(]+)(\(.*\))?");
+            var outsideBrackets = match.Groups[1].Value.Trim();
+            var insideBrackets = match.Groups[2].Value;    
+
+            var formattedOutside = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(outsideBrackets.ToLower());
+
+            return insideBrackets == null ? formattedOutside : $"{formattedOutside} {insideBrackets}";
         }
 
         public async Task<Result<AllTotalCountResponseDto>> GetAllTotalCountAsync()
@@ -54,24 +67,32 @@ namespace attendance1.Application.Services
         {
             return await ExecuteAsync(async () =>
             {
+                var isExisted = await _validateService.HasProgrammeNameExistedAsync(requestDto.ProgrammeName);
+                if (isExisted)
+                    throw new InvalidOperationException("The programme name has been used");
+
                 var programme = new Programme
                 {
-                    ProgrammeName = requestDto.ProgrammeName,
+                    ProgrammeName = FormatName(requestDto.ProgrammeName),
                     IsDeleted = false,
                 };
+
                 await _programmeRepository.CreateNewProgrammeAsync(programme);
                 return true;
             },
             $"Failed to create new programme: {requestDto.ProgrammeName}");
         }
         
-        public async Task<Result<PaginatedResult<GetProgrammeResponseDto>>> GetAllProgrammeAsync(PaginatedRequestDto requestDto)
+        public async Task<Result<PaginatedResult<GetProgrammeResponseDto>>> GetAllProgrammeAsync(GetProgrammeRequestDto requestDto)
         {
-            var pageNumber = requestDto.PageNumber;
-            var pageSize = requestDto.PageSize;
+            var pageNumber = requestDto.PaginatedRequest.PageNumber;
+            var pageSize = requestDto.PaginatedRequest.PageSize;
+            var searchTerm = requestDto.SearchTerm;
+            var orderBy = requestDto.PaginatedRequest.OrderBy;
+            var isAscending = requestDto.PaginatedRequest.IsAscending;
             return await ExecuteAsync(async () =>
             {
-                var programmes = await _programmeRepository.GetAllProgrammeAsync(pageNumber, pageSize);
+                var programmes = await _programmeRepository.GetAllProgrammeAsync(pageNumber, pageSize, searchTerm, orderBy, isAscending);
                 var response = programmes.Select(programme => new GetProgrammeResponseDto
                 {
                     ProgrammeId = programme.ProgrammeId,
@@ -91,15 +112,18 @@ namespace attendance1.Application.Services
 
         public async Task<Result<bool>> EditProgrammeAsync(EditProgrammeRequestDto requestDto)
         {
-            if (!await _validateService.HasProgrammeAsync(requestDto.ProgrammeId))
-                return Result<bool>.FailureResult($"Programme with ID {requestDto.ProgrammeId} does not exist");
-            
             return await ExecuteAsync(async () =>
             {
+                if (!await _validateService.HasProgrammeAsync(requestDto.ProgrammeId))
+                    throw new KeyNotFoundException("Programme not found");
+
+                if (await _validateService.HasProgrammeNameExistedAsync(requestDto.ProgrammeName))
+                    throw new InvalidOperationException("The programme name has been used");
+
                 var programme = new Programme
                 {
                     ProgrammeId = requestDto.ProgrammeId,
-                    ProgrammeName = requestDto.ProgrammeName,
+                    ProgrammeName = FormatName(requestDto.ProgrammeName),
                 };
                 await _programmeRepository.EditProgrammeAsync(programme);
                 return true;
@@ -110,11 +134,11 @@ namespace attendance1.Application.Services
         
         public async Task<Result<bool>> DeleteProgrammeAsync(DeleteRequestDto requestDto)
         {
-            if (!await _validateService.HasProgrammeAsync(requestDto.Id))
-                return Result<bool>.FailureResult($"Programme with ID {requestDto.Id} does not exist");
-            
             return await ExecuteAsync(async () =>
             {
+                if (!await _validateService.HasProgrammeAsync(requestDto.Id))
+                    throw new KeyNotFoundException("Programme not found");
+
                 await _programmeRepository.DeleteProgrammeAsync(requestDto.Id);
                 return true;
             },

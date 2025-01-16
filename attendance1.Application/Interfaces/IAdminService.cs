@@ -9,7 +9,7 @@ namespace attendance1.Application.Interfaces
         Task<Result<AllTotalCountResponseDto>> GetAllTotalCountAsync();
         #region programme CRUD
         Task<Result<bool>> CreateNewProgrammeAsync(CreateProgrammeRequestDto requestDto);
-        Task<Result<PaginatedResult<GetProgrammeResponseDto>>> GetAllProgrammeAsync(PaginatedRequestDto requestDto);
+        Task<Result<PaginatedResult<GetProgrammeResponseDto>>> GetAllProgrammeAsync(GetProgrammeRequestDto requestDto);
         Task<Result<bool>> EditProgrammeAsync(EditProgrammeRequestDto requestDto);
         Task<Result<bool>> DeleteProgrammeAsync(DeleteRequestDto requestDto);
         #endregion

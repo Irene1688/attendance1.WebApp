@@ -3,12 +3,13 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { setCredentials, logout } from '../store/slices/authSlice';
 import { authApi } from '../api/auth';
-import { useApiError } from './useApiError';
+import { useApiExecutor } from './useApiExecutor';
+import { useMessageContext } from '../contexts/MessageContext';
 
 export const useAuth = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { error, loading, handleApiCall, setError, clearError } = useApiError();
+  const { loading, handleApiCall } = useApiExecutor();
 
   const handleLogin = useCallback(async (values, formikHelpers, isStaff) => {
     try {
@@ -72,9 +73,6 @@ export const useAuth = () => {
   }, [dispatch, navigate, handleApiCall]);
 
   return {
-    error,
-    setError,
-    clearError,
     loading,
     handleLogin,
     handleLogout

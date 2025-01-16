@@ -1,6 +1,7 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import AdminLayout from '../components/Layout/AdminLayout/AdminLayout';
 import AdminDashboard from '../pages/admin/Dashboard';
+import ProgrammeManagement from '../pages/admin/ProgrammeManagement';
 import Login from '../pages/auth/Login';
 // import Programmes from '../pages/admin/Programmes';
 // import Courses from '../pages/admin/Courses';
@@ -9,6 +10,7 @@ import Login from '../pages/auth/Login';
 import PrivateRoute from './PrivateRoute';
 import PublicRoute from './PublicRoute';
 import RootRedirect from './RootRedirect';
+
 
 export const router = createBrowserRouter([
   {
@@ -39,14 +41,10 @@ export const router = createBrowserRouter([
         path: 'dashboard',
         element: <AdminDashboard />
       },
-      // {
-      //   path: 'programmes',
-      //   element: <Programmes />
-      // },
-      // {
-      //   path: 'courses/*',
-      //   element: <Courses />
-      // },
+      {
+        path: 'programmes',
+        element: <ProgrammeManagement />
+      }
     ]
   },
   {

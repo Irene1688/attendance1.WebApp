@@ -10,7 +10,7 @@ export const useAuthApiError = (initialState = '') => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   
-  // main business logi
+  // main business logic
   const handleAuthApiCall = useCallback(async (apiCall, onSuccess) => {
     setLoading(true);
     setError('');

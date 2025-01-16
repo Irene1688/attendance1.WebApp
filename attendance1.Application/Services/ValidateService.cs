@@ -124,5 +124,17 @@ namespace attendance1.Application.Services
 
             return true;
         }
+    
+        public async Task<bool> HasProgrammeNameExistedAsync(string programmeName)
+        {
+            if (string.IsNullOrEmpty(programmeName))
+                return false;
+
+            var programmeExists = await _programmeRepository.HasProgrammeNameExistedAsync(programmeName);
+            if (!programmeExists)
+                return false;
+
+            return true;
+        }
     }
 }

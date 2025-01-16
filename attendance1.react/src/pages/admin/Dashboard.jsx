@@ -5,8 +5,8 @@ import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import { StatCard, PromptMessage, Loader } from '../../components/Common';
 import { adminApi } from '../../api/admin';
-import { useApiError } from '../../hooks/useApiError';
-
+import { useApiExecutor } from '../../hooks/useApiExecutor';
+import { useMessage } from '../../hooks/useMessage';
 const AdminDashboard = () => {
   const [counts, setCounts] = useState({
     totalProgrammes: 0,
@@ -15,12 +15,8 @@ const AdminDashboard = () => {
     totalCourses: 0
   });
 
-  const { 
-    error, 
-    loading, 
-    handleApiCall, 
-    clearError 
-  } = useApiError();
+  const { message, hideMessage } = useMessage();
+  const { loading, handleApiCall } = useApiExecutor();
 
   // Fetch dashboard data
   const fetchDashboardData = useCallback(async () => {
@@ -32,7 +28,7 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     fetchDashboardData();
-  }, [fetchDashboardData]);
+  }, []);
 
   // Dashboard stats configuration
   const dashboardStats = [
@@ -68,7 +64,7 @@ const AdminDashboard = () => {
 
   return (
     <Box>
-      {error && (
+      {/* {error && (
         <PromptMessage
           open={Boolean(error)}
           message={error}
@@ -77,10 +73,21 @@ const AdminDashboard = () => {
           onClose={clearError}
           sx={{ mb: 2 }}
         />
-      )}
+      )} */}
 
       {loading && (
         <Loader message="Loading dashboard data..." />
+      )}
+
+      {message.show && (
+        <PromptMessage
+          open={true}
+          message={message.text}
+          severity={message.severity}
+          fullWidth
+          onClose={hideMessage}
+          sx={{ mb: 2 }}
+        />
       )}
 
       <Grid container spacing={3}>

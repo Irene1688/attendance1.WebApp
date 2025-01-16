@@ -5,8 +5,15 @@ namespace attendance1.Domain.Interfaces
     public interface IProgrammeRepository
     {
         Task<bool> HasProgrammeExistedAsync(int programmeId);
+        Task<bool> HasProgrammeNameExistedAsync(string programmeName);
         Task<int> GetTotalProgrammeAsync();
-        Task<List<Programme>> GetAllProgrammeAsync(int pageNumber = 1, int pageSize = 15);
+        Task<List<Programme>> GetAllProgrammeAsync(
+            int pageNumber = 1, 
+            int pageSize = 15, 
+            string searchTerm = "", 
+            string orderBy = "programmeName", 
+            bool isAscending = true);
+            
         Task<bool> CreateNewProgrammeAsync(Programme programme);
         Task<bool> EditProgrammeAsync(Programme programme);
         Task<bool> DeleteProgrammeAsync(int programmeId);
