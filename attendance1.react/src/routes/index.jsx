@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import AdminLayout from '../components/Layout/AdminLayout/AdminLayout';
 import AdminDashboard from '../pages/admin/Dashboard';
 import ProgrammeManagement from '../pages/admin/ProgrammeManagement';
+import LecturerManagement from '../pages/admin/LecturerManagement';
 import Login from '../pages/auth/Login';
 // import Programmes from '../pages/admin/Programmes';
 // import Courses from '../pages/admin/Courses';
@@ -44,6 +45,10 @@ export const router = createBrowserRouter([
       {
         path: 'programmes',
         element: <ProgrammeManagement />
+      },
+      {
+        path: 'lecturers',
+        element: <LecturerManagement />
       }
     ]
   },

@@ -1,10 +1,10 @@
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { setCredentials, logout } from '../store/slices/authSlice';
-import { authApi } from '../api/auth';
-import { useApiExecutor } from './useApiExecutor';
-import { useMessageContext } from '../contexts/MessageContext';
+import { setCredentials, logout } from '../../store/slices/authSlice';
+import { authApi } from '../../api/auth';
+import { useApiExecutor } from '../../hooks/common';
+import { useMessageContext } from '../../contexts/MessageContext';
 
 export const useAuth = () => {
   const dispatch = useDispatch();

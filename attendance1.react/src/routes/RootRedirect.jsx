@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom';
-import { useAuthRedirect } from '../hooks/useAuthRedirect';
+import { useAuthRedirect } from '../hooks/auth/useAuthRedirect';
 
 const RootRedirect = () => {
   const { getRedirectPath } = useAuthRedirect();

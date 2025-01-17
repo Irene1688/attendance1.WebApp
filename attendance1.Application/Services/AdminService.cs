@@ -32,13 +32,25 @@ namespace attendance1.Application.Services
 
         private string FormatName(string name)
         {
-            var match = Regex.Match(name, @"([^(]+)(\(.*\))?");
+            var match = Regex.Match(name, @"(.+?)(\s*\(.*\))?\s*(\d+)?$");
+            
             var outsideBrackets = match.Groups[1].Value.Trim();
-            var insideBrackets = match.Groups[2].Value;    
+            var insideBrackets = match.Groups[2].Success ? match.Groups[2].Value : null;
+            var number = match.Groups[3].Success ? match.Groups[3].Value : null;
 
             var formattedOutside = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(outsideBrackets.ToLower());
 
-            return insideBrackets == null ? formattedOutside : $"{formattedOutside} {insideBrackets}";
+            var result = formattedOutside;
+            if (insideBrackets != null)
+            {
+                result += " " + insideBrackets;
+            }
+            if (number != null)
+            {
+                result += " " + number;
+            }
+
+            return result;
         }
 
         public async Task<Result<AllTotalCountResponseDto>> GetAllTotalCountAsync()
@@ -80,7 +92,7 @@ namespace attendance1.Application.Services
                 await _programmeRepository.CreateNewProgrammeAsync(programme);
                 return true;
             },
-            $"Failed to create new programme: {requestDto.ProgrammeName}");
+            $"Failed to create new programme");
         }
         
         public async Task<Result<PaginatedResult<GetProgrammeResponseDto>>> GetAllProgrammeAsync(GetProgrammeRequestDto requestDto)
@@ -128,7 +140,7 @@ namespace attendance1.Application.Services
                 await _programmeRepository.EditProgrammeAsync(programme);
                 return true;
             },
-            $"Failed to edit programme: {requestDto.ProgrammeName}");
+            $"Failed to edit programme");
 
         }
         

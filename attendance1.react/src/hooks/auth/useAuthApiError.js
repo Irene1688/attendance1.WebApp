@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { logout } from '../store/slices/authSlice';
+import { logout } from '../../store/slices/authSlice';
 
 export const useAuthApiError = (initialState = '') => {
   // initial state that will be used

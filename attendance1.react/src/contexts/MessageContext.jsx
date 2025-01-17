@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import { useMessage } from '../hooks/useMessage';
+import { useMessage } from '../hooks/common/useMessage';
 
 export const MessageContext = createContext(null);
 

@@ -29,12 +29,6 @@ export const useMessage = (
   }, [showMessage, options]);
 
   const showErrorMessage = useCallback((text) => {
-    if (options.scrollToTop) {
-        window.scrollTo({
-          top: 0,
-          behavior: options.smooth ? 'smooth' : 'auto'
-        });
-      }
     showMessage(text, 'error');
   }, [showMessage, options]);
 

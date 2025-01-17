@@ -7,10 +7,12 @@ import {
   DialogActions 
 } from '@mui/material';
 import { programmeValidationSchema } from '../../../validations/schemas';
-import { TextButton } from '../../Common';
+import { TextButton, PromptMessage } from '../../Common';
+import { useMessageContext } from '../../../contexts/MessageContext';
 
 
 const ProgrammeForm = ({ initialValues, onSubmit, onCancel, isEditing }) => {
+  const { message, hideMessage } = useMessageContext();
   return (
     <Formik
       initialValues={initialValues}
@@ -23,7 +25,19 @@ const ProgrammeForm = ({ initialValues, onSubmit, onCancel, isEditing }) => {
             {isEditing ? 'Edit Programme' : 'Add New Programme'}
           </DialogTitle>
           <DialogContent>
-            <Box sx={{ pt: 2 }}>
+            {message.show && message.severity === 'error' && (
+              <Box sx={{ mt: 2, mb: 0 }}>
+                <PromptMessage
+                  open={true}
+                  message={message.text}
+                  duration={10000}
+                  severity={message.severity}
+                  fullWidth
+                  onClose={hideMessage}
+                />
+              </Box>
+            )}
+            <Box>
               <TextField
                 fullWidth
                 name="name"
@@ -37,7 +51,7 @@ const ProgrammeForm = ({ initialValues, onSubmit, onCancel, isEditing }) => {
               />
             </Box>
           </DialogContent>
-          <DialogActions>
+          <DialogActions sx={{ pb: 2, px: 3 }}>
             <TextButton 
               onClick={onCancel}
               variant="text"

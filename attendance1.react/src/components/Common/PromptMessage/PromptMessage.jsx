@@ -9,7 +9,7 @@ const PromptMessage = ({
   severity = 'success', // error || success
   duration = 5000,
   fullWidth = false,    
-  onClose 
+  onClose
 }) => {
   const [show, setShow] = useState(open);
   const [progress, setProgress] = useState(100);

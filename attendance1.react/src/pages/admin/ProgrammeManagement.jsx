@@ -1,50 +1,45 @@
-import { useState, useEffect, useCallback } from 'react';
-import { 
-  Box, 
-  Typography,
-  TableRow,
-  TableCell,
-  Dialog,
-} from '@mui/material';
+import { useCallback, useEffect, useState } from 'react';
+import { Box, Typography, Dialog } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import { adminApi } from '../../api/admin';
-import { useApiExecutor } from '../../hooks/useApiExecutor';
-import { useMessageContext } from '../../contexts/MessageContext';
 import { 
   Loader, 
   PromptMessage, 
   TextButton, 
-  IconButton, 
   ConfirmDialog,
   SearchField,
-  PaginatedTable
 } from '../../components/Common';
 import { ProgrammeForm } from '../../components/Admin';
-import { useSorting } from '../../hooks/useSorting';
-import { usePagination } from '../../hooks/usePagination';
+import { ProgrammeTable } from '../../components/Admin';
+import { useProgrammeManagement } from '../../hooks/features'
+import { usePagination, useSorting } from '../../hooks/common';
+import { useMessageContext } from '../../contexts/MessageContext';
 
 const ProgrammeManagement = () => {
-  // states
-  const [programmes, setProgrammes] = useState([]);
-  const [selectedProgramme, setSelectedProgramme] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [openDialog, setOpenDialog] = useState(false);
-  const [confirmDialog, setConfirmDialog] = useState({
-    open: false,
-    programme: null
-  });
 
   // hooks
-  const { loading, handleApiCall } = useApiExecutor();
+  const { 
+    programmes,
+    selectedProgramme,
+    openDialog,
+    confirmDialog,
+    loading,
+    setSelectedProgramme,
+    setOpenDialog,
+    setConfirmDialog,
+    fetchProgrammes,
+    createProgramme,
+    updateProgramme,
+    deleteProgramme
+  } = useProgrammeManagement();
+
   const { message, showSuccessMessage, hideMessage } = useMessageContext();
+
   const {
     page,
+    setPage,
     rowsPerPage,
     total,
     setTotal,
-    setPage,
     handlePageChange,
     handleRowsPerPageChange,
     getPaginationParams
@@ -55,145 +50,65 @@ const ProgrammeManagement = () => {
     orderBy, 
     handleSort,
     getSortParams 
-  } = useSorting('programmeName', 'asc', () => {
-    setPage(0); // reset to first page
-  });
+  } = useSorting('programmeName', 'asc');
 
-  // fetch programmes
-  const fetchProgrammes = useCallback(async () => {
-    const requestDto = {
-      paginatedRequest: {
-        ...getPaginationParams(),
-        ...getSortParams()
-      },
-      searchTerm: searchTerm
-    }
-    await handleApiCall(
-      () => adminApi.getAllProgrammes(requestDto),
-      (paginatedResult) => {
-        setProgrammes(paginatedResult.data || []);
-        setTotal(paginatedResult.totalCount || 0);
-      }
-    );
-  }, [searchTerm, getPaginationParams, getSortParams]);
-
-  useEffect(() => {
-    fetchProgrammes();
-  }, [searchTerm, getPaginationParams, getSortParams]);
-
-  // handle search
+  // search
+  const [searchTerm, setSearchTerm] = useState('');
+  
   const handleSearch = useCallback((term) => {
     setSearchTerm(term);
     setPage(0);
   }, [setPage]);
 
-  // crud operations
-  const handleAddClick = () => {
-    setSelectedProgramme(null);
-    setOpenDialog(true);
-  };
-
-  const handleEditClick = (programme) => {
-    setSelectedProgramme(programme);
-    setOpenDialog(true);
-  };
-
-  const handleDeleteClick = (programme) => {
-    setConfirmDialog({
-      open: true,
-      programme
-    });
-  };
-
-  // Handle form submission (create/update)
-  const handleSubmit = async (values, { resetForm }) => {
-    if (selectedProgramme) {
-      // Update existing programme
-      const requestDto = {
-        programmeId: selectedProgramme.programmeId,
-        programmeName: values.name,
-      }
-      await handleApiCall(
-        () => adminApi.updateProgramme(requestDto),
-        async () => {
-          await fetchProgrammes();
-          showSuccessMessage('Programme updated successfully');
-        },
-        () => {
-          resetForm();
-          setOpenDialog(false);
-        }
-      );
-    } else {
-      // Create new programme
-      const requestDto = {
-        programmeName: values.name
-      };      
-      await handleApiCall(
-        () => adminApi.createProgramme(requestDto),
-        async () => {
-          await fetchProgrammes();
-          showSuccessMessage('Programme created successfully');
-        },
-        () => {
-          resetForm();
-          setOpenDialog(false);
-        }
-      );
-    }
-  };
-
-  const deleteProgramme = async (programme) => {
-    await handleApiCall(
-      () => adminApi.deleteProgramme({ id: programme.programmeId }),
-      async () => {
-        await fetchProgrammes();
-        showSuccessMessage('Programme deleted successfully');
+  // fetch data
+  const loadData = useCallback(async () => {
+    const requestDto = {
+      paginatedRequest: {
+        ...getPaginationParams(),
+        ...getSortParams(),
       },
-      () => {
-        setConfirmDialog({ open: false, programme: null });
-      }
-    );
+      searchTerm: searchTerm,
+    };
+    const paginatedResult = await fetchProgrammes(requestDto);
+    setTotal(paginatedResult.totalCount);
+  }, [getPaginationParams, getSortParams, searchTerm]);
+  
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  // create / update
+  const handleSubmit = async (values, { resetForm }) => {
+    const operation = selectedProgramme ? updateProgramme : createProgramme;
+    const success = await operation(values);
+    if (success) {
+      await loadData();
+      const message = selectedProgramme 
+        ? 'Programme updated successfully'
+        : 'Programme created successfully';
+      showSuccessMessage(message);
+      resetForm();
+      setOpenDialog(false);
+    }
   };
 
-  // define table columns' headers
-  const columns = [
-    {
-      id: 'programmeName',
-      label: 'Programme Name',
-      sortable: true
-    },
-    {
-      id: 'actions',
-      label: 'Actions',
-      sortable: false,
+  // delete
+  const handleDeleteConfirm = async () => {
+    if (confirmDialog.programme) {
+      const success = await deleteProgramme(confirmDialog.programme);
+      if (success) {
+        setConfirmDialog({ open: false, programme: null });
+        await loadData();
+        showSuccessMessage('Programme deleted successfully');
+      }
     }
-  ];
-  
-  // define table content renderer
-  const renderRow = useCallback((programme) => (
-    <TableRow key={programme.programmeId}>
-      <TableCell>{programme.programmeName}</TableCell>
-      <TableCell>
-        <IconButton
-          Icon={<EditIcon />}
-          onClick={() => handleEditClick(programme)}
-          color="cancel"
-        />
-        <IconButton
-          Icon={<DeleteIcon />}
-          onClick={() => handleDeleteClick(programme)}
-          color="delete"
-        />
-      </TableCell>
-    </TableRow>
-  ), []);
-  
+  };
+
   return (
     <Box sx={{ pl: 3, pr: 3 }}>
       {loading && <Loader />}
       
-      {message.show && (
+      {message.show && message.severity === 'success' && (
         <PromptMessage
           open={true}
           message={message.text}
@@ -207,7 +122,10 @@ const ProgrammeManagement = () => {
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
         <Typography variant="h5">Programme Management ({total})</Typography>
         <TextButton 
-          onClick={handleAddClick} 
+          onClick={() => {
+            setSelectedProgramme(null);
+            setOpenDialog(true);
+          }} 
           Icon={<AddIcon />}
           color="primary"
         >
@@ -223,9 +141,8 @@ const ProgrammeManagement = () => {
         />
       </Box>
 
-      <PaginatedTable
-        columns={columns}
-        data={programmes}
+      <ProgrammeTable
+        programmes={programmes}
         total={total}
         page={page}
         rowsPerPage={rowsPerPage}
@@ -234,13 +151,17 @@ const ProgrammeManagement = () => {
         onPageChange={handlePageChange}
         onRowsPerPageChange={handleRowsPerPageChange}
         onSort={handleSort}
-        renderRow={renderRow}
-        emptyState={{
-          title: "No Programmes Found",
-          message: searchTerm 
-            ? "Try adjusting your search to find what you're looking for."
-            : "Try adding some programmes using the 'Add New Programme' button."
+        onEdit={(programme) => {
+          setSelectedProgramme(programme);
+          setOpenDialog(true);
         }}
+        onDelete={(programme) => {
+          setConfirmDialog({
+            open: true,
+            programme
+          });
+        }}
+        searchTerm={searchTerm}
       />
 
       <Dialog 
@@ -257,13 +178,14 @@ const ProgrammeManagement = () => {
           onCancel={() => setOpenDialog(false)}
           isEditing={!!selectedProgramme}
         />
+        
       </Dialog>
 
       <ConfirmDialog
         open={confirmDialog.open}
         title="Delete Programme"
         content="Are you sure you want to delete this programme? This action cannot be undone."
-        onConfirm={() => confirmDialog.programme && deleteProgramme(confirmDialog.programme)}
+        onConfirm={handleDeleteConfirm}
         onCancel={() => setConfirmDialog({ open: false, programme: null })}
         confirmText="Delete"
         cancelText="Cancel"

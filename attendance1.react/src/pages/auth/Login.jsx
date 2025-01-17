@@ -5,7 +5,7 @@ import { Collapse, Typography } from '@mui/material';
 import { LoginContainer, LoginPaper } from './Login.styles';
 import { StudentLoginForm, StaffLoginForm, LoginRoleToggle } from '../../components/Auth';
 import { PromptMessage } from '../../components/Common';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../hooks/auth';
 import { formatPageTitle } from '../../utils/helpers';
 
 const Login = () => {

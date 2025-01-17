@@ -11,7 +11,7 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { styles } from './SideBarItem.styles';
-import { useAuth } from '../../../../hooks/useAuth';
+import { useAuth } from '../../../../hooks/auth';
 
 const SideBarItem = ({ 
   icon: Icon,

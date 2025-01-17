@@ -1,8 +1,8 @@
 import { useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { logout } from '../store/slices/authSlice';
-import { useMessageContext } from '../contexts/MessageContext';
+import { logout } from '../../store/slices/authSlice';
+import { useMessageContext } from '../../contexts/MessageContext';
 
 export const useApiExecutor = () => {
   const [loading, setLoading] = useState(false);
@@ -11,19 +11,21 @@ export const useApiExecutor = () => {
   const { showErrorMessage, hideMessage } = useMessageContext();
 
   const handleApiCall = useMemo(() => {
-    return async (apiCall, onSuccess, OnComplete) => {
+    return async (apiCall, onSuccess) => {
       setLoading(true);
       hideMessage();
 
       try {
+        console.log('Request payload:', apiCall.toString());
         const response = await apiCall();
+        console.log('Response:', response);
         
         if (onSuccess) {
           await onSuccess(response.data);
         }
 
         return response.data;
-      } catch (error) { 
+      } catch (error) {
         if (error.response) {
           // get error message from server
           const messageFromServer = error.response.data?.errorMessage;
@@ -38,22 +40,19 @@ export const useApiExecutor = () => {
 
           const errorMessage = messageFromServer || messageFromClientServer;
           showErrorMessage(errorMessage);
-          throw new Error(errorMessage);
+          return;
         } else if (error.request) {
           // Handle network errors
           const errorMessage = 'Network error. Please check your connection.';
           showErrorMessage(errorMessage);
-          throw new Error(errorMessage);
+          return;
         } else {
           // Handle unexpected errors
           const errorMessage = error.message || 'An unexpected error occurred';
           showErrorMessage(errorMessage);
-          throw new Error(errorMessage);
+          return;
         }
       } finally {
-        if (OnComplete) {
-          OnComplete();
-        }
         setLoading(false);
       }
     };

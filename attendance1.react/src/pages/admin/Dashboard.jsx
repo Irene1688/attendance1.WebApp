@@ -5,7 +5,7 @@ import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import { StatCard, PromptMessage, Loader } from '../../components/Common';
 import { adminApi } from '../../api/admin';
-import { useApiExecutor } from '../../hooks/useApiExecutor';
+import { useApiExecutor } from '../../hooks/common';
 import { useMessageContext } from '../../contexts/MessageContext';
 const AdminDashboard = () => {
   const [counts, setCounts] = useState({
