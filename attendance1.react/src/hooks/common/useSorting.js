@@ -7,7 +7,7 @@ export const useSorting = (defaultOrderBy = '', defaultOrder = 'asc', onSortChan
   const handleSort = useCallback((property, newOrder) => {
     setOrder(newOrder);
     setOrderBy(property);
-    
+    console.log(property, newOrder);
     if (onSortChange) {
       onSortChange({
         orderBy: property,

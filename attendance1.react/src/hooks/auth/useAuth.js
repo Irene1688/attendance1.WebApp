@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { setCredentials, logout } from '../../store/slices/authSlice';
 import { authApi } from '../../api/auth';
 import { useApiExecutor } from '../../hooks/common';
-import { useMessageContext } from '../../contexts/MessageContext';
+import { USER_ROLES } from '../../constants/userRoles';
 
 export const useAuth = () => {
   const dispatch = useDispatch();
@@ -22,7 +22,7 @@ export const useAuth = () => {
         : {
             email: values.email.toLowerCase(),
             password: values.password,
-            role: 'Student'
+            role: USER_ROLES.STUDENT
           };
 
       await handleApiCall(

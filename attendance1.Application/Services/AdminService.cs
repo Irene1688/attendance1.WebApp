@@ -113,7 +113,7 @@ namespace attendance1.Application.Services
                 
                 var paginatedResult = new PaginatedResult<GetProgrammeResponseDto>(
                     response, 
-                    programmes.Count(),
+                    await _programmeRepository.GetTotalProgrammeAsync(searchTerm),
                     pageNumber, 
                     pageSize
                 );
@@ -163,6 +163,9 @@ namespace attendance1.Application.Services
         {
             return await ExecuteAsync(async () =>
             {
+                if (requestDto.Role == AccRoleEnum.Student && !_validateService.HasStudentIdMatchEmail(requestDto.CampusId, requestDto.Email))
+                    throw new InvalidOperationException("The student ID does not match with the email");
+
                 if (await _validateService.ValidateEmailAsync(requestDto.Email))
                     throw new InvalidOperationException("The email has been used");
                 
@@ -192,17 +195,25 @@ namespace attendance1.Application.Services
         {
             return await ExecuteAsync(async () =>
             {
+                if (requestDto.Role == AccRoleEnum.Student && !_validateService.HasStudentIdMatchEmail(requestDto.CampusId, requestDto.Email))
+                    throw new InvalidOperationException("The student ID does not match with the email");
+
                 if (!await _validateService.ValidateUserAsync(requestDto.UserId))
                     throw new KeyNotFoundException("User not found");
                 
                 if (!await _validateService.ValidateEmailWithUserIdAsync(requestDto.Email, requestDto.UserId))
                 {
+                    // if the email is changed, check if the new email has been used
                     if (await _validateService.ValidateEmailAsync(requestDto.Email))
                         throw new InvalidOperationException("The email has been used");
                 }
 
-                if (requestDto.Role == AccRoleEnum.Student && await _validateService.ValidateStudentAsync(requestDto.CampusId))
-                    throw new InvalidOperationException("The student ID has been used");
+                if (requestDto.Role == AccRoleEnum.Student && !await _validateService.ValidateStudentIdWithUserIdAsync(requestDto.CampusId, requestDto.UserId))
+                {
+                    // if the stduent id is changed, check if the new student id has been used
+                    if (await _validateService.ValidateStudentAsync(requestDto.CampusId))
+                        throw new InvalidOperationException("The student ID has been used");
+                }
 
                 var user = new UserDetail
                 {
@@ -214,7 +225,7 @@ namespace attendance1.Application.Services
                 await _userRepository.EditUserAsync(user);
                 return true;
             },
-            $"Failed to edit user: {requestDto.Name}");
+            $"Failed to edit user");
         }
         
         public async Task<Result<bool>> DeleteUserAsync(DeleteRequestDto requestDto)
@@ -284,7 +295,7 @@ namespace attendance1.Application.Services
                 
                 var paginatedResult = new PaginatedResult<GetLecturerResponseDto>(
                     response, 
-                    lecturers.Count(),
+                    await _userRepository.GetTotalLecturerAsync(searchTerm),
                     pageNumber, 
                     pageSize
                 );
@@ -293,13 +304,16 @@ namespace attendance1.Application.Services
             "Failed to get all lecturers with class");
         }
 
-        public async Task<Result<PaginatedResult<GetStudentResponseDto>>> GetAllStudentWithClassAsync(PaginatedRequestDto requestDto)
+        public async Task<Result<PaginatedResult<GetStudentResponseDto>>> GetAllStudentWithClassAsync(GetStudentRequestDto requestDto)
         {
-            var pageNumber = requestDto.PageNumber;
-            var pageSize = requestDto.PageSize;
+            var pageNumber = requestDto.PaginatedRequest.PageNumber;
+            var pageSize = requestDto.PaginatedRequest.PageSize;
+            var searchTerm = requestDto.SearchTerm;
+            var orderBy = requestDto.PaginatedRequest.OrderBy;
+            var isAscending = requestDto.PaginatedRequest.IsAscending;
             return await ExecuteAsync(async () =>
             {
-                var students = await _userRepository.GetAllStudentAsync(pageNumber, pageSize);
+                var students = await _userRepository.GetAllStudentAsync(pageNumber, pageSize, searchTerm, orderBy, isAscending);
                 if (students.Count == 0)
                     return new PaginatedResult<GetStudentResponseDto>(new List<GetStudentResponseDto>(), 0, pageNumber, pageSize);
                 
@@ -342,7 +356,7 @@ namespace attendance1.Application.Services
 
                 return new PaginatedResult<GetStudentResponseDto>(
                     response,
-                    students.Count,
+                    await _userRepository.GetTotalStudentAsync(searchTerm),
                     pageNumber,
                     pageSize
                 );

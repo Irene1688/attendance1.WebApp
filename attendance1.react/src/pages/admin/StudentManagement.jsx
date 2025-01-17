@@ -8,16 +8,16 @@ import {
   ConfirmDialog,
   SearchField,
 } from '../../components/Common';
-import { UserForm, LecturerTable } from '../../components/Admin';
+import { UserForm, StudentTable } from '../../components/Admin';
 import { useUserManagement } from '../../hooks/features';
 import { usePagination, useSorting } from '../../hooks/common';
 import { useMessageContext } from '../../contexts/MessageContext';
 import { USER_ROLES } from '../../constants/userRoles';
 
-const LecturerManagement = () => {
+const StudentManagement = () => {
   // hooks
   const { 
-    lecturers,
+    students,
     selectedUser,
     openDialog,
     confirmDeleteDialog,
@@ -27,7 +27,7 @@ const LecturerManagement = () => {
     setOpenDialog,
     setConfirmDeleteDialog,
     setConfirmResetDialog,
-    fetchLecturers,
+    fetchStudents,
     createUser,
     updateUser,
     deleteUser,
@@ -52,7 +52,7 @@ const LecturerManagement = () => {
     orderBy, 
     handleSort,
     getSortParams 
-  } = useSorting('lecturerName', 'asc');
+  } = useSorting('studentName', 'asc');
 
   // search
   const [searchTerm, setSearchTerm] = useState('');
@@ -71,8 +71,7 @@ const LecturerManagement = () => {
       },
       searchTerm: searchTerm,
     };
-    const paginatedResult = await fetchLecturers(requestDto);
-    console.log('loadData', paginatedResult);
+    const paginatedResult = await fetchStudents(requestDto);
     setTotal(paginatedResult.totalCount);
   }, [getPaginationParams, getSortParams, searchTerm]);
   
@@ -87,8 +86,8 @@ const LecturerManagement = () => {
     if (success) {
       await loadData();
       const message = selectedUser 
-        ? 'Lecturer updated successfully'
-        : 'Lecturer created successfully';
+        ? 'Student updated successfully'
+        : 'Student created successfully';
       showSuccessMessage(message);
       resetForm();
       setOpenDialog(false);
@@ -102,7 +101,7 @@ const LecturerManagement = () => {
       if (success) {
         setConfirmDeleteDialog({ open: false, user: null });
         await loadData();
-        showSuccessMessage('Lecturer deleted successfully');
+        showSuccessMessage('Student deleted successfully');
       }
     }
   };
@@ -110,7 +109,7 @@ const LecturerManagement = () => {
   // reset password
   const handleResetConfirm = async () => {
     if (confirmResetDialog.user) {
-      const success = await resetPassword(confirmResetDialog.user, USER_ROLES.LECTURER);
+      const success = await resetPassword(confirmResetDialog.user, USER_ROLES.STUDENT);
       if (success) {
         setConfirmResetDialog({ open: false, user: null });
         showSuccessMessage('Password has been reset successfully');
@@ -134,7 +133,7 @@ const LecturerManagement = () => {
       )}
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
-        <Typography variant="h5">Lecturer Management ({total})</Typography>
+        <Typography variant="h5">Student Management ({total})</Typography>
         <TextButton 
           onClick={() => {
             setSelectedUser(null);
@@ -143,20 +142,20 @@ const LecturerManagement = () => {
           Icon={<AddIcon />}
           color="primary"
         >
-          Add New Lecturer
+          Add New Student
         </TextButton>
       </Box>
 
       <Box sx={{ mb: 3 }}>
         <SearchField
-          placeholder="Search lecturers..."
+          placeholder="Search students..."
           onSearch={handleSearch}
           debounceTime={1000}
         />
       </Box>
 
-      <LecturerTable
-        lecturers={lecturers}
+      <StudentTable
+        students={students}
         total={total}
         page={page}
         rowsPerPage={rowsPerPage}
@@ -192,7 +191,7 @@ const LecturerManagement = () => {
       >
         <UserForm
           initialValues={selectedUser ? {
-            campusId: selectedUser.lecturerId,
+            campusId: selectedUser.studentId,
             name: selectedUser.name,
             email: selectedUser.email,
           } : {
@@ -200,7 +199,7 @@ const LecturerManagement = () => {
             name: '',
             email: '',
           }}
-          userRole={USER_ROLES.LECTURER}
+          userRole={USER_ROLES.STUDENT}
           onSubmit={handleSubmit}
           onCancel={() => setOpenDialog(false)}
           isEditing={!!selectedUser}
@@ -209,10 +208,10 @@ const LecturerManagement = () => {
 
       <ConfirmDialog
         open={confirmDeleteDialog.open}
-        title="Delete Lecturer"
-        content="Are you sure you want to delete this lecturer? This action cannot be undone."
+        title="Delete Student"
+        content="Are you sure you want to delete this student? This action cannot be undone."
         onConfirm={handleDeleteConfirm}
-        onCancel={() => setConfirmDeleteDialog({ open: false, lecturer: null })}
+        onCancel={() => setConfirmDeleteDialog({ open: false, user: null })}
         confirmText="Delete"
         cancelText="Cancel"
         type="delete"
@@ -221,7 +220,7 @@ const LecturerManagement = () => {
       <ConfirmDialog
         open={confirmResetDialog.open}
         title="Reset Password"
-        content={`Are you sure you want to reset the password for ${confirmResetDialog.user?.name}? The new password will be the same as their Lecturer ID (lowercase).`}
+        content={`Are you sure you want to reset the password for ${confirmResetDialog.user?.name}? The new password will be the same as their Student ID (lowercase).`}
         onConfirm={handleResetConfirm}
         onCancel={() => setConfirmResetDialog({ open: false, user: null })}
         confirmText="Reset"
@@ -232,4 +231,4 @@ const LecturerManagement = () => {
   );
 };
 
-export default LecturerManagement;
+export default StudentManagement;

@@ -96,7 +96,7 @@ namespace attendance1.WebApi.Controllers
         }
 
         [HttpPost("getAllStudent")]
-        public async Task<ActionResult<PaginatedResult<GetStudentResponseDto>>> GetAllStudent([FromBody] PaginatedRequestDto requestDto)
+        public async Task<ActionResult<PaginatedResult<GetStudentResponseDto>>> GetAllStudent([FromBody] GetStudentRequestDto requestDto)
         {
             var result = await _adminService.GetAllStudentWithClassAsync(requestDto);
             return StatusCode((int)result.StatusCode, result);

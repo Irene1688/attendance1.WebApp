@@ -1,17 +1,15 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
-import AdminLayout from '../components/Layout/AdminLayout/AdminLayout';
-import AdminDashboard from '../pages/admin/Dashboard';
-import ProgrammeManagement from '../pages/admin/ProgrammeManagement';
-import LecturerManagement from '../pages/admin/LecturerManagement';
-import Login from '../pages/auth/Login';
-// import Programmes from '../pages/admin/Programmes';
-// import Courses from '../pages/admin/Courses';
-// import LecturerDashboard from '../pages/lecturer/Dashboard';
-// import StudentDashboard from '../pages/student/Dashboard';
 import PrivateRoute from './PrivateRoute';
 import PublicRoute from './PublicRoute';
 import RootRedirect from './RootRedirect';
-
+import AdminLayout from '../components/Layout/AdminLayout/AdminLayout';
+import Login from '../pages/auth/Login';
+import { 
+  AdminDashboard, 
+  ProgrammeManagement, 
+  LecturerManagement, 
+  StudentManagement 
+} from '../pages/admin';
 
 export const router = createBrowserRouter([
   {
@@ -49,6 +47,10 @@ export const router = createBrowserRouter([
       {
         path: 'lecturers',
         element: <LecturerManagement />
+      },
+      {
+        path: 'students',
+        element: <StudentManagement />
       }
     ]
   },

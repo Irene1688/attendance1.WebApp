@@ -34,11 +34,18 @@ namespace attendance1.Infrastructure.Persistence.Repositories
             return IsExisted;
         }
 
-        public async Task<int> GetTotalProgrammeAsync()
+        public async Task<int> GetTotalProgrammeAsync(string searchTerm = "")
         {
-            var result = await ExecuteGetAsync<object>(async () => 
-                await _database.Programmes.CountAsync(p => p.IsDeleted == false));
-            return Convert.ToInt32(result ?? 0);
+            var query = _database.Programmes
+                .Where(p => p.IsDeleted == false)
+                .AsNoTracking();
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                searchTerm = searchTerm.ToLower();
+                query = query.Where(p => EF.Functions.Collate(p.ProgrammeName, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm));
+            }
+            return await query.CountAsync();
         }
 
         public async Task<List<Programme>> GetAllProgrammeAsync(
@@ -59,12 +66,9 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                     EF.Functions.Collate(p.ProgrammeName, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm));
             }
 
-            if (orderBy == "programmename")
-            {
-                query = isAscending 
-                    ? query.OrderBy(p => p.ProgrammeName) 
-                    : query.OrderByDescending(p => p.ProgrammeName);
-            }
+            query = isAscending 
+                ? query.OrderBy(p => p.ProgrammeName) 
+                : query.OrderByDescending(p => p.ProgrammeName);
 
             return await ExecuteGetAsync(async () => await query
                 .Skip((pageNumber - 1) * pageSize)

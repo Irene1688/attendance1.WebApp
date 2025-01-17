@@ -9,6 +9,8 @@ namespace attendance1.Application.Interfaces
         Task<bool> ValidateLecturerAsync(string lecturerId);
         Task<bool> ValidateStudentAsync(string studentId);
         Task<bool> ValidateEmailWithUserIdAsync(string email, int userId);
+        Task<bool> ValidateStudentIdWithUserIdAsync(string studentId, int userId);
+        bool HasStudentIdMatchEmail(string studentId, string email);
 
         Task<bool> ValidateCourseAsync(int courseId);
         Task<bool> ValidateTutorialAsync(int tutorialId, int courseId);

@@ -4,8 +4,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import LockResetIcon from '@mui/icons-material/LockReset';
 import { IconButton, PaginatedTable } from '../../Common';
 
-const LecturerTable = ({
-  lecturers,
+const StudentTable = ({
+  students,
   total,
   page,
   rowsPerPage,
@@ -21,13 +21,13 @@ const LecturerTable = ({
 }) => {
     const columns = [
         {
-          id: 'lecturerName',
+          id: 'studentName',
           label: 'Name',
           sortable: true
         },
         {
-          id: 'lecturerId',
-          label: 'Lecturer ID',
+          id: 'studentId',
+          label: 'Student ID',
           sortable: true
         },
         {
@@ -48,26 +48,26 @@ const LecturerTable = ({
       ];
     
       // define rows
-      const renderRow = (lecturer) => (
-        <TableRow key={lecturer.userId}>
-          <TableCell>{lecturer.name}</TableCell>
-          <TableCell>{lecturer.lecturerId}</TableCell>
-          <TableCell>{lecturer.email}</TableCell>
-          <TableCell>{lecturer.registeredCourses?.length || 0}</TableCell>
+      const renderRow = (student) => (
+        <TableRow key={student.userId}>
+          <TableCell>{student.name}</TableCell>
+          <TableCell>{student.studentId}</TableCell>
+          <TableCell>{student.email}</TableCell>
+          <TableCell>{student.enrolledCourses?.length || 0}</TableCell>
           <TableCell>
             <IconButton
               Icon={<EditIcon />}
-              onClick={() => onEdit(lecturer)}
+              onClick={() => onEdit(student)}
               color="primary"
             />
             <IconButton
               Icon={<LockResetIcon />}
-              onClick={() => onResetPassword(lecturer)}
+              onClick={() => onResetPassword(student)}
               color="primary"
             />
             <IconButton
               Icon={<DeleteIcon />}
-              onClick={() => onDelete(lecturer)}
+              onClick={() => onDelete(student)}
               color="delete"
             />
           </TableCell>
@@ -77,7 +77,7 @@ const LecturerTable = ({
   return (
     <PaginatedTable
       columns={columns}
-      data={lecturers}
+      data={students}
       total={total}
       page={page}
       rowsPerPage={rowsPerPage}
@@ -88,13 +88,13 @@ const LecturerTable = ({
       onSort={onSort}
       renderRow={renderRow}
       emptyState={{
-        title: "No Lecturers Found",
+        title: "No Students Found",
         message: searchTerm 
           ? "Try adjusting your search to find what you're looking for."
-          : "Try adding some lecturers using the 'Add New Lecturer' button."
+          : "Try adding some students using the 'Add New Student' button."
       }}
     />
   );
 };
 
-export default LecturerTable; 
+export default StudentTable; 

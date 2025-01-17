@@ -23,7 +23,7 @@ namespace attendance1.Application.Interfaces
 
         #region View Lecturer & Student
         Task<Result<PaginatedResult<GetLecturerResponseDto>>> GetAllLecturerWithClassAsync(GetLecturerRequestDto requestDto);
-        Task<Result<PaginatedResult<GetStudentResponseDto>>> GetAllStudentWithClassAsync(PaginatedRequestDto requestDto);
+        Task<Result<PaginatedResult<GetStudentResponseDto>>> GetAllStudentWithClassAsync(GetStudentRequestDto requestDto);
         #endregion
 
         #region Class CRUD

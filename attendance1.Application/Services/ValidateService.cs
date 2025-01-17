@@ -50,6 +50,31 @@ namespace attendance1.Application.Services
             return true;
         }
 
+        public async Task<bool> ValidateStudentIdWithUserIdAsync(string studentId, int userId)
+        {
+            if (string.IsNullOrEmpty(studentId) || userId <= 0)
+                throw new KeyNotFoundException("The student ID and user ID are required");
+
+            var studentExists = await _userRepository.CheckStudentIdWithUserIdAsync(studentId, userId);
+            if (!studentExists)
+                return false;
+
+            return true;
+        }
+
+        public bool HasStudentIdMatchEmail(string studentId, string email)
+        {
+            if (string.IsNullOrEmpty(studentId) || string.IsNullOrEmpty(email))
+                throw new InvalidOperationException("The student ID is required");
+
+            var emailWithoutDomain = email.Split('@')[0];
+
+            if (!studentId.Equals(emailWithoutDomain, StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            return true;
+        }
+
         public async Task<bool> ValidateLecturerAsync(string lecturerId)
         {
             if (string.IsNullOrEmpty(lecturerId))

@@ -2,6 +2,7 @@ import { Formik } from 'formik';
 import { Box, RadioGroup, FormControlLabel, Radio, Typography } from '@mui/material';
 import { StyledLoginForm, StyledLoginTextField, StyledLoginButton } from '../../../styles';
 import { staffLoginValidationSchema } from '../../../validations/schemas';
+import { USER_ROLES } from '../../../constants/userRoles';
 
 const StaffLoginForm = ({ isStaff, onSubmit }) => {
   return (
@@ -53,12 +54,12 @@ const StaffLoginForm = ({ isStaff, onSubmit }) => {
               onBlur={handleBlur}
             >
               <FormControlLabel 
-                value="Admin" 
+                value={USER_ROLES.ADMIN} 
                 control={<Radio />} 
                 label="Admin" 
               />
               <FormControlLabel 
-                value="Lecturer" 
+                value={USER_ROLES.LECTURER} 
                 control={<Radio />} 
                 label="Lecturer" 
               />

@@ -10,6 +10,7 @@ namespace attendance1.Domain.Interfaces
         Task<bool> HasUserExistedAsync(int userId);
         Task<bool> HasEmailExistedAsync(string email);
         Task<bool> CheckEmailWithUserIdAsync(string email, int userId);
+        Task<bool> CheckStudentIdWithUserIdAsync(string studentId, int userId);
         #endregion
 
         # region login
@@ -18,8 +19,8 @@ namespace attendance1.Domain.Interfaces
         #endregion
 
         #region CRUD
-        Task<int> GetTotalLecturerAsync();
-        Task<int> GetTotalStudentAsync();
+        Task<int> GetTotalLecturerAsync(string searchTerm = "");
+        Task<int> GetTotalStudentAsync(string searchTerm = "");
         Task<List<UserDetail>> GetAllLecturerAsync(
             int pageNumber = 1, 
             int pageSize = 15, 
@@ -27,7 +28,13 @@ namespace attendance1.Domain.Interfaces
             string orderBy = "lecturername", 
             bool isAscending = true
         );
-        Task<List<UserDetail>> GetAllStudentAsync(int pageNumber = 1, int pageSize = 15);
+        Task<List<UserDetail>> GetAllStudentAsync(
+            int pageNumber = 1, 
+            int pageSize = 15,
+            string searchTerm = "",
+            string orderBy = "studentname",
+            bool isAscending = true
+        );
         Task<List<string>> GetAllExistedStudentIdAsync();
         Task<UserDetail> GetUserByCampusIdAsync(int userId, string campusId);
         Task<bool> CreateUserAsync(UserDetail userDetail);

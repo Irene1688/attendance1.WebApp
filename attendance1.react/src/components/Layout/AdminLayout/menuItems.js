@@ -22,7 +22,7 @@ export const adminMenuItems = [
       icon: PersonIcon
     },
     {
-      title: 'Student Management',
+      title: 'Students',
       path: '/admin/students',
       icon: PeopleAltIcon,
     },

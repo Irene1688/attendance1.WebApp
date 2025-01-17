@@ -60,6 +60,16 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                     u.IsDeleted == false);
             return EmailCorrect;
         }
+        
+        public async Task<bool> CheckStudentIdWithUserIdAsync(string studentId, int userId)
+        {
+            var StudentCorrect = await _database.UserDetails
+                .AnyAsync(u => 
+                    u.StudentId == studentId && 
+                    u.UserId == userId && 
+                    u.IsDeleted == false);
+            return StudentCorrect;
+        }
         #endregion
 
         #region login
@@ -81,20 +91,44 @@ namespace attendance1.Infrastructure.Persistence.Repositories
         #endregion
 
         #region User CRUD
-        public async Task<int> GetTotalLecturerAsync()
+        public async Task<int> GetTotalLecturerAsync(string searchTerm = "")
         {
-            var result = await ExecuteGetAsync<object>(async () => 
-                await _database.UserDetails.CountAsync(u => u.AccRole == AccRoleEnum.Lecturer.ToString() 
-                    && u.IsDeleted == false));
-            return Convert.ToInt32(result ?? 0);
+            var query = _database.UserDetails
+                .Where(u => 
+                    u.AccRole == AccRoleEnum.Lecturer.ToString() &&
+                    u.IsDeleted == false)
+                .AsNoTracking();
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                searchTerm = searchTerm.ToLower();
+                query = query.Where(p =>
+                    EF.Functions.Collate(p.UserName ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm) ||
+                    EF.Functions.Collate(p.LecturerId ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm) ||
+                    EF.Functions.Collate(p.Email ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm));
+            }
+
+            return await query.CountAsync();
         }
 
-        public async Task<int> GetTotalStudentAsync()
+        public async Task<int> GetTotalStudentAsync(string searchTerm = "")
         {
-            var result = await ExecuteGetAsync<object>(async () => 
-                await _database.UserDetails.CountAsync(u => u.AccRole == AccRoleEnum.Student.ToString() 
-                    && u.IsDeleted == false));
-            return Convert.ToInt32(result ?? 0);
+            var query = _database.UserDetails
+                .Where(u => 
+                    u.AccRole == AccRoleEnum.Student.ToString() &&
+                    u.IsDeleted == false)
+                .AsNoTracking();
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                searchTerm = searchTerm.ToLower();
+                query = query.Where(p =>
+                    EF.Functions.Collate(p.UserName ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm) ||
+                    EF.Functions.Collate(p.StudentId ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm) ||
+                    EF.Functions.Collate(p.Email ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm));
+            }
+
+            return await query.CountAsync();
         }
 
         public async Task<List<UserDetail>> GetAllLecturerAsync(
@@ -134,19 +168,50 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                 _ => query.OrderBy(p => p.UserName)
             };
 
-            return await ExecuteGetAsync(async () => await query
+            return await ExecuteGetAsync(async () => await orderedQuery
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync());
         }
 
-        public async Task<List<UserDetail>> GetAllStudentAsync(int pageNumber = 1, int pageSize = 15)
+        public async Task<List<UserDetail>> GetAllStudentAsync(
+            int pageNumber = 1, 
+            int pageSize = 15,
+            string searchTerm = "",
+            string orderBy = "studentname",
+            bool isAscending = true
+        )
         {
-            return await ExecuteGetAsync(async () => await _database.UserDetails
-                .Where(u => u.AccRole == AccRoleEnum.Student.ToString() 
-                    && u.IsDeleted == false)
-                .OrderBy(u => u.StudentId)
-                .AsNoTracking()
+            var query = _database.UserDetails
+                .Where(u => 
+                    u.AccRole == AccRoleEnum.Student.ToString() &&
+                    u.IsDeleted == false)
+                .AsNoTracking();
+
+            if (!string.IsNullOrEmpty(searchTerm)) 
+            {
+                searchTerm = searchTerm.ToLower();
+                query = query.Where(p => 
+                    EF.Functions.Collate(p.UserName ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm) ||
+                    EF.Functions.Collate(p.StudentId ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm) ||
+                    EF.Functions.Collate(p.Email ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm));
+            }
+
+            var orderedQuery = orderBy.ToLower() switch
+            {
+                "studentname" => isAscending 
+                    ? query.OrderBy(p => p.UserName) 
+                    : query.OrderByDescending(p => p.UserName),
+                "studentid" => isAscending 
+                    ? query.OrderBy(p => p.StudentId) 
+                    : query.OrderByDescending(p => p.StudentId),
+                "email" => isAscending 
+                    ? query.OrderBy(p => p.Email) 
+                    : query.OrderByDescending(p => p.Email),
+                _ => query.OrderBy(p => p.UserName)
+            };
+
+            return await ExecuteGetAsync(async () => await orderedQuery
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync());

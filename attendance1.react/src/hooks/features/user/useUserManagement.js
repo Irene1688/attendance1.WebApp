@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { adminApi } from '../../../api/admin';
 import { useApiExecutor } from '../../common';
+import { USER_ROLES } from '../../../constants/userRoles';
 
 export const useUserManagement = () => {
     // states
@@ -90,7 +91,6 @@ export const useUserManagement = () => {
             email: values.email,
             role: values.role
         };
-
         return await handleApiCall(
             () => adminApi.updateUser(requestDto),
             () => {
@@ -111,7 +111,7 @@ export const useUserManagement = () => {
     const resetPassword = useCallback(async (user, role) => {
         const requestDto = {
             idInInteger: user.userId,
-            idInString: role === 'Lecturer' ? user.lecturerId : user.studentId
+            idInString: role === USER_ROLES.LECTURER ? user.lecturerId : user.studentId
         };
         return await handleApiCall(
             () => adminApi.resetPassword(requestDto),

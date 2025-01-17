@@ -10,6 +10,7 @@ import {
 import { lecturerValidationSchema, studentValidationSchema } from '../../../validations/schemas';
 import { TextButton, PromptMessage } from '../../Common';
 import { useMessageContext } from '../../../contexts/MessageContext';
+import { USER_ROLES } from '../../../constants/userRoles';
 
 const UserForm = ({ initialValues, userRole, onSubmit, onCancel, isEditing }) => {
   const { message, hideMessage } = useMessageContext();
@@ -20,7 +21,7 @@ const UserForm = ({ initialValues, userRole, onSubmit, onCancel, isEditing }) =>
         ...initialValues,
         role: userRole
       }}
-      validationSchema={userRole === 'Lecturer' 
+      validationSchema={userRole === USER_ROLES.LECTURER
         ? lecturerValidationSchema 
         : studentValidationSchema}
       onSubmit={onSubmit}
@@ -62,7 +63,7 @@ const UserForm = ({ initialValues, userRole, onSubmit, onCancel, isEditing }) =>
                 error={touched.campusId && Boolean(errors.campusId)}
                 helperText={touched.campusId && errors.campusId}
                 margin="normal"
-                disabled={isEditing}
+                disabled={isEditing && userRole === USER_ROLES.LECTURER}
               />
               <TextField
                 fullWidth
