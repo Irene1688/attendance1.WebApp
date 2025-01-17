@@ -16,12 +16,13 @@ namespace attendance1.Application.Interfaces
 
         #region User Create & Edit (include Lecturer and Student)
         Task<Result<bool>> CreateNewUserAsync(CreateAccountRequestDto requestDto);
-        Task<Result<bool>> EditUserAsync(EditAccountRequestDto requestDto);
+        Task<Result<bool>> EditUserAsync(EditProfileRequestDto requestDto);
         Task<Result<bool>> DeleteUserAsync(DeleteRequestDto requestDto);
+        Task<Result<bool>> ResetPasswordAsync(DataIdRequestDto requestDto);
         #endregion
 
         #region View Lecturer & Student
-        Task<Result<PaginatedResult<GetLecturerResponseDto>>> GetAllLecturerWithClassAsync(PaginatedRequestDto requestDto);
+        Task<Result<PaginatedResult<GetLecturerResponseDto>>> GetAllLecturerWithClassAsync(GetLecturerRequestDto requestDto);
         Task<Result<PaginatedResult<GetStudentResponseDto>>> GetAllStudentWithClassAsync(PaginatedRequestDto requestDto);
         #endregion
 

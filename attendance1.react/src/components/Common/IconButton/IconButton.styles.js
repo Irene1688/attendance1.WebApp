@@ -9,11 +9,15 @@ export const styles = {
     }
   },
   primary: {
-    color: (theme) => theme.palette.primary.main,
+    color: (theme) => theme.palette.grey[500],
+  },
+  secondary: {
+    color: (theme) => theme.palette.secondary.main,
   },
   delete: {
     color: (theme) => theme.palette.error.main,
   },
+  
   iconButton: {
     minWidth: 'auto',
     padding: 1,

@@ -1,3 +1,6 @@
 export { studentLoginValidationSchema } from './studentLoginValidation';
 export { staffLoginValidationSchema } from './staffLoginValidation';
 export { programmeValidationSchema } from './programmeValidation';
+export { lecturerValidationSchema } from './lecturerValidation';
+export { studentValidationSchema } from './studentValidation';
+

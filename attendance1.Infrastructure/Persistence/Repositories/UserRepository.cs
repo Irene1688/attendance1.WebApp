@@ -43,6 +43,23 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                 .AnyAsync(u => u.UserId == userId && u.IsDeleted == false);
             return IsExisted;
         }
+
+        public async Task<bool> HasEmailExistedAsync(string email)
+        {
+            var IsExisted = await _database.UserDetails
+                .AnyAsync(u => u.Email == email && u.IsDeleted == false);
+            return IsExisted;
+        }
+
+        public async Task<bool> CheckEmailWithUserIdAsync(string email, int userId)
+        {
+            var EmailCorrect = await _database.UserDetails
+                .AnyAsync(u => 
+                    u.Email == email && 
+                    u.UserId == userId && 
+                    u.IsDeleted == false);
+            return EmailCorrect;
+        }
         #endregion
 
         #region login
@@ -80,13 +97,44 @@ namespace attendance1.Infrastructure.Persistence.Repositories
             return Convert.ToInt32(result ?? 0);
         }
 
-        public async Task<List<UserDetail>> GetAllLecturerAsync(int pageNumber = 1, int pageSize = 15)
+        public async Task<List<UserDetail>> GetAllLecturerAsync(
+            int pageNumber = 1, 
+            int pageSize = 15, 
+            string searchTerm = "", 
+            string orderBy = "lecturername", 
+            bool isAscending = true
+        )
         {
-            return await ExecuteGetAsync(async () => await _database.UserDetails
-                .Where(u => u.AccRole == AccRoleEnum.Lecturer.ToString() 
-                    && u.IsDeleted == false)
-                .OrderBy(u => u.LecturerId)
-                .AsNoTracking()
+            var query = _database.UserDetails
+                .Where(u => 
+                    u.AccRole == AccRoleEnum.Lecturer.ToString() &&
+                    u.IsDeleted == false)
+                .AsNoTracking();
+
+            if (!string.IsNullOrEmpty(searchTerm)) 
+            {
+                searchTerm = searchTerm.ToLower();
+                query = query.Where(p => 
+                    EF.Functions.Collate(p.UserName ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm) ||
+                    EF.Functions.Collate(p.LecturerId ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm) ||
+                    EF.Functions.Collate(p.Email ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm));
+            }
+
+            var orderedQuery = orderBy.ToLower() switch
+            {
+                "lecturername" => isAscending 
+                    ? query.OrderBy(p => p.UserName) 
+                    : query.OrderByDescending(p => p.UserName),
+                "lecturerid" => isAscending 
+                    ? query.OrderBy(p => p.LecturerId) 
+                    : query.OrderByDescending(p => p.LecturerId),
+                "email" => isAscending 
+                    ? query.OrderBy(p => p.Email) 
+                    : query.OrderByDescending(p => p.Email),
+                _ => query.OrderBy(p => p.UserName)
+            };
+
+            return await ExecuteGetAsync(async () => await query
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync());
@@ -147,8 +195,9 @@ namespace attendance1.Infrastructure.Persistence.Repositories
             return await ExecuteWithTransactionAsync(async () =>
             {
                 var user = await _database.UserDetails
-                    .FirstOrDefaultAsync(u => u.UserId == userDetail.UserId 
-                        && u.IsDeleted == false);
+                    .FirstOrDefaultAsync(u => 
+                        u.UserId == userDetail.UserId && 
+                        u.IsDeleted == false);
         
                 if (user == null)
                     throw new Exception("User not found");
@@ -156,34 +205,33 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                 user.UserName = userDetail.UserName;
                 user.Email = userDetail.Email;
                 user.StudentId = userDetail.StudentId;
-                user.LecturerId = userDetail.LecturerId;
                 await _database.SaveChangesAsync();
                 return true;
             });
         }
 
         // admin only
-        public async Task<bool> EditUserWithPasswordAsync(UserDetail userDetail)
-        {
-            return await ExecuteWithTransactionAsync(async () =>
-            {
-                var user = await _database.UserDetails
-                    .FirstOrDefaultAsync(u => u.UserId == userDetail.UserId 
-                        && u.IsDeleted == false);
+        // public async Task<bool> EditUserWithPasswordAsync(UserDetail userDetail)
+        // {
+        //     return await ExecuteWithTransactionAsync(async () =>
+        //     {
+        //         var user = await _database.UserDetails
+        //             .FirstOrDefaultAsync(u => u.UserId == userDetail.UserId 
+        //                 && u.IsDeleted == false);
         
-                if (user == null)
-                    throw new Exception("User not found");
+        //         if (user == null)
+        //             throw new Exception("User not found");
 
-                user.UserName = userDetail.UserName;
-                user.Email = userDetail.Email;
-                user.AccRole = userDetail.AccRole;
-                user.StudentId = userDetail.StudentId;
-                user.LecturerId = userDetail.LecturerId;
-                user.UserPassword = userDetail.UserPassword;
-                await _database.SaveChangesAsync();
-                return true;
-            });
-        }
+        //         user.UserName = userDetail.UserName;
+        //         user.Email = userDetail.Email;
+        //         user.AccRole = userDetail.AccRole;
+        //         user.StudentId = userDetail.StudentId;
+        //         user.LecturerId = userDetail.LecturerId;
+        //         user.UserPassword = userDetail.UserPassword;
+        //         await _database.SaveChangesAsync();
+        //         return true;
+        //     });
+        // }
 
         public async Task<bool> ChangeUserPasswordAsync(int userId, string newPassword)
         {

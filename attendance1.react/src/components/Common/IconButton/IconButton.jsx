@@ -12,8 +12,10 @@ const IconButton = ({
     switch(color) {
       case 'delete':
         return styles.delete;
-      case 'cancel':
-        return styles.cancel;
+      case 'primary':
+        return styles.primary;
+      case 'secondary':
+        return styles.secondary;
       default:
         return styles.primary;
     }

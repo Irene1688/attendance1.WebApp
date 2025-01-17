@@ -8,8 +8,227 @@ import {
   ConfirmDialog,
   SearchField,
 } from '../../components/Common';
-import { LecturerForm } from '../../components/Admin';
-import { LecturerTable } from '../../components/Admin';
-import { useLecturerManagement } from '../../hooks/features'
+import { UserForm, LecturerTable } from '../../components/Admin';
+import { useUserManagement } from '../../hooks/features';
 import { usePagination, useSorting } from '../../hooks/common';
 import { useMessageContext } from '../../contexts/MessageContext';
+
+const LecturerManagement = () => {
+  // hooks
+  const { 
+    lecturers,
+    selectedUser,
+    openDialog,
+    confirmDeleteDialog,
+    confirmResetDialog,
+    loading,
+    setSelectedUser,
+    setOpenDialog,
+    setConfirmDeleteDialog,
+    setConfirmResetDialog,
+    fetchLecturers,
+    createUser,
+    updateUser,
+    deleteUser,
+    resetPassword
+  } = useUserManagement();
+
+  const { message, showSuccessMessage, hideMessage } = useMessageContext();
+
+  const {
+    page,
+    setPage,
+    rowsPerPage,
+    total,
+    setTotal,
+    handlePageChange,
+    handleRowsPerPageChange,
+    getPaginationParams
+  } = usePagination(15);
+
+  const { 
+    order, 
+    orderBy, 
+    handleSort,
+    getSortParams 
+  } = useSorting('lecturerName', 'asc');
+
+  // search
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  const handleSearch = useCallback((term) => {
+    setSearchTerm(term);
+    setPage(0);
+  }, [setPage]);
+
+  // fetch data
+  const loadData = useCallback(async () => {
+    const requestDto = {
+      paginatedRequest: {
+        ...getPaginationParams(),
+        ...getSortParams(),
+      },
+      searchTerm: searchTerm,
+    };
+    const paginatedResult = await fetchLecturers(requestDto);
+    console.log('loadData', paginatedResult);
+    setTotal(paginatedResult.totalCount);
+  }, [getPaginationParams, getSortParams, searchTerm]);
+  
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  // create / update
+  const handleSubmit = async (values, { resetForm }) => {
+    const operation = selectedUser ? updateUser : createUser;
+    const success = await operation(values);
+    if (success) {
+      await loadData();
+      const message = selectedUser 
+        ? 'Lecturer updated successfully'
+        : 'Lecturer created successfully';
+      showSuccessMessage(message);
+      resetForm();
+      setOpenDialog(false);
+    }
+  };
+
+  // delete
+  const handleDeleteConfirm = async () => {
+    if (confirmDeleteDialog.user) {
+      const success = await deleteUser(confirmDeleteDialog.user);
+      if (success) {
+        setConfirmDeleteDialog({ open: false, user: null });
+        await loadData();
+        showSuccessMessage('Lecturer deleted successfully');
+      }
+    }
+  };
+
+  // reset password
+  const handleResetConfirm = async () => {
+    if (confirmResetDialog.user) {
+      const success = await resetPassword(confirmResetDialog.user, 'Lecturer');
+      if (success) {
+        setConfirmResetDialog({ open: false, user: null });
+        showSuccessMessage('Password has been reset successfully');
+      }
+    }
+  };
+
+  return (
+    <Box sx={{ pl: 3, pr: 3 }}>
+      {loading && <Loader />}
+      
+      {message.show && message.severity === 'success' && (
+        <PromptMessage
+          open={true}
+          message={message.text}
+          severity={message.severity}
+          fullWidth
+          onClose={hideMessage}
+          sx={{ mb: 2 }}
+        />
+      )}
+
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
+        <Typography variant="h5">Lecturer Management ({total})</Typography>
+        <TextButton 
+          onClick={() => {
+            setSelectedUser(null);
+            setOpenDialog(true);
+          }} 
+          Icon={<AddIcon />}
+          color="primary"
+        >
+          Add New Lecturer
+        </TextButton>
+      </Box>
+
+      <Box sx={{ mb: 3 }}>
+        <SearchField
+          placeholder="Search lecturers..."
+          onSearch={handleSearch}
+          debounceTime={1000}
+        />
+      </Box>
+
+      <LecturerTable
+        lecturers={lecturers}
+        total={total}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        orderBy={orderBy}
+        order={order}
+        onPageChange={handlePageChange}
+        onRowsPerPageChange={handleRowsPerPageChange}
+        onSort={handleSort}
+        onEdit={(user) => {
+          setSelectedUser(user);
+          setOpenDialog(true);
+        }}
+        onDelete={(user) => {
+          setConfirmDeleteDialog({
+            open: true,
+            user
+          });
+        }}
+        onResetPassword={(user) => {
+          setConfirmResetDialog({
+            open: true,
+            user
+          });
+        }}
+        searchTerm={searchTerm}
+      />
+
+      <Dialog 
+        open={openDialog} 
+        onClose={() => setOpenDialog(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <UserForm
+          initialValues={selectedUser ? {
+            campusId: selectedUser.lecturerId,
+            name: selectedUser.name,
+            email: selectedUser.email,
+          } : {
+            campusId: '',
+            name: '',
+            email: '',
+          }}
+          userRole="Lecturer"
+          onSubmit={handleSubmit}
+          onCancel={() => setOpenDialog(false)}
+          isEditing={!!selectedUser}
+        />
+      </Dialog>
+
+      <ConfirmDialog
+        open={confirmDeleteDialog.open}
+        title="Delete Lecturer"
+        content="Are you sure you want to delete this lecturer? This action cannot be undone."
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setConfirmDeleteDialog({ open: false, lecturer: null })}
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="delete"
+      />
+
+      <ConfirmDialog
+        open={confirmResetDialog.open}
+        title="Reset Password"
+        content={`Are you sure you want to reset the password for ${confirmResetDialog.user?.name}? The new password will be the same as their Lecturer ID (lowercase).`}
+        onConfirm={handleResetConfirm}
+        onCancel={() => setConfirmResetDialog({ open: false, user: null })}
+        confirmText="Reset"
+        cancelText="Cancel"
+        type="primary"
+      />
+    </Box>
+  );
+};
+
+export default LecturerManagement;

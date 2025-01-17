@@ -396,7 +396,7 @@ namespace attendance1.Application.Services
         public async Task<Result<bool>> AddStudentToClassAsync(AddStudentToClassRequestDto requestDto)
         {
             if (!await _validateService.ValidateCourseAsync(requestDto.CourseId))
-                return Result<bool>.FailureResult($"Course with ID {requestDto.CourseId} does not exist.", HttpStatusCode.NotFound);
+                throw new KeyNotFoundException($"Course not found.");
 
             return await ExecuteAsync(
                 async () =>

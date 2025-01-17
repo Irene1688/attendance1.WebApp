@@ -68,7 +68,7 @@ namespace attendance1.WebApi.Controllers
         }
 
         [HttpPost("editUser")]
-        public async Task<ActionResult<bool>> EditUser([FromBody] EditAccountRequestDto requestDto)
+        public async Task<ActionResult<bool>> EditUser([FromBody] EditProfileRequestDto requestDto)
         {
             var result = await _adminService.EditUserAsync(requestDto);
             return StatusCode((int)result.StatusCode, result);
@@ -81,8 +81,15 @@ namespace attendance1.WebApi.Controllers
             return StatusCode((int)result.StatusCode, result);
         }
 
+        [HttpPost("resetPassword")]
+        public async Task<ActionResult<bool>> ResetPassword([FromBody] DataIdRequestDto requestDto)
+        {
+            var result = await _adminService.ResetPasswordAsync(requestDto);
+            return StatusCode((int)result.StatusCode, result);
+        }
+
         [HttpPost("getAllLecturer")]
-        public async Task<ActionResult<PaginatedResult<GetLecturerResponseDto>>> GetAllLecturer([FromBody] PaginatedRequestDto requestDto)
+        public async Task<ActionResult<PaginatedResult<GetLecturerResponseDto>>> GetAllLecturer([FromBody] GetLecturerRequestDto requestDto)
         {
             var result = await _adminService.GetAllLecturerWithClassAsync(requestDto);
             return StatusCode((int)result.StatusCode, result);

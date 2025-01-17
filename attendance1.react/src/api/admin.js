@@ -9,5 +9,12 @@ export const adminApi = {
   createProgramme: (data) => api.post('Admin/createNewProgramme', data),
   updateProgramme: (data) => api.post('Admin/editProgramme', data),
   deleteProgramme: (data) => api.post('Admin/deleteProgramme', data),
-  getProgrammeById: (id) => api.get(`Admin/programme/${id}`)
+
+  // Users
+  getAllLecturers: (data) => api.post('Admin/getAllLecturer', data),
+  getAllStudents: (data) => api.post('Admin/getAllStudent', data),
+  createUser: (data) => api.post('Admin/createNewUser', data),
+  updateUser: (data) => api.post('Admin/editUser', data),
+  deleteUser: (data) => api.post('Admin/deleteUser', data),
+  resetPassword: (data) => api.post('Admin/resetPassword', data),
 }; 

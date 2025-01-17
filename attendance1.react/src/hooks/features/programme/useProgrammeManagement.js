@@ -7,7 +7,7 @@ export const useProgrammeManagement = () => {
   const [programmes, setProgrammes] = useState([]);
   const [selectedProgramme, setSelectedProgramme] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
-  const [confirmDialog, setConfirmDialog] = useState({
+  const [confirmDeleteDialog, setConfirmDeleteDialog] = useState({
     open: false,
     programme: null
   });
@@ -53,7 +53,6 @@ export const useProgrammeManagement = () => {
       programmeId: selectedProgramme.programmeId,
       programmeName: values.name,
     };
-    console.log('requestDto', requestDto);
     return await handleApiCall(
       () => adminApi.updateProgramme(requestDto),
       async () => {
@@ -76,13 +75,13 @@ export const useProgrammeManagement = () => {
     programmes,
     selectedProgramme,
     openDialog,
-    confirmDialog,
+    confirmDeleteDialog,
     loading,
     
     // setters
     setSelectedProgramme,
     setOpenDialog,
-    setConfirmDialog,
+    setConfirmDeleteDialog,
     
     // operations
     fetchProgrammes,

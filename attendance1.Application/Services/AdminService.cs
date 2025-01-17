@@ -163,40 +163,55 @@ namespace attendance1.Application.Services
         {
             return await ExecuteAsync(async () =>
             {
+                if (await _validateService.ValidateEmailAsync(requestDto.Email))
+                    throw new InvalidOperationException("The email has been used");
+                
+                if (requestDto.Role == AccRoleEnum.Lecturer && await _validateService.ValidateLecturerAsync(requestDto.CampusId))
+                    throw new InvalidOperationException("The lecturer ID has been used");
+
+                if (requestDto.Role == AccRoleEnum.Student && await _validateService.ValidateStudentAsync(requestDto.CampusId))
+                    throw new InvalidOperationException("The student ID has been used");
+
                 var newUser = new UserDetail
                 {
                     StudentId = requestDto.Role == AccRoleEnum.Student ? requestDto.CampusId : null, 
                     LecturerId = requestDto.Role != AccRoleEnum.Student ? requestDto.CampusId : null, 
-                    UserName = requestDto.Name,
+                    UserName = FormatName(requestDto.Name),
                     Email = requestDto.Email,
-                    UserPassword = BCrypt.Net.BCrypt.HashPassword(requestDto.Password),
+                    UserPassword = BCrypt.Net.BCrypt.HashPassword(requestDto.CampusId.ToLower()),
                     AccRole = requestDto.Role.ToString(),
                     IsDeleted = false
                 };
                 await _userRepository.CreateUserAsync(newUser);
                 return true;
             },
-            $"Failed to create new account: {requestDto.Name}");
+            $"Failed to create new account");
         }
         
-        public async Task<Result<bool>> EditUserAsync(EditAccountRequestDto requestDto)
+        public async Task<Result<bool>> EditUserAsync(EditProfileRequestDto requestDto)
         {
-            if (!await _validateService.ValidateUserAsync(requestDto.UserId))
-                return Result<bool>.FailureResult($"This user does not exist");
-            
             return await ExecuteAsync(async () =>
             {
+                if (!await _validateService.ValidateUserAsync(requestDto.UserId))
+                    throw new KeyNotFoundException("User not found");
+                
+                if (!await _validateService.ValidateEmailWithUserIdAsync(requestDto.Email, requestDto.UserId))
+                {
+                    if (await _validateService.ValidateEmailAsync(requestDto.Email))
+                        throw new InvalidOperationException("The email has been used");
+                }
+
+                if (requestDto.Role == AccRoleEnum.Student && await _validateService.ValidateStudentAsync(requestDto.CampusId))
+                    throw new InvalidOperationException("The student ID has been used");
+
                 var user = new UserDetail
                 {
                     UserId = requestDto.UserId,
                     StudentId = requestDto.Role == AccRoleEnum.Student ? requestDto.CampusId : null,
-                    LecturerId = requestDto.Role != AccRoleEnum.Student ? requestDto.CampusId : null,
-                    UserName = requestDto.Name,
+                    UserName = FormatName(requestDto.Name),
                     Email = requestDto.Email,
-                    UserPassword = BCrypt.Net.BCrypt.HashPassword(requestDto.Password),
-                    AccRole = requestDto.Role.ToString(),
                 };
-                await _userRepository.EditUserWithPasswordAsync(user);
+                await _userRepository.EditUserAsync(user);
                 return true;
             },
             $"Failed to edit user: {requestDto.Name}");
@@ -204,28 +219,47 @@ namespace attendance1.Application.Services
         
         public async Task<Result<bool>> DeleteUserAsync(DeleteRequestDto requestDto)
         {
-            if (!await _validateService.ValidateUserAsync(requestDto.Id))
-                return Result<bool>.FailureResult($"This user does not exist");
-            
             return await ExecuteAsync(async () =>
             {
+                if (!await _validateService.ValidateUserAsync(requestDto.Id))
+                    throw new KeyNotFoundException("User not found");
+
                 await _userRepository.DeleteUserAsync(requestDto.Id);
                 return true;
             },
             $"Failed to delete user with ID {requestDto.Id}");
         }
+
+        public async Task<Result<bool>> ResetPasswordAsync(DataIdRequestDto requestDto)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                if (!await _validateService.ValidateUserAsync(requestDto.IdInInteger ?? 0))
+                    throw new KeyNotFoundException("User not found");
+                if (string.IsNullOrEmpty(requestDto.IdInString))
+                    throw new InvalidOperationException("Invalid new password");
+                
+                // campus id (lower case) as the new password
+                var newPassword = BCrypt.Net.BCrypt.HashPassword(requestDto.IdInString.ToLower());
+                return await _userRepository.ChangeUserPasswordAsync(requestDto.IdInInteger ?? 0, newPassword);
+            },
+            $"Failed to reset password for the user");
+        }
         #endregion
 
         #region View Lecturer & Student
-        public async Task<Result<PaginatedResult<GetLecturerResponseDto>>> GetAllLecturerWithClassAsync(PaginatedRequestDto requestDto)
+        public async Task<Result<PaginatedResult<GetLecturerResponseDto>>> GetAllLecturerWithClassAsync(GetLecturerRequestDto requestDto)
         {
-            var pageNumber = requestDto.PageNumber;
-            var pageSize = requestDto.PageSize;
+            var pageNumber = requestDto.PaginatedRequest.PageNumber;
+            var pageSize = requestDto.PaginatedRequest.PageSize;
+            var searchTerm = requestDto.SearchTerm;
+            var orderBy = requestDto.PaginatedRequest.OrderBy;
+            var isAscending = requestDto.PaginatedRequest.IsAscending;
             return await ExecuteAsync(async () =>
             {
-                var lecturers = await _userRepository.GetAllLecturerAsync(pageNumber, pageSize);
+                var lecturers = await _userRepository.GetAllLecturerAsync(pageNumber, pageSize, searchTerm, orderBy, isAscending);
                 if (lecturers.Count == 0)
-                    return new PaginatedResult<GetLecturerResponseDto>(new List<GetLecturerResponseDto>(), 0, pageNumber, pageSize);
+                    return new PaginatedResult<GetLecturerResponseDto>([], 0, pageNumber, pageSize);
                 
                 var courses = await _courseRepository.GetCoursesByMultipleLecturerIdAsync(
                     lecturers.Select(lecturer => lecturer.LecturerId ?? string.Empty)

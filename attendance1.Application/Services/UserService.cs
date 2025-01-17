@@ -24,7 +24,6 @@ namespace attendance1.Application.Services
 
         public async Task<Result<bool>> CreateMultipleStudentAccountsAsync(List<CreateAccountRequestDto> requestDto)
         {
-
             return await ExecuteAsync(
                 async () =>
                 {
@@ -49,12 +48,12 @@ namespace attendance1.Application.Services
 
         public async Task<Result<ViewProfileResponseDto>> ViewProfileAsync(DataIdRequestDto requestDto)
         {
-            if (!await _validateService.ValidateUserAsync(requestDto.IdInInteger ?? 0))
-                return Result<ViewProfileResponseDto>.FailureResult("User not found", HttpStatusCode.NotFound);
-
             return await ExecuteAsync(
                 async () =>
                 {
+                    if (!await _validateService.ValidateUserAsync(requestDto.IdInInteger ?? 0))
+                        throw new KeyNotFoundException("User not found");
+
                     var user = await _userRepository.GetUserByCampusIdAsync(requestDto.IdInInteger ?? 0, requestDto.IdInString ?? string.Empty);
                     return new ViewProfileResponseDto
                     {
@@ -69,12 +68,12 @@ namespace attendance1.Application.Services
 
         public async Task<Result<bool>> EditProfileAsync(EditProfileRequestDto requestDto)
         {
-            if (!await _validateService.ValidateUserAsync(requestDto.UserId))
-                return Result<bool>.FailureResult("User not found", HttpStatusCode.NotFound);
-
             return await ExecuteAsync(
                 async () =>
                 {
+                    if (!await _validateService.ValidateUserAsync(requestDto.UserId))
+                        throw new KeyNotFoundException("User not found");
+                   
                     var user = new UserDetail
                     {
                         UserId = requestDto.UserId,
@@ -92,18 +91,17 @@ namespace attendance1.Application.Services
 
         public async Task<Result<bool>> ChangePasswordAsync(EditPasswordRequestDto requestDto)
         {
-            if (!await _validateService.ValidateUserAsync(requestDto.UserId))
-                return Result<bool>.FailureResult("User not found", HttpStatusCode.NotFound);
-
-            if (!_validateService.ValidatePasswordAsync(requestDto.OldPassword, requestDto.NewPassword))
-                return Result<bool>.FailureResult("Invalid password", HttpStatusCode.BadRequest);
-
             return await ExecuteAsync(
                 async () =>
                 {
+                    if (!await _validateService.ValidateUserAsync(requestDto.UserId))
+                        throw new KeyNotFoundException("User not found");
+
+                    if (!_validateService.ValidatePasswordAsync(requestDto.OldPassword, requestDto.NewPassword))
+                        throw new InvalidOperationException("Invalid password");
                     var isOldPasswordCorrect = await _validateService.ValidateOldPasswordCorrectAsync(requestDto.UserId, requestDto.OldPassword);
                     if (!isOldPasswordCorrect)
-                        throw new Exception("Old password is incorrect");
+                        throw new InvalidOperationException("Old password is incorrect");
 
                     var newPassword = BCrypt.Net.BCrypt.HashPassword(requestDto.NewPassword);
                     return await _userRepository.ChangeUserPasswordAsync(requestDto.UserId, newPassword);

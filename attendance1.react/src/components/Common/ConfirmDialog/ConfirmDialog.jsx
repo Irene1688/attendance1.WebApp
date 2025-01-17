@@ -23,12 +23,16 @@ const ConfirmDialog = ({
       onClose={onCancel}
       maxWidth="xs"
       fullWidth
+      aria-labelledby="confirm-dialog-title"
+      disablePortal={false}
+      keepMounted={false}
+      disableEnforceFocus={false}
     >
-      <DialogTitle>{title}</DialogTitle>
+      <DialogTitle id="confirm-dialog-title">{title}</DialogTitle>
       <DialogContent>
         <Typography>{content}</Typography>
       </DialogContent>
-      <DialogActions>
+      <DialogActions sx={{ pb: 2, px: 3 }}>
         <TextButton 
           onClick={onCancel}
           variant="text"
@@ -40,6 +44,7 @@ const ConfirmDialog = ({
           onClick={onConfirm}
           variant="contained"
           color={type === 'delete' ? 'delete' : 'primary'}
+          autoFocus
         >
           {confirmText}
         </TextButton>

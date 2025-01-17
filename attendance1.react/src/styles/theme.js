@@ -25,6 +25,11 @@ const colors = {
     main: '#6f42c1',    
     light: '#6f42c1',
     dark: '#563d7c',    
+  },
+  blue: {
+    main: '#007bff',
+    light: '#007bff',
+    dark: '#0056b3',
   }
 };
 
@@ -53,6 +58,7 @@ const theme = createTheme({
     text: {
         primary: colors.grey.main,
         secondary: colors.grey.light,
+        info: colors.blue.main,
         disabled: alpha(colors.grey.main, 0.38),
     },
     background: {

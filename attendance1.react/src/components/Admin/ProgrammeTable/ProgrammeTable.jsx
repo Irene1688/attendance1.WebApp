@@ -39,7 +39,7 @@ const ProgrammeTable = ({
         <IconButton
           Icon={<EditIcon />}
           onClick={() => onEdit(programme)}
-          color="cancel"
+          color="primary"
         />
         <IconButton
           Icon={<DeleteIcon />}

@@ -8,6 +8,8 @@ namespace attendance1.Domain.Interfaces
         Task<bool> HasLecturerExistedAsync(string lecturerId);
         Task<bool> HasStudentExistedAsync(string studentId);
         Task<bool> HasUserExistedAsync(int userId);
+        Task<bool> HasEmailExistedAsync(string email);
+        Task<bool> CheckEmailWithUserIdAsync(string email, int userId);
         #endregion
 
         # region login
@@ -18,14 +20,20 @@ namespace attendance1.Domain.Interfaces
         #region CRUD
         Task<int> GetTotalLecturerAsync();
         Task<int> GetTotalStudentAsync();
-        Task<List<UserDetail>> GetAllLecturerAsync(int pageNumber = 1, int pageSize = 15);
+        Task<List<UserDetail>> GetAllLecturerAsync(
+            int pageNumber = 1, 
+            int pageSize = 15, 
+            string searchTerm = "", 
+            string orderBy = "lecturername", 
+            bool isAscending = true
+        );
         Task<List<UserDetail>> GetAllStudentAsync(int pageNumber = 1, int pageSize = 15);
         Task<List<string>> GetAllExistedStudentIdAsync();
         Task<UserDetail> GetUserByCampusIdAsync(int userId, string campusId);
         Task<bool> CreateUserAsync(UserDetail userDetail);
         Task<bool> CreateMultipleUserAsync(List<UserDetail> userDetails);
         Task<bool> EditUserAsync(UserDetail userDetail);
-        Task<bool> EditUserWithPasswordAsync(UserDetail userDetail); // admin only
+        //Task<bool> EditUserWithPasswordAsync(UserDetail userDetail); // admin only
         Task<bool> ChangeUserPasswordAsync(int userId, string newPassword);
         Task<bool> DeleteUserAsync(int userId);
         #endregion

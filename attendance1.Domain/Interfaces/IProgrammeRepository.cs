@@ -11,7 +11,7 @@ namespace attendance1.Domain.Interfaces
             int pageNumber = 1, 
             int pageSize = 15, 
             string searchTerm = "", 
-            string orderBy = "programmeName", 
+            string orderBy = "programmename", 
             bool isAscending = true);
             
         Task<bool> CreateNewProgrammeAsync(Programme programme);

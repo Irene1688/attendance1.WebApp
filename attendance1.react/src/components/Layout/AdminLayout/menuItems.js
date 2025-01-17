@@ -2,6 +2,8 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import ClassIcon from '@mui/icons-material/Class';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
+import SchoolIcon from '@mui/icons-material/School';
+import PersonIcon from '@mui/icons-material/Person';
 
 export const adminMenuItems = [
     {
@@ -10,14 +12,14 @@ export const adminMenuItems = [
       icon: DashboardIcon
     },
     {
-      title: 'Programme Management',
+      title: 'Programmes',
       path: '/admin/programmes',
-      icon: ClassIcon,
+      icon: SchoolIcon
     },
     {
-      title: 'Lecturer Management',
+      title: 'Lecturers',
       path: '/admin/lecturers',
-      icon: PeopleAltIcon,
+      icon: PersonIcon
     },
     {
       title: 'Student Management',

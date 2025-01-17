@@ -8,8 +8,7 @@ import {
   ConfirmDialog,
   SearchField,
 } from '../../components/Common';
-import { ProgrammeForm } from '../../components/Admin';
-import { ProgrammeTable } from '../../components/Admin';
+import { ProgrammeForm, ProgrammeTable } from '../../components/Admin';
 import { useProgrammeManagement } from '../../hooks/features'
 import { usePagination, useSorting } from '../../hooks/common';
 import { useMessageContext } from '../../contexts/MessageContext';
@@ -21,11 +20,11 @@ const ProgrammeManagement = () => {
     programmes,
     selectedProgramme,
     openDialog,
-    confirmDialog,
+    confirmDeleteDialog,
     loading,
     setSelectedProgramme,
     setOpenDialog,
-    setConfirmDialog,
+    setConfirmDeleteDialog,
     fetchProgrammes,
     createProgramme,
     updateProgramme,
@@ -94,10 +93,10 @@ const ProgrammeManagement = () => {
 
   // delete
   const handleDeleteConfirm = async () => {
-    if (confirmDialog.programme) {
-      const success = await deleteProgramme(confirmDialog.programme);
+    if (confirmDeleteDialog.programme) {
+      const success = await deleteProgramme(confirmDeleteDialog.programme);
       if (success) {
-        setConfirmDialog({ open: false, programme: null });
+        setConfirmDeleteDialog({ open: false, programme: null });
         await loadData();
         showSuccessMessage('Programme deleted successfully');
       }
@@ -156,7 +155,7 @@ const ProgrammeManagement = () => {
           setOpenDialog(true);
         }}
         onDelete={(programme) => {
-          setConfirmDialog({
+          setConfirmDeleteDialog({
             open: true,
             programme
           });
@@ -182,11 +181,11 @@ const ProgrammeManagement = () => {
       </Dialog>
 
       <ConfirmDialog
-        open={confirmDialog.open}
+        open={confirmDeleteDialog.open}
         title="Delete Programme"
         content="Are you sure you want to delete this programme? This action cannot be undone."
         onConfirm={handleDeleteConfirm}
-        onCancel={() => setConfirmDialog({ open: false, programme: null })}
+        onCancel={() => setConfirmDeleteDialog({ open: false, programme: null })}
         confirmText="Delete"
         cancelText="Cancel"
         type="delete"

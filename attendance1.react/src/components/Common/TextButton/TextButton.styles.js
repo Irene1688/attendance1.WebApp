@@ -6,9 +6,9 @@ export const styles = {
   },
   primary: {
     backgroundColor: (theme) => theme.palette.primary.main,
-    color: (theme) => alpha(theme.palette.common.white, 0.7),
+    color: (theme) => theme.palette.white.off,
     '&:hover': {
-      color: (theme) => theme.palette.white.off,
+      color: (theme) =>alpha(theme.palette.common.white, 0.7),
       backgroundColor: (theme) => alpha(theme.palette.primary.main, 0.8)
     }
   },
