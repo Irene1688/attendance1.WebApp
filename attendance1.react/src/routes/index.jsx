@@ -8,7 +8,10 @@ import {
   AdminDashboard, 
   ProgrammeManagement, 
   LecturerManagement, 
-  StudentManagement 
+  StudentManagement,
+  CourseManagement,
+  CourseDetail,
+  CourseFormPage
 } from '../pages/admin';
 
 export const router = createBrowserRouter([
@@ -51,6 +54,22 @@ export const router = createBrowserRouter([
       {
         path: 'students',
         element: <StudentManagement />
+      },
+      {
+        path: 'courses',
+        element: <CourseManagement />
+      },
+      {
+        path: 'courses/:id',
+        element: <CourseDetail />
+      },
+      {
+        path: 'courses/add',
+        element: <CourseFormPage />
+      },
+      {
+        path: 'courses/:id/edit',
+        element: <CourseFormPage />
       }
     ]
   },

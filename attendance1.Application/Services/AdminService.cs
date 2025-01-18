@@ -402,13 +402,26 @@ namespace attendance1.Application.Services
             $"Failed to create new course: {requestDto.CourseName}");
         }
 
-        public async Task<Result<PaginatedResult<GetCourseResponseDto>>> GetAllCourseAsync(PaginatedRequestDto requestDto)
+        public async Task<Result<PaginatedResult<GetCourseResponseDto>>> GetAllCourseAsync(GetCourseRequestDto requestDto)
         {
-            var pageNumber = requestDto.PageNumber;
-            var pageSize = requestDto.PageSize;
+            var pageNumber = requestDto.PaginatedRequest.PageNumber;
+            var pageSize = requestDto.PaginatedRequest.PageSize;
+            var searchTerm = requestDto.SearchTerm;
+            var orderBy = requestDto.PaginatedRequest.OrderBy;
+            var isAscending = requestDto.PaginatedRequest.IsAscending;
+            //var filters = requestDto.Filters;
+
+            var filters = requestDto.Filters != null ? new Dictionary<string, object>
+            {
+                { "programmeId", requestDto.Filters.ProgrammeId ?? 0 },
+                { "lecturerId", requestDto.Filters.LecturerId ?? string.Empty },
+                { "status", requestDto.Filters.Status ?? string.Empty },
+                { "session", requestDto.Filters.Session ?? string.Empty }
+            } : null;
+            
             return await ExecuteAsync(async () =>
             {
-                var courses = await _courseRepository.GetAllCourseAsync(pageNumber, pageSize);
+                var courses = await _courseRepository.GetAllCourseAsync(pageNumber, pageSize, searchTerm, orderBy, isAscending, filters);
                 var processCoursesTask = courses.Select(async course => new GetCourseResponseDto
                 {
                     CourseId = course.CourseId,
@@ -419,7 +432,7 @@ namespace attendance1.Application.Services
                     LecturerId = course.LecturerId,
                     LecturerName = await _userRepository.GetLecturerNameByLecturerIdAsync(course.LecturerId),
                     ClassDay = course.ClassDay ?? string.Empty,
-                    Status = course.Semester.EndWeek <= DateOnly.FromDateTime(DateTime.Now) ? "Archived" : "Active",
+                    Status = course.Semester.EndWeek <= DateOnly.FromDateTime(DateTime.Now) ? "ARCHIVED" : "ACTIVE",
                     Tutorials = course.Tutorials.Select(t => new GetTutorialResponseDto
                     {
                         TutorialId = t.TutorialId,
@@ -432,7 +445,7 @@ namespace attendance1.Application.Services
                 
                 var paginatedResult = new PaginatedResult<GetCourseResponseDto>(
                     response.ToList(), 
-                    courses.Count,
+                    await _courseRepository.GetTotalCourseAsync(searchTerm, filters),
                     pageNumber, 
                     pageSize
                 );

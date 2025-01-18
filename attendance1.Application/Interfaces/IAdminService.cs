@@ -28,7 +28,7 @@ namespace attendance1.Application.Interfaces
 
         #region Class CRUD
         Task<Result<bool>> CreateNewCourseAsync(CreateCourseRequestDto requestDto);
-        Task<Result<PaginatedResult<GetCourseResponseDto>>> GetAllCourseAsync(PaginatedRequestDto requestDto);
+        Task<Result<PaginatedResult<GetCourseResponseDto>>> GetAllCourseAsync(GetCourseRequestDto requestDto);
         Task<Result<bool>> EditCourseAsync(EditCourseRequestDto requestDto);
         Task<Result<bool>> DeleteCourseAsync(DeleteRequestDto requestDto);
         #endregion

@@ -13,13 +13,19 @@ namespace attendance1.Domain.Interfaces
         #endregion
 
         #region course CRUD
-        Task<int> GetTotalCourseAsync();
+        Task<int> GetTotalCourseAsync(string searchTerm = "", Dictionary<string, object>? filters = null);
         Task<Course> GetCourseDetailsAsync(int courseId);
         Task<int> CreateNewCourseAsync(Course course, CourseSemester semester, List<Tutorial> tutorials, List<EnrolledStudent> students);
         Task<bool> EditCourseAsync(Course course, CourseSemester semester);
         Task<bool> EditCourseWithTutorialsAsync(Course course, CourseSemester semester, List<Tutorial> tutorials);
         Task<bool> DeleteCourseAsync(int courseId);
-        Task<List<Course>> GetAllCourseAsync(int pageNumber = 1, int pageSize = 15);
+        Task<List<Course>> GetAllCourseAsync(
+            int pageNumber = 1, 
+            int pageSize = 15, 
+            string searchTerm = "", 
+            string orderBy = "coursename", 
+            bool isAscending = true, 
+            Dictionary<string, object>? filters = null);
         Task<List<Course>> GetCoursesByLecturerIdAsync(string lectureId);
         Task<List<Course>> GetCoursesByMultipleLecturerIdAsync(List<string> lecturerIds);
         Task<List<Course>> GetEnrollmentCoursesByStudentIdAsync(string studentId);

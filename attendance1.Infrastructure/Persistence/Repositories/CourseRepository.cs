@@ -66,11 +66,64 @@ namespace attendance1.Infrastructure.Persistence.Repositories
         #endregion
 
         #region course CRUD
-        public async Task<int> GetTotalCourseAsync()
+        public async Task<int> GetTotalCourseAsync(string searchTerm = "", Dictionary<string, object>? filters = null)
         {
-            var result = await ExecuteGetAsync<object>(async () => 
-                await _database.Courses.CountAsync(c => c.IsDeleted == false));
-            return Convert.ToInt32(result ?? 0);
+            var query = _database.Courses
+                .Where(c => c.IsDeleted == false)
+                .AsNoTracking();
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                searchTerm = searchTerm.ToLower();
+                query = query.Where(p =>
+                    EF.Functions.Collate(p.CourseName ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm) ||
+                    EF.Functions.Collate(p.CourseCode ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm) ||
+                    EF.Functions.Collate(p.CourseSession ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm) ||
+                    EF.Functions.Collate(p.Programme.ProgrammeName ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm));
+            }
+
+             // 筛选
+            if (filters != null)
+            {
+                // 按项目筛选
+                if (filters.TryGetValue("programmeId", out var programmeIdObj) && 
+                    programmeIdObj is int programmeId && 
+                    programmeId > 0)
+                {
+                    query = query.Where(c => c.ProgrammeId == programmeId);
+                }
+
+                // 按讲师筛选
+                if (filters.TryGetValue("lecturerId", out var lecturerIdObj) && 
+                    lecturerIdObj is string lecturerId && 
+                    !string.IsNullOrEmpty(lecturerId))
+                {
+                    query = query.Where(c => c.LecturerId == lecturerId);
+                }
+
+                // 按状态筛选
+                if (filters.TryGetValue("status", out var statusObj) && 
+                    statusObj is string status && 
+                    !string.IsNullOrEmpty(status))
+                {
+                    var today = DateOnly.FromDateTime(DateTime.Now);
+                    var isActive = status.ToUpper() == "ACTIVE";
+                    query = isActive
+                        ? query.Where(c => c.Semester.EndWeek > today)
+                        : query.Where(c => c.Semester.EndWeek <= today);
+                }
+
+                // 按学期筛选
+                if (filters.TryGetValue("session", out var sessionObj) && 
+                    sessionObj is string session && 
+                    !string.IsNullOrEmpty(session))
+                {
+                    query = query.Where(c => c.CourseSession == session);
+                }
+            }
+
+
+            return await query.CountAsync();
         }
 
         public async Task<Course> GetCourseDetailsAsync(int courseId)
@@ -203,18 +256,106 @@ namespace attendance1.Infrastructure.Persistence.Repositories
             });
         }
 
-        public async Task<List<Course>> GetAllCourseAsync(int pageNumber = 1, int pageSize = 15)
+        public async Task<List<Course>> GetAllCourseAsync(
+            int pageNumber, 
+            int pageSize, 
+            string searchTerm = "", 
+            string? orderBy = null,
+            bool isAscending = true,
+            Dictionary<string, object>? filters = null)
         {
-            return await ExecuteGetAsync(async () => await _database.Courses
-                .Where(c => c.IsDeleted == false)
-                .OrderBy(c => c.CourseName)
-                .Include(c => c.Programme)
-                .Include(c => c.Semester)
-                .Include(c => c.Tutorials)
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .AsNoTracking()
-                .ToListAsync());
+            try 
+            {
+                var query = _database.Courses
+                    .Include(c => c.Programme)
+                    .Include(c => c.Semester)
+                    .Include(c => c.Tutorials)
+                    .Where(c => c.IsDeleted == false);
+
+                // 搜索
+                if (!string.IsNullOrEmpty(searchTerm))
+                {
+                    searchTerm = searchTerm.ToLower();
+                    query = query.Where(p =>
+                        EF.Functions.Collate(p.CourseName ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm) ||
+                        EF.Functions.Collate(p.CourseCode ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm) ||
+                        EF.Functions.Collate(p.CourseSession ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm) ||
+                        EF.Functions.Collate(p.Programme.ProgrammeName ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm));
+                }
+
+                // 筛选
+                if (filters != null)
+                {
+                    // 按项目筛选
+                    if (filters.TryGetValue("programmeId", out var programmeIdObj) && 
+                        programmeIdObj is int programmeId && 
+                        programmeId > 0)
+                    {
+                        query = query.Where(c => c.ProgrammeId == programmeId);
+                    }
+
+                    // 按讲师筛选
+                    if (filters.TryGetValue("lecturerId", out var lecturerIdObj) && 
+                        lecturerIdObj is string lecturerId && 
+                        !string.IsNullOrEmpty(lecturerId))
+                    {
+                        query = query.Where(c => c.LecturerId == lecturerId);
+                    }
+
+                    // 按状态筛选
+                    if (filters.TryGetValue("status", out var statusObj) && 
+                        statusObj is string status && 
+                        !string.IsNullOrEmpty(status))
+                    {
+                        var today = DateOnly.FromDateTime(DateTime.Now);
+                        var isActive = status.ToUpper() == "ACTIVE";
+                        query = isActive
+                            ? query.Where(c => c.Semester.EndWeek > today)
+                            : query.Where(c => c.Semester.EndWeek <= today);
+                    }
+
+                    // 按学期筛选
+                    if (filters.TryGetValue("session", out var sessionObj) && 
+                        sessionObj is string session && 
+                        !string.IsNullOrEmpty(session))
+                    {
+                        query = query.Where(c => c.CourseSession == session);
+                    }
+                }
+
+                // 排序
+                query = (orderBy?.ToLower()) switch
+                {
+                    "coursecode" => isAscending 
+                        ? query.OrderBy(c => c.CourseCode) 
+                        : query.OrderByDescending(c => c.CourseCode),
+                    "coursename" => isAscending 
+                        ? query.OrderBy(c => c.CourseName) 
+                        : query.OrderByDescending(c => c.CourseName),
+                    "programmename" => isAscending 
+                        ? query.OrderBy(c => c.Programme.ProgrammeName) 
+                        : query.OrderByDescending(c => c.Programme.ProgrammeName),
+                    "coursesession" => isAscending 
+                        ? query.OrderBy(c => c.CourseSession) 
+                        : query.OrderByDescending(c => c.CourseSession),
+                    "status" => isAscending 
+                        ? query.OrderBy(c => c.Semester.EndWeek) 
+                        : query.OrderByDescending(c => c.Semester.EndWeek),
+                    _ => query.OrderBy(c => c.CourseCode)
+                };
+
+                // 分页
+                return await query
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .AsNoTracking()
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in GetAllCourseAsync: {Message}", ex.Message);
+                throw;
+            }
         }
 
         public async Task<Course> GetCourseDetailsWithStudentsAndTutorialsAsync(int courseId)
