@@ -77,7 +77,7 @@ const CourseForm = ({
         startDate: '',
         endDate: '',
         tutorials: [{ name: formatTutorialName(0), classDay: '' }],
-        ...initialValues
+        ...(initialValues || {})
       }}
       validationSchema={courseValidationSchema}
       onSubmit={(values, actions) => {
@@ -101,10 +101,8 @@ const CourseForm = ({
             tutorials
           };
           
-          console.log('Submitting form with data:', session);
           onSubmit(session, actions);
         } catch (error) {
-          console.error('Form submission error:', error);
           actions.setSubmitting(false);
         }
       }}
@@ -113,7 +111,7 @@ const CourseForm = ({
       validateOnBlur={true}
     >
       {({ values, errors, touched, handleChange, handleBlur, isSubmitting, setFieldValue }) => {
-        console.log('Form errors:', errors);
+        //console.log('Form errors:', errors);
         
         return (
           <Form>
@@ -438,9 +436,6 @@ const CourseForm = ({
                 variant="contained"
                 color="primary"
                 disabled={isSubmitting}
-                onClick={() => {
-                  console.log('Submit button clicked');
-                }}
               >
                 {isSubmitting ? 'Saving...' : 'Save'}
               </TextButton>

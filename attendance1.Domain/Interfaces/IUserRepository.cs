@@ -47,6 +47,7 @@ namespace attendance1.Domain.Interfaces
         #endregion
 
         #region get one property
+        Task<string> GetLecturerIdByUserIdAsync(int userId);
         Task<string> GetLecturerNameByLecturerIdAsync(string lecturerId);
         Task<string> GetStudentNameByStudentIdAsync(string studentId);
         Task<string> GetUserPasswordByUserIdAsync(int userId);

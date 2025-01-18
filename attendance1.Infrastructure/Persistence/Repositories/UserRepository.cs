@@ -355,6 +355,15 @@ namespace attendance1.Infrastructure.Persistence.Repositories
         #endregion
 
         #region Get one property
+        public async Task<string> GetLecturerIdByUserIdAsync(int userId)
+        {
+            return await ExecuteGetAsync(async () => await _database.UserDetails
+                .Where(u => u.UserId == userId 
+                    && u.AccRole == AccRoleEnum.Lecturer.ToString())
+                .Select(u => u.LecturerId)
+                .FirstOrDefaultAsync());
+        }
+
         public async Task<string> GetLecturerNameByLecturerIdAsync(string lecturerId)
         {
             return await ExecuteGetAsync(async () => await _database.UserDetails

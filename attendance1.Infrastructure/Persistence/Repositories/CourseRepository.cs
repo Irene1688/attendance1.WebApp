@@ -73,6 +73,7 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                 .Where(c => c.IsDeleted == false)
                 .AsNoTracking();
 
+            // 搜索
             if (!string.IsNullOrEmpty(searchTerm))
             {
                 searchTerm = searchTerm.ToLower();
@@ -80,10 +81,11 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                     EF.Functions.Collate(p.CourseName ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm) ||
                     EF.Functions.Collate(p.CourseCode ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm) ||
                     EF.Functions.Collate(p.CourseSession ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm) ||
-                    EF.Functions.Collate(p.Programme.ProgrammeName ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm));
+                    EF.Functions.Collate(p.Programme.ProgrammeName ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm) ||
+                    EF.Functions.Collate(p.User.UserName ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm));
             }
 
-             // 筛选
+            // 筛选
             if (filters != null)
             {
                 // 按项目筛选
@@ -95,11 +97,11 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                 }
 
                 // 按讲师筛选
-                if (filters.TryGetValue("lecturerId", out var lecturerIdObj) && 
-                    lecturerIdObj is string lecturerId && 
-                    !string.IsNullOrEmpty(lecturerId))
+                if (filters.TryGetValue("lecturerUserId", out var lecturerIdObj) && 
+                    lecturerIdObj is int userId && 
+                    userId > 0)
                 {
-                    query = query.Where(c => c.LecturerId == lecturerId);
+                    query = query.Where(c => c.UserId == userId);
                 }
 
                 // 按状态筛选
@@ -122,7 +124,6 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                     query = query.Where(c => c.CourseSession == session);
                 }
             }
-
 
             return await query.CountAsync();
         }
@@ -196,8 +197,9 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                 await _database.SaveChangesAsync();
 
                 var semesterToEdit = await _database.CourseSemesters
-                    .Where(s => s.SemesterId == semester.SemesterId 
-                        && s.IsDeleted == false)
+                    .Where(s => 
+                        s.SemesterId == courseToEdit.SemesterId &&
+                        s.IsDeleted == false)
                     .FirstOrDefaultAsync();
 
                 if (semesterToEdit == null)
@@ -210,16 +212,16 @@ namespace attendance1.Infrastructure.Persistence.Repositories
             });
         }
 
-        public async Task<bool> EditCourseWithTutorialsAsync(Course course, CourseSemester semester, List<Tutorial> tutorials)
+        public async Task<bool> EditCourseTutorialsAsync(int courseId, List<Tutorial> tutorials)
         {
             return await ExecuteWithTransactionAsync(async () =>
             {
-                var isCourseEdited = await EditCourseAsync(course, semester);
-                if (!isCourseEdited)
-                    throw new Exception("Failed to edit course");
+                // var isCourseEdited = await EditCourseAsync(course, semester);
+                // if (!isCourseEdited)
+                //     throw new Exception("Failed to edit course");
 
                 var tutorialsToEdit = await _database.Tutorials
-                    .Where(t => t.CourseId == course.CourseId 
+                    .Where(t => t.CourseId == courseId 
                         && t.IsDeleted == false)
                     .ToListAsync();
 
@@ -247,24 +249,46 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                 var course = await _database.Courses
                     .Where(c => c.CourseId == courseId && c.IsDeleted == false)
                     .Include(c => c.Semester)
-                    .Include(c => c.EnrolledStudents)
-                    .Include(c => c.Tutorials)
                     .FirstOrDefaultAsync();
+                    // .Include(c => c.EnrolledStudents)
+                    // .Include(c => c.Tutorials)
+                    
 
                 if (course == null)
                     throw new Exception("Class not found");
 
                 course.IsDeleted = true;
                 course.Semester.IsDeleted = true;
-                foreach (var tutorial in course.Tutorials)
-                {
-                    tutorial.IsDeleted = true;
-                }
-                foreach (var student in course.EnrolledStudents)
-                {
-                    student.IsDeleted = true;
-                }
+                // foreach (var tutorial in course.Tutorials)
+                // {
+                //     tutorial.IsDeleted = true;
+                // }
+                // foreach (var student in course.EnrolledStudents)
+                // {
+                //     student.IsDeleted = true;
+                // }
                 await _database.SaveChangesAsync();
+                return true;
+            });
+        }
+
+        public async Task<bool> MultipleDeleteCourseAsync(List<int> courseIds)
+        {
+            return await ExecuteWithTransactionAsync(async () =>
+            {
+                var coursesToDelete = await _database.Courses
+                    .Where(c => 
+                        courseIds.Contains(c.CourseId) && 
+                        c.IsDeleted == false)
+                    .Include(c => c.Semester)
+                    .ToListAsync();
+
+                foreach (var course in coursesToDelete)
+                {
+                    course.IsDeleted = true;
+                    course.Semester.IsDeleted = true;
+                }
+                //await _database.SaveChangesAsync();
                 return true;
             });
         }

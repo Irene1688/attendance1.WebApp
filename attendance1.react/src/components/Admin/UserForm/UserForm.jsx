@@ -5,25 +5,30 @@ import {
   TextField, 
   DialogTitle,
   DialogContent,
-  DialogActions 
+  DialogActions,
+  MenuItem
 } from '@mui/material';
 import { lecturerValidationSchema, studentValidationSchema } from '../../../validations/schemas';
 import { TextButton, PromptMessage } from '../../Common';
 import { useMessageContext } from '../../../contexts/MessageContext';
 import { USER_ROLES } from '../../../constants/userRoles';
 
-const UserForm = ({ initialValues, userRole, onSubmit, onCancel, isEditing }) => {
+const UserForm = ({ initialValues, userRole, onSubmit, onCancel, isEditing, programmeSelection }) => {
   const { message, hideMessage } = useMessageContext();
-  
+
   return (
     <Formik
       initialValues={{
-        ...initialValues,
-        role: userRole
+        campusId: '',
+        name: '',
+        email: '',
+        programmeId: '',
+        role: userRole,
+        ...initialValues
       }}
       validationSchema={userRole === USER_ROLES.LECTURER
-        ? lecturerValidationSchema 
-        : studentValidationSchema}
+        ? lecturerValidationSchema(!isEditing) 
+        : studentValidationSchema(!isEditing)}
       onSubmit={onSubmit}
     >
       {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => (
@@ -87,6 +92,26 @@ const UserForm = ({ initialValues, userRole, onSubmit, onCancel, isEditing }) =>
                 helperText={touched.email && errors.email}
                 margin="normal"
               />
+              { !isEditing && (
+                <TextField
+                  fullWidth
+                  select
+                  name="programmeId"
+                  label="Programme"
+                  value={values.programmeId}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={touched.programmeId && Boolean(errors.programmeId)}
+                  helperText={touched.programmeId && errors.programmeId}
+                  margin="normal"
+                >
+                  {programmeSelection.map((programme) => (
+                    <MenuItem key={programme.id} value={programme.id}>
+                      {programme.name}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              )}
             </Box>
           </DialogContent>
           <DialogActions sx={{ pb: 2, px: 3 }}>

@@ -16,9 +16,7 @@ export const useApiExecutor = () => {
       hideMessage();
 
       try {
-        console.log('Request payload:', apiCall.toString());
         const response = await apiCall();
-        console.log('Response:', response);
         
         if (onSuccess) {
           await onSuccess(response.data);

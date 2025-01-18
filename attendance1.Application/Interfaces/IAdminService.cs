@@ -33,6 +33,7 @@ namespace attendance1.Application.Interfaces
         Task<Result<PaginatedResult<GetCourseResponseDto>>> GetAllCourseAsync(GetCourseRequestDto requestDto);
         Task<Result<bool>> EditCourseAsync(EditCourseRequestDto requestDto);
         Task<Result<bool>> DeleteCourseAsync(DeleteRequestDto requestDto);
+        Task<Result<bool>> MultipleDeleteCourseAsync(List<DeleteRequestDto> requestDto);
         #endregion
 
         

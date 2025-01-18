@@ -3,9 +3,12 @@ import {
   DialogTitle, 
   DialogContent, 
   DialogActions, 
-  Typography 
+  Typography,
+  Box
 } from '@mui/material';
-import { TextButton } from '../../Common';
+import { TextButton, PromptMessage } from '../../Common';
+import { useMessageContext } from '../../../contexts/MessageContext';
+
 
 const ConfirmDialog = ({ 
   open, 
@@ -17,6 +20,7 @@ const ConfirmDialog = ({
   cancelText = 'Cancel',
   type = 'primary' 
 }) => {
+  const { message, hideMessage } = useMessageContext();
   return (
     <Dialog 
       open={open} 
@@ -30,6 +34,18 @@ const ConfirmDialog = ({
     >
       <DialogTitle id="confirm-dialog-title">{title}</DialogTitle>
       <DialogContent>
+        {message.show && message.severity === 'error' && (
+          <Box sx={{ mt: 2, mb: 0 }}>
+            <PromptMessage
+              open={true}
+              message={message.text}
+              duration={10000}
+              severity={message.severity}
+              fullWidth
+              onClose={hideMessage}
+            />
+          </Box>
+        )}
         <Typography>{content}</Typography>
       </DialogContent>
       <DialogActions sx={{ pb: 2, px: 3 }}>

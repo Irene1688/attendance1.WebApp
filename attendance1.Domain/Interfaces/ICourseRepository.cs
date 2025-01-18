@@ -17,8 +17,9 @@ namespace attendance1.Domain.Interfaces
         Task<Course> GetCourseDetailsAsync(int courseId);
         Task<int> CreateNewCourseAsync(Course course, CourseSemester semester, List<Tutorial> tutorials, List<EnrolledStudent> students);
         Task<bool> EditCourseAsync(Course course, CourseSemester semester);
-        Task<bool> EditCourseWithTutorialsAsync(Course course, CourseSemester semester, List<Tutorial> tutorials);
+        Task<bool> EditCourseTutorialsAsync(int courseId, List<Tutorial> tutorials);
         Task<bool> DeleteCourseAsync(int courseId);
+        Task<bool> MultipleDeleteCourseAsync(List<int> courseIds);
         Task<List<Course>> GetAllCourseAsync(
             int pageNumber = 1, 
             int pageSize = 15, 

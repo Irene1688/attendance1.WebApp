@@ -4,4 +4,4 @@ export { default as LecturerManagement } from './LecturerManagement';
 export { default as StudentManagement } from './StudentManagement';
 export { default as CourseManagement } from './course/CourseManagement';
 export { default as CourseDetail } from './course/CourseDetail';
-export { default as CourseFormPage } from './course/CourseForm';
+export { default as CourseFormPage } from './course/CourseFormPage';

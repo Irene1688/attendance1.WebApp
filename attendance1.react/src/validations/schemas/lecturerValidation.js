@@ -1,7 +1,7 @@
 import * as Yup from 'yup';
 import { nameRules } from '../rules';
 
-export const lecturerValidationSchema = Yup.object({
+export const lecturerValidationSchema = (isCreating = true) => Yup.object({
     name: nameRules,
     email: Yup.string()
         .required('Email is required')
@@ -9,4 +9,10 @@ export const lecturerValidationSchema = Yup.object({
     campusId: Yup.string()
         .required('Lecturer ID is required')
         .min(3, 'Lecturer ID must be at least 3 characters'),
+    programmeId: isCreating 
+        ? Yup.number()
+            .required('Programme is required')
+            .positive('Invalid programme ID')
+            .integer('Invalid programme ID')
+        : Yup.number().nullable(),
   });

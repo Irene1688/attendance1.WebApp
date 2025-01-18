@@ -60,6 +60,9 @@ namespace attendance1.Infrastructure.Persistence.Repositories
         protected async Task<T> ExecuteWithTransactionAsync<T>(Func<Task<T>> action, [CallerMemberName] string? methodName = null)
         {
             _currentDatabase = _contextFactory.CreateDbContext();
+            // Create a new database context
+            //using var dbContext = _contextFactory.CreateDbContext();
+            //_currentDatabase = dbContext;
             var strategy = _database.Database.CreateExecutionStrategy();
             
             try 
@@ -86,8 +89,12 @@ namespace attendance1.Infrastructure.Persistence.Repositories
             }
             finally
             {
-                await _currentDatabase.DisposeAsync();
-                _currentDatabase = null;
+                // 安全地清理资源
+                // if (_currentDatabase != null)
+                // {
+                    await _currentDatabase.DisposeAsync();
+                    _currentDatabase = null;
+                //}
             }
         }
     }

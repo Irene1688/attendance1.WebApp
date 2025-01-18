@@ -36,6 +36,11 @@ const StudentTable = ({
           sortable: true
         },
         {
+          id: 'programmeName',
+          label: 'Programme',
+          sortable: true
+        },
+        {
           id: 'classes',
           label: 'Classes',
           sortable: false
@@ -53,6 +58,7 @@ const StudentTable = ({
           <TableCell>{student.name}</TableCell>
           <TableCell>{student.studentId}</TableCell>
           <TableCell>{student.email}</TableCell>
+          <TableCell>{student.programmeName}</TableCell>
           <TableCell>{student.enrolledCourses?.length || 0}</TableCell>
           <TableCell>
             <IconButton

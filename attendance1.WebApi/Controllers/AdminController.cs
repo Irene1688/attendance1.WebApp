@@ -145,6 +145,13 @@ namespace attendance1.WebApi.Controllers
             var result = await _adminService.DeleteCourseAsync(requestDto);
             return StatusCode((int)result.StatusCode, result);
         }
+
+        [HttpPost("multipleDeleteCourse")]
+        public async Task<ActionResult<bool>> MultipleDeleteCourse([FromBody] List<DeleteRequestDto> requestDto)
+        {
+            var result = await _adminService.MultipleDeleteCourseAsync(requestDto);
+            return StatusCode((int)result.StatusCode, result);
+        }
         #endregion
     }
 }

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { Box, Typography } from '@mui/material';
 import { 
   Loader, 
@@ -17,17 +17,29 @@ import { convertNumbersToDays, NUMBER_TO_DAY } from '../../../validations/schema
 const CourseFormPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { message, showSuccessMessage } = useMessageContext();
   const { 
     loading, 
-    selectedCourse,
     createCourse,
     updateCourse,
-    fetchCourseById,
   } = useCourseManagement();
 
   const { programmeSelection, fetchProgrammeSelection } = useProgrammeManagement();
   const { lecturerSelection, fetchLecturerSelection } = useUserManagement();
+
+  // get selected course from state (for edit)
+  const selectedCourse = location.state?.course;
+
+  // seperate session from passed state (for edit)
+  const parseSession = (courseSession) => {
+    if (!courseSession) return { month: '', year: '' };
+    const [month, year] = courseSession.split(' ');
+    return {
+      month: month,
+      year: year
+    };
+  };
 
   // Initialize
   useEffect(() => {
@@ -41,20 +53,11 @@ const CourseFormPage = () => {
     };
   }, []);
 
-  // 加载课程详情（如果是编辑）
-  useEffect(() => {
-    const loadCourse = async () => {
-      if (id) {
-        await fetchCourseById(id);
-      }
-    };
-    loadCourse();
-  }, [id, fetchCourseById]);
-
-
   const handleSubmit = async (values, { setSubmitting }) => {
-    const operation = id ? updateCourse : createCourse;
-    const success = await operation(values);
+    const success = id 
+      ? await updateCourse(id, values)
+      : await createCourse(values);
+
     if (success) {
       showSuccessMessage(
         id 
@@ -86,16 +89,17 @@ const CourseFormPage = () => {
         initialValues={id ? {
           courseCode: selectedCourse?.courseCode,
           courseName: selectedCourse?.courseName,
-          courseSession: selectedCourse?.courseSession,
+          sessionMonth: parseSession(selectedCourse?.courseSession).month,
+          sessionYear: parseSession(selectedCourse?.courseSession).year,
           programmeId: selectedCourse?.programmeId,
-          userId: selectedCourse?.userId,
-          classDays: selectedCourse?.classDays ? convertNumbersToDays(selectedCourse.classDays) : [],
+          userId: selectedCourse?.lecturerUserId,
+          classDays: selectedCourse?.classDay?.split(',').map(Number).map(num => NUMBER_TO_DAY[num]) || [],
           startDate: selectedCourse?.startDate,
           endDate: selectedCourse?.endDate,
           tutorials: selectedCourse?.tutorials?.map(t => ({
             id: t.tutorialId,
             name: t.tutorialName,
-            classDay: NUMBER_TO_DAY[t.classDay]
+            classDay: NUMBER_TO_DAY[Number(t.classDay)]
           })) || []
         } : undefined}
         programmes={programmeSelection}

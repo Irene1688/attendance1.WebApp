@@ -1,18 +1,17 @@
 import { useState, useCallback } from 'react';
 import { adminApi } from '../../../api/admin';
 import { useApiExecutor } from '../../common';
-import { DAY_TO_NUMBER } from '../../../validations/schemas/courseValidation';
 
 export const useCourseManagement = () => {
   // states
   const [courses, setCourses] = useState([]);
-  const [selectedCourse, setSelectedCourse] = useState(null);
-  const [programmes, setProgrammes] = useState([]);
-  const [lecturers, setLecturers] = useState([]);
-  const [openDialog, setOpenDialog] = useState(false);
   const [confirmDeleteDialog, setConfirmDeleteDialog] = useState({
     open: false,
     course: null
+  });
+  const [confirmMultipleDeleteDialog, setConfirmMultipleDeleteDialog] = useState({
+    open: false,
+    courseIds: []
   });
 
   // hooks
@@ -38,7 +37,6 @@ export const useCourseManagement = () => {
     return await handleApiCall(
       () => adminApi.getAllCourses(requestDto),
       (paginatedResult) => {
-        console.log('Response:', paginatedResult);
         setCourses(paginatedResult.data || []);
         return paginatedResult;
       }
@@ -60,40 +58,39 @@ export const useCourseManagement = () => {
         classDay: Number(tutorial.classDay)
       }))
     };
-    console.log('Request:', requestDto);
     return await handleApiCall(
       () => adminApi.createCourse(requestDto),
       () => true
     );
   }, [handleApiCall]);
 
-  const updateCourse = useCallback(async (values) => {
-    if (!selectedCourse) {
+  const updateCourse = useCallback(async (id, values) => {
+    if (!id) {
       throw new Error('No course selected for update');
     }
 
     const requestDto = {
-      courseId: selectedCourse.courseId,
+      courseId: Number(id),
       courseCode: values.courseCode,
       courseName: values.courseName,
       courseSession: values.courseSession,
-      programmeId: values.programmeId,
-      lecturerId: values.lecturerId,
-      classDay: values.classDay,
+      programmeId: Number(values.programmeId),
+      lecturerUserId: Number(values.userId),
+      classDays: values.classDays,
       courseStartFrom: values.startDate,
       courseEndTo: values.endDate,
       tutorials: values.tutorials.map(tutorial => ({
         tutorialId: tutorial.id,
         tutorialName: tutorial.name,
-        classDay: tutorial.classDay
+        classDay: Number(tutorial.classDay)
       }))
     };
-
+    console.log('Request:', requestDto);
     return await handleApiCall(
       () => adminApi.updateCourse(requestDto),
       () => true
     );
-  }, [handleApiCall, selectedCourse]);
+  }, [handleApiCall]);
 
   const deleteCourse = useCallback(async (course) => {
     return await handleApiCall(
@@ -102,19 +99,17 @@ export const useCourseManagement = () => {
     );
   }, [handleApiCall]);
 
-  const fetchCourseById = useCallback(async (id) => {
-    return await handleApiCall(
-      () => adminApi.getCourseById(id),
-      (data) => {
-        setSelectedCourse(data);
-        return data;
-      }
-    );
-  }, [handleApiCall]);
-
   const bulkDeleteCourses = useCallback(async (courseIds) => {
+    if (!courseIds?.length) {
+      throw new Error('No courses selected for deletion');
+    }
+
+    const requestDto = courseIds.map(id => ({
+      id: id
+    }));
+
     return await handleApiCall(
-      () => adminApi.bulkDeleteCourses({ courseIds }),
+      () => adminApi.MultipleDeleteCourse(requestDto),
       () => true
     );
   }, [handleApiCall]);
@@ -122,24 +117,18 @@ export const useCourseManagement = () => {
   return {
     // states
     courses,
-    selectedCourse,
-    openDialog,
     confirmDeleteDialog,
+    confirmMultipleDeleteDialog,
     loading,
-    programmes,
-    lecturers,
     
     // setters
-    setSelectedCourse,
-    setOpenDialog,
     setConfirmDeleteDialog,
-    
+    setConfirmMultipleDeleteDialog,
     // operations
     fetchCourses,
     createCourse,
     updateCourse,
     deleteCourse,
-    fetchCourseById,
     bulkDeleteCourses
   };
 }; 

@@ -84,7 +84,8 @@ export const useUserManagement = () => {
             name: values.name,
             email: values.email,
             password: values.campusId.toLowerCase(),
-            role: values.role  
+            role: values.role,
+            programmeId: Number(values.programmeId),
         };
         return await handleApiCall(
             () => adminApi.createUser(requestDto),
@@ -102,6 +103,7 @@ export const useUserManagement = () => {
             email: values.email,
             role: values.role
         };
+        console.log('selectedUser', selectedUser);
         return await handleApiCall(
             () => adminApi.updateUser(requestDto),
             () => {

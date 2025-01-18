@@ -39,8 +39,8 @@ const CourseFilter = ({
 }) => {
   const [open, setOpen] = useState(false);
   const [filters, setFilters] = useState({
-    programmeId: '',
-    lecturerId: '',
+    programmeId: 0,
+    lecturerUserId: 0,
     status: '',
     month: '',
     year: ''
@@ -84,17 +84,33 @@ const CourseFilter = ({
   };
 
   const handleApplyFilter = () => {
-    if (yearError) return; // 如果年份格式错误，不允许应用筛选
+    if (yearError) return;
+    
+    if ((filters.month && !filters.year) || (!filters.month && filters.year)) {
+      return;
+    }
 
     const filterValues = {
       programmeId: filters.programmeId,
       lecturerUserId: filters.lecturerUserId,
       status: filters.status,
-      session: filters.month && filters.year 
-        ? `${filters.month} ${filters.year}`
-        : ''
+      month: filters.month,
+      year: filters.year
     };
     onFilter(filterValues);
+  };
+
+  const getSessionHelperText = () => {
+    if (filters.month && !filters.year) {
+      return 'Please select a year';
+    }
+    if (!filters.month && filters.year) {
+      return 'Please select a month';
+    }
+    if (filters.month && filters.year) {
+      return `Selected Session: ${filters.month} ${filters.year}`;
+    }
+    return 'Select both month and year to filter by session';
   };
 
   return (
@@ -120,7 +136,7 @@ const CourseFilter = ({
                 value={filters.programmeId}
                 onChange={handleChange('programmeId')}
               >
-                <MenuItem value="">All Programmes</MenuItem>
+                <MenuItem value={0}>All Programmes</MenuItem>
                 {programmes.map((programme) => ( 
                   <MenuItem 
                     key={programme.id} 
@@ -141,7 +157,7 @@ const CourseFilter = ({
                 value={filters.lecturerUserId}
                 onChange={handleChange('lecturerUserId')}
               >
-                <MenuItem value="">All Lecturers</MenuItem>
+                <MenuItem value={0}>All Lecturers</MenuItem>
                 {lecturers.map((lecturer) => (
                   <MenuItem 
                     key={lecturer.id} 
@@ -179,8 +195,9 @@ const CourseFilter = ({
                     select
                     size="small"
                     label="Session Month"
-                    value={filters.month}
+                    value={filters.month || ''}
                     onChange={handleChange('month')}
+                    error={!filters.month && !!filters.year}
                   >
                     <MenuItem value="">All Months</MenuItem>
                     {MONTHS.map((month) => (
@@ -197,16 +214,22 @@ const CourseFilter = ({
                     label="Session Year"
                     value={filters.year}
                     onChange={handleYearChange}
-                    error={!!yearError}
+                    error={!!yearError || (!!filters.month && !filters.year)}
                     helperText={yearError || 'Format: YYYY/YYYY (e.g., 2023/2024)'}
                     placeholder="2023/2024"
                   />
                 </Grid>
               </Grid>
-              <Typography variant="caption" color="textSecondary" sx={{ mt: 0.5, display: 'block' }}>
-                {filters.month && filters.year 
-                  ? `Selected Session: ${filters.month} ${filters.year}`
-                  : 'Select both month and year to filter by session'}
+              <Typography 
+                variant="caption" 
+                color={
+                  ((filters.month && !filters.year) || (!filters.month && filters.year))
+                    ? 'error'
+                    : 'textSecondary'
+                } 
+                sx={{ mt: 0.5, display: 'block' }}
+              >
+                {getSessionHelperText()}
               </Typography>
             </Grid>
           </Grid>

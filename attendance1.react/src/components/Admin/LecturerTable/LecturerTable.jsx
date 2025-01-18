@@ -36,6 +36,11 @@ const LecturerTable = ({
           sortable: true
         },
         {
+          id: 'programmeName',
+          label: 'Programme',
+          sortable: true
+        },
+        {
           id: 'classes',
           label: 'Classes',
           sortable: false
@@ -53,6 +58,7 @@ const LecturerTable = ({
           <TableCell>{lecturer.name}</TableCell>
           <TableCell>{lecturer.lecturerId}</TableCell>
           <TableCell>{lecturer.email}</TableCell>
+          <TableCell>{lecturer.programmeName}</TableCell>
           <TableCell>{lecturer.registeredCourses?.length || 0}</TableCell>
           <TableCell>
             <IconButton

@@ -147,6 +147,14 @@ const CourseTable = ({
     </TableRow>
   );
 
+  const handleBulkDelete = () => {
+    //const selectedCourses = courses.filter((_, index) => selected[index]);
+    //console.log('selected', selected);
+    //console.log('selectedCourses', selectedCourses);
+    onBulkDelete(selected);
+    setSelected([]);
+  };
+
   return (
     <>
       {selected.length > 0 && (
@@ -159,10 +167,7 @@ const CourseTable = ({
           />
           <Chip
             label="Delete Selected"
-            onClick={() => {
-              onBulkDelete(selected);
-              setSelected([]);
-            }}
+            onClick={handleBulkDelete}
             color="error"
             variant="outlined"
           />

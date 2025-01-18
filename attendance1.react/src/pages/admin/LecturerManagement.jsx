@@ -9,7 +9,7 @@ import {
   SearchField,
 } from '../../components/Common';
 import { UserForm, LecturerTable } from '../../components/Admin';
-import { useUserManagement } from '../../hooks/features';
+import { useUserManagement, useProgrammeManagement } from '../../hooks/features';
 import { usePagination, useSorting } from '../../hooks/common';
 import { useMessageContext } from '../../contexts/MessageContext';
 import { USER_ROLES } from '../../constants/userRoles';
@@ -34,6 +34,7 @@ const LecturerManagement = () => {
     resetPassword
   } = useUserManagement();
 
+  const { programmeSelection, fetchProgrammeSelection } = useProgrammeManagement();
   const { message, showSuccessMessage, hideMessage } = useMessageContext();
 
   const {
@@ -61,6 +62,17 @@ const LecturerManagement = () => {
     setSearchTerm(term);
     setPage(0);
   }, [setPage]);
+
+  // Initialize
+  useEffect(() => {
+    let isMounted = true;
+
+    fetchProgrammeSelection();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // fetch data
   const loadData = useCallback(async () => {
@@ -195,15 +207,18 @@ const LecturerManagement = () => {
             campusId: selectedUser.lecturerId,
             name: selectedUser.name,
             email: selectedUser.email,
+            programmeId: selectedUser.programmeId,
           } : {
             campusId: '',
             name: '',
             email: '',
+            programmeId: '',
           }}
           userRole={USER_ROLES.LECTURER}
           onSubmit={handleSubmit}
           onCancel={() => setOpenDialog(false)}
           isEditing={!!selectedUser}
+          programmeSelection={programmeSelection}
         />
       </Dialog>
 

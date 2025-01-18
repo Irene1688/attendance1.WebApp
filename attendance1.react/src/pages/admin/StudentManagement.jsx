@@ -9,7 +9,7 @@ import {
   SearchField,
 } from '../../components/Common';
 import { UserForm, StudentTable } from '../../components/Admin';
-import { useUserManagement } from '../../hooks/features';
+import { useUserManagement, useProgrammeManagement } from '../../hooks/features';
 import { usePagination, useSorting } from '../../hooks/common';
 import { useMessageContext } from '../../contexts/MessageContext';
 import { USER_ROLES } from '../../constants/userRoles';
@@ -33,7 +33,7 @@ const StudentManagement = () => {
     deleteUser,
     resetPassword
   } = useUserManagement();
-
+  const { programmeSelection, fetchProgrammeSelection } = useProgrammeManagement();
   const { message, showSuccessMessage, hideMessage } = useMessageContext();
 
   const {
@@ -61,6 +61,11 @@ const StudentManagement = () => {
     setSearchTerm(term);
     setPage(0);
   }, [setPage]);
+
+  // initialize
+  useEffect(() => {
+    fetchProgrammeSelection();
+  }, []);
 
   // fetch data
   const loadData = useCallback(async () => {
@@ -203,6 +208,7 @@ const StudentManagement = () => {
           onSubmit={handleSubmit}
           onCancel={() => setOpenDialog(false)}
           isEditing={!!selectedUser}
+          programmeSelection={programmeSelection}
         />
       </Dialog>
 

@@ -23,6 +23,8 @@ const CourseManagement = () => {
     loading,
     confirmDeleteDialog,
     setConfirmDeleteDialog,
+    confirmMultipleDeleteDialog,
+    setConfirmMultipleDeleteDialog,
     fetchCourses,
     deleteCourse,
     bulkDeleteCourses,
@@ -71,7 +73,8 @@ const CourseManagement = () => {
     programmeId: 0,
     lecturerUserId: 0,
     status: '',
-    session: ''
+    month: '',
+    year: ''
   });
 
   const loadData = useCallback(async () => {
@@ -85,7 +88,9 @@ const CourseManagement = () => {
         programmeId: filters.programmeId || 0,
         lecturerUserId: filters.lecturerUserId || 0,
         status: filters.status || '',
-        session: filters.session || ''
+        session: filters.month && filters.year 
+          ? `${filters.month} ${filters.year}`
+          : ''
       }
     };
     const paginatedResult = await fetchCourses(requestDto);
@@ -120,13 +125,29 @@ const CourseManagement = () => {
     }
   };
 
-  const handleBulkDelete = async (courseIds) => {
-    const success = await bulkDeleteCourses(courseIds);
+  const handleBulkDeleteConfirm = async () => {
+    if (!confirmMultipleDeleteDialog.courseIds?.length) {
+      return;
+    }
+    
+    const success = await bulkDeleteCourses(confirmMultipleDeleteDialog.courseIds);
     if (success) {
+      setConfirmMultipleDeleteDialog({ open: false, courseIds: [] });
       await loadData();
       showSuccessMessage('Selected courses deleted successfully');
     }
   };
+
+  const handleFilterApplied = useCallback((newFilters) => {
+    setFilters({
+      ...newFilters,
+      programmeId: newFilters.programmeId || 0,
+      lecturerUserId: newFilters.lecturerUserId || 0,
+      status: newFilters.status || '',
+      month: newFilters.month || '',
+      year: newFilters.year || ''
+    });
+  }, []);
 
   return (
     <Box sx={{ pl: 3, pr: 3 }}>
@@ -167,9 +188,7 @@ const CourseManagement = () => {
           onFilter={setFilters}
           programmes={programmeSelection || []}
           lecturers={lecturerSelection || []}
-          onFilterApplied={(newFilters) => {
-            setFilters(newFilters);
-          }}
+          onFilterApplied={handleFilterApplied}
         />
       </Box>
 
@@ -184,14 +203,31 @@ const CourseManagement = () => {
         onRowsPerPageChange={handleRowsPerPageChange}
         onSort={handleSort}
         onView={(course) => navigate(`/admin/courses/${course.courseId}`)}
-        onEdit={(course) => navigate(`/admin/courses/${course.courseId}/edit`)}
+        onEdit={(course) => navigate(`/admin/courses/${course.courseId}/edit`, { 
+          state: { 
+            course: {
+              ...course,
+              classDay: course.classDay,
+              userId: course.LecturerUserId,
+              tutorials: course.tutorials?.map(t => ({
+                ...t,
+                classDay: t.classDay.toString()
+              }))
+            } 
+          } 
+        })}
         onDelete={(course) => {
           setConfirmDeleteDialog({
             open: true,
             course
           });
         }}
-        onBulkDelete={handleBulkDelete}
+        onBulkDelete={(courseIds) => {
+          setConfirmMultipleDeleteDialog({
+            open: true,
+            courseIds
+          });
+        }}
         searchTerm={searchTerm}
       />
 
@@ -201,6 +237,17 @@ const CourseManagement = () => {
         content={`Are you sure you want to delete ${confirmDeleteDialog.course?.courseName}? This action cannot be undone.`}
         onConfirm={handleDeleteConfirm}
         onCancel={() => setConfirmDeleteDialog({ open: false, course: null })}
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="delete"
+      />
+
+      <ConfirmDialog
+        open={confirmMultipleDeleteDialog.open}
+        title="Delete Courses"
+        content={`Are you sure you want to delete ${confirmMultipleDeleteDialog.courseIds?.length} courses? This action cannot be undone.`}
+        onConfirm={handleBulkDeleteConfirm}
+        onCancel={() => setConfirmMultipleDeleteDialog({ open: false, courseIds: [] })}
         confirmText="Delete"
         cancelText="Cancel"
         type="delete"

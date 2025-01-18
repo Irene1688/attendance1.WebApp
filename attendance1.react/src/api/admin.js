@@ -25,7 +25,7 @@ export const adminApi = {
   createCourse: (data) => api.post('Admin/createNewCourse', data),
   updateCourse: (data) => api.post('Admin/editCourse', data),
   deleteCourse: (data) => api.post('Admin/deleteCourse', data),
-  getCourseById: (id) => api.post('Admin/getCourseById', { id }),
+  MultipleDeleteCourse: (data) => api.post('Admin/multipleDeleteCourse', data),
 
   // Course Students
   getEnrolledStudents: (data) => api.post('Admin/getEnrolledStudents', data),

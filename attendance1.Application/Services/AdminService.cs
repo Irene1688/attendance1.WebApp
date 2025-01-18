@@ -465,16 +465,21 @@ namespace attendance1.Application.Services
             return await ExecuteAsync(async () =>
             {
                 var courses = await _courseRepository.GetAllCourseAsync(pageNumber, pageSize, searchTerm, orderBy, isAscending, filters);
-                var processCoursesTask = courses.Select(async course => new GetCourseResponseDto
+                var processCoursesTask = courses.Select(course => new GetCourseResponseDto
                 {
                     CourseId = course.CourseId,
                     CourseCode = course.CourseCode,
                     CourseName = course.CourseName,
                     CourseSession = course.CourseSession,
+                    ProgrammeId = course.ProgrammeId,
                     ProgrammeName = course.Programme.ProgrammeName, 
-                    LecturerId = course.LecturerId,
-                    LecturerName = await _userRepository.GetLecturerNameByLecturerIdAsync(course.LecturerId),
+                    LecturerUserId = course.UserId ?? 0,
+                    LecturerName = course.User != null 
+                        ? course.User.UserName ?? string.Empty 
+                        : string.Empty,
                     ClassDay = course.ClassDay ?? string.Empty,
+                    StartDate = course.Semester.StartWeek,
+                    EndDate = course.Semester.EndWeek,
                     Status = course.Semester.EndWeek <= DateOnly.FromDateTime(DateTime.Now) ? "ARCHIVED" : "ACTIVE",
                     Tutorials = course.Tutorials.Select(t => new GetTutorialResponseDto
                     {
@@ -484,10 +489,10 @@ namespace attendance1.Application.Services
                     }).ToList(),
                 }).ToList();
 
-                var response = await Task.WhenAll(processCoursesTask);
+                //var response = await Task.WhenAll(processCoursesTask);
                 
                 var paginatedResult = new PaginatedResult<GetCourseResponseDto>(
-                    response.ToList(), 
+                    processCoursesTask.ToList(), 
                     await _courseRepository.GetTotalCourseAsync(searchTerm, filters),
                     pageNumber, 
                     pageSize
@@ -499,20 +504,23 @@ namespace attendance1.Application.Services
 
         public async Task<Result<bool>> EditCourseAsync(EditCourseRequestDto requestDto)
         {
-            if (!await _validateService.ValidateCourseAsync(requestDto.CourseId))
-                return Result<bool>.FailureResult($"Course with ID {requestDto.CourseId} does not exist");
-            
             return await ExecuteAsync(async () =>
             {
+                if (!await _validateService.ValidateCourseAsync(requestDto.CourseId))
+                    throw new KeyNotFoundException("Course not found");
+
+                var lecturerId = await _userRepository.GetLecturerIdByUserIdAsync(requestDto.LecturerUserId);
+                
                 var course = new Course 
                 {
                     CourseId = requestDto.CourseId,
                     CourseCode = requestDto.CourseCode,
                     CourseName = requestDto.CourseName,
                     CourseSession = requestDto.CourseSession,
-                    ClassDay = requestDto.ClassDay,
+                    ClassDay = string.Join(",", requestDto.ClassDays),
                     ProgrammeId = requestDto.ProgrammeId,
-                    LecturerId = requestDto.LecturerId,
+                    UserId = requestDto.LecturerUserId,
+                    LecturerId = lecturerId,
                     IsDeleted = false,
                 };
 
@@ -527,28 +535,51 @@ namespace attendance1.Application.Services
                 {
                     TutorialId = t.TutorialId,
                     TutorialName = t.TutorialName,
-                    TutorialClassDay = t.ClassDay,
+                    TutorialClassDay = t.ClassDay.ToString(),
                     IsDeleted = false,
                 }).ToList();
 
-                await _courseRepository.EditCourseWithTutorialsAsync(course, semester, tutorials);
+                var isSuccess = await _courseRepository.EditCourseAsync(course, semester);
+                if (!isSuccess)
+                    throw new Exception("Cancelled editing course");
+
+                var isSuccessTutorials = await _courseRepository.EditCourseTutorialsAsync(course.CourseId, tutorials);
+                if (!isSuccessTutorials)
+                    throw new Exception("Cancelled editing tutorials");
+
                 return true;
             },
-            $"Failed to edit course: {requestDto.CourseName}");
+            $"Failed to edit course");
         }
 
         public async Task<Result<bool>> DeleteCourseAsync(DeleteRequestDto requestDto)
         {
-            if (!await _validateService.ValidateCourseAsync(requestDto.Id))
-                return Result<bool>.FailureResult($"Course with ID {requestDto.Id} does not exist");
-            
             return await ExecuteAsync(async () =>
             {
+                if (!await _validateService.ValidateCourseAsync(requestDto.Id))
+                    throw new KeyNotFoundException("Course not found");
+
                 await _courseRepository.DeleteCourseAsync(requestDto.Id);
                 return true;
             },
             $"Failed to delete the course");
 
+        }
+
+        public async Task<Result<bool>> MultipleDeleteCourseAsync(List<DeleteRequestDto> requestDto)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var courseIds = requestDto.Select(r => r.Id).ToList();
+                if (courseIds.Count == 0)
+                    throw new InvalidOperationException("No course IDs provided");
+                if (courseIds.Any(id => id <= 0))
+                    throw new InvalidOperationException("Invalid course ID found");
+                
+                await _courseRepository.MultipleDeleteCourseAsync(courseIds);
+                return true;
+            },
+            $"Failed to delete the courses");
         }
         #endregion
     }
