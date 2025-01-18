@@ -75,6 +75,22 @@ namespace attendance1.Application.Services
         }
 
         #region programme CRUD
+        public async Task<Result<GetProgrammeSelectionResponseDto>> GetProgrammeSelectionAsync()
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var programmes = await _programmeRepository.GetProgrammeSelectionAsync();
+                var response = new GetProgrammeSelectionResponseDto
+                {
+                    Programmes = programmes.Select(p => new DataIdResponseDto
+                    {
+                        Id = p.id,
+                        Name = p.name
+                    }).ToList()
+                };
+                return response;
+            }, "Failed to get programme selection");
+        }
         public async Task<Result<bool>> CreateNewProgrammeAsync(CreateProgrammeRequestDto requestDto) 
         {
             return await ExecuteAsync(async () =>
@@ -166,6 +182,9 @@ namespace attendance1.Application.Services
                 if (requestDto.Role == AccRoleEnum.Student && !_validateService.HasStudentIdMatchEmail(requestDto.CampusId, requestDto.Email))
                     throw new InvalidOperationException("The student ID does not match with the email");
 
+                if (!await _validateService.HasProgrammeAsync(requestDto.ProgrammeId))
+                    throw new KeyNotFoundException("Programme not found");
+
                 if (await _validateService.ValidateEmailAsync(requestDto.Email))
                     throw new InvalidOperationException("The email has been used");
                 
@@ -179,6 +198,7 @@ namespace attendance1.Application.Services
                 {
                     StudentId = requestDto.Role == AccRoleEnum.Student ? requestDto.CampusId : null, 
                     LecturerId = requestDto.Role != AccRoleEnum.Student ? requestDto.CampusId : null, 
+                    ProgrammeId = requestDto.ProgrammeId,
                     UserName = FormatName(requestDto.Name),
                     Email = requestDto.Email,
                     UserPassword = BCrypt.Net.BCrypt.HashPassword(requestDto.CampusId.ToLower()),
@@ -259,6 +279,23 @@ namespace attendance1.Application.Services
         #endregion
 
         #region View Lecturer & Student
+        public async Task<Result<GetLecturerSelectionResponseDto>> GetLecturerSelectionAsync()
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var lecturers = await _userRepository.GetLecturerSelectionAsync();
+                var response = new GetLecturerSelectionResponseDto
+                {
+                    Lecturers = lecturers.Select(l => new DataIdResponseDto
+                    {
+                        Id = l.id,
+                        Name = l.name,  
+                    }).ToList()
+                };
+                return response;
+            }, "Failed to get lecturer selection");
+        }
+
         public async Task<Result<PaginatedResult<GetLecturerResponseDto>>> GetAllLecturerWithClassAsync(GetLecturerRequestDto requestDto)
         {
             var pageNumber = requestDto.PaginatedRequest.PageNumber;
@@ -281,6 +318,9 @@ namespace attendance1.Application.Services
                     LecturerId = lecturer.LecturerId ?? string.Empty,
                     Name = lecturer.UserName ?? string.Empty, 
                     Email = lecturer.Email ?? string.Empty,
+                    ProgrammeName = lecturer.Programme != null 
+                        ? lecturer.Programme.ProgrammeName ?? string.Empty 
+                        : string.Empty,
                     RegisteredCourses = courses.Where(c => c.LecturerId == lecturer.LecturerId)
                         .Select(course => new LecturerCourseViewResponseDto
                         {
@@ -350,6 +390,9 @@ namespace attendance1.Application.Services
                         StudentId = student.StudentId ?? string.Empty,
                         Name = student.UserName ?? string.Empty,
                         Email = student.Email ?? string.Empty,
+                        ProgrammeName = student.Programme != null 
+                            ? student.Programme.ProgrammeName ?? string.Empty 
+                            : string.Empty,
                         EnrolledCourses = enrolledCourses
                     });
                 }
@@ -375,9 +418,9 @@ namespace attendance1.Application.Services
                     CourseCode = requestDto.CourseCode,
                     CourseName = requestDto.CourseName,
                     CourseSession = requestDto.CourseSession,
-                    ClassDay = requestDto.ClassDay,
+                    ClassDay = string.Join(",", requestDto.ClassDays),
                     ProgrammeId = requestDto.ProgrammeId,
-                    LecturerId = requestDto.LecturerId,
+                    UserId = requestDto.UserId,
                     IsDeleted = false,
                 };
 
@@ -391,7 +434,7 @@ namespace attendance1.Application.Services
                 var tutorials = requestDto.Tutorials.Select(t => new Tutorial
                 {
                     TutorialName = t.TutorialName,
-                    TutorialClassDay = t.ClassDay,
+                    TutorialClassDay = t.ClassDay.ToString(),
                     IsDeleted = false,
                 }).ToList();
 
@@ -414,7 +457,7 @@ namespace attendance1.Application.Services
             var filters = requestDto.Filters != null ? new Dictionary<string, object>
             {
                 { "programmeId", requestDto.Filters.ProgrammeId ?? 0 },
-                { "lecturerId", requestDto.Filters.LecturerId ?? string.Empty },
+                { "lecturerUserId", requestDto.Filters.LecturerUserId ?? 0 },
                 { "status", requestDto.Filters.Status ?? string.Empty },
                 { "session", requestDto.Filters.Session ?? string.Empty }
             } : null;

@@ -13,6 +13,8 @@ import { CourseTable, CourseFilter } from '../../../components/Admin';
 import { useCourseManagement } from '../../../hooks/features';
 import { usePagination, useSorting } from '../../../hooks/common';
 import { useMessageContext } from '../../../contexts/MessageContext';
+import { useProgrammeManagement } from '../../../hooks/features/programme/useProgrammeManagement';
+import { useUserManagement } from '../../../hooks/features/user/useUserManagement';
 
 const CourseManagement = () => {
   const navigate = useNavigate();
@@ -24,10 +26,17 @@ const CourseManagement = () => {
     fetchCourses,
     deleteCourse,
     bulkDeleteCourses,
-    programmes,
-    lecturers,
-    loadFilterOptions
   } = useCourseManagement();
+
+  const { 
+    programmeSelection, 
+    fetchProgrammeSelection 
+  } = useProgrammeManagement();
+  
+  const { 
+    lecturerSelection, 
+    fetchLecturerSelection 
+  } = useUserManagement();
 
   const { message, showSuccessMessage, hideMessage } = useMessageContext();
 
@@ -59,8 +68,8 @@ const CourseManagement = () => {
 
   // fetch data
   const [filters, setFilters] = useState({
-    programmeId: '',
-    lecturerId: '',
+    programmeId: 0,
+    lecturerUserId: 0,
     status: '',
     session: ''
   });
@@ -73,10 +82,10 @@ const CourseManagement = () => {
       },
       searchTerm: searchTerm,
       filters: {
-        programmeId: filters.programmeId || undefined,
-        lecturerId: filters.lecturerId || undefined,
-        status: filters.status || undefined,
-        session: filters.session || undefined
+        programmeId: filters.programmeId || 0,
+        lecturerUserId: filters.lecturerUserId || 0,
+        status: filters.status || '',
+        session: filters.session || ''
       }
     };
     const paginatedResult = await fetchCourses(requestDto);
@@ -91,7 +100,8 @@ const CourseManagement = () => {
   useEffect(() => {
     let isMounted = true;
 
-    loadFilterOptions();
+    fetchProgrammeSelection();
+    fetchLecturerSelection();
 
     return () => {
       isMounted = false;
@@ -155,8 +165,8 @@ const CourseManagement = () => {
       <Box sx={{ mb: 3 }}>
         <CourseFilter
           onFilter={setFilters}
-          programmes={programmes}
-          lecturers={lecturers}
+          programmes={programmeSelection || []}
+          lecturers={lecturerSelection || []}
           onFilterApplied={(newFilters) => {
             setFilters(newFilters);
           }}

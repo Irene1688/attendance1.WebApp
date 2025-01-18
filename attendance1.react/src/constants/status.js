@@ -1,7 +1,7 @@
 export const STATUS = {
-    ACTIVE: 'Active',
-    ARCHIVED: 'Archived'
-  };
-  
-  export const isActive = (status) => status === STATUS.ACTIVE;
-  export const isArchived = (status) => status === STATUS.ARCHIVED;
+  ACTIVE: 'Active',
+  ARCHIVED: 'Archived'
+};
+
+export const isActive = (status) => status === 'ACTIVE';
+export const isArchived = (status) => status === 'ARCHIVED';

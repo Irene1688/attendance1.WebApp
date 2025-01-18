@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using attendance1.Application.Extensions;
 using attendance1.Application.Common.Logging;
+using attendance1.Application.Common.Enum;
 
 namespace attendance1.Infrastructure.Persistence.Repositories
 {
@@ -140,10 +141,22 @@ namespace attendance1.Infrastructure.Persistence.Repositories
         {
             return await ExecuteWithTransactionAsync(async () =>
             {
+                var lectureId = await _database.UserDetails
+                    .Where(u => 
+                        u.UserId == course.UserId &&
+                        u.AccRole == AccRoleEnum.Lecturer.ToString() &&
+                        u.IsDeleted == false)
+                    .Select(u => u.LecturerId)
+                    .FirstOrDefaultAsync();
+
+                if (lectureId == null)
+                    throw new KeyNotFoundException("Lecturer not found");
+
                 await _database.CourseSemesters.AddAsync(semester);
                 await _database.SaveChangesAsync();
 
                 course.SemesterId = semester.SemesterId;
+                course.LecturerId = lectureId;
                 await _database.Courses.AddAsync(course);
                 await _database.SaveChangesAsync();
                 
@@ -270,6 +283,7 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                     .Include(c => c.Programme)
                     .Include(c => c.Semester)
                     .Include(c => c.Tutorials)
+                    .Include(c => c.User)
                     .Where(c => c.IsDeleted == false);
 
                 // 搜索
@@ -280,7 +294,8 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                         EF.Functions.Collate(p.CourseName ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm) ||
                         EF.Functions.Collate(p.CourseCode ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm) ||
                         EF.Functions.Collate(p.CourseSession ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm) ||
-                        EF.Functions.Collate(p.Programme.ProgrammeName ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm));
+                        EF.Functions.Collate(p.Programme.ProgrammeName ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm) ||
+                        EF.Functions.Collate(p.User.UserName ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm));
                 }
 
                 // 筛选
@@ -295,11 +310,11 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                     }
 
                     // 按讲师筛选
-                    if (filters.TryGetValue("lecturerId", out var lecturerIdObj) && 
-                        lecturerIdObj is string lecturerId && 
-                        !string.IsNullOrEmpty(lecturerId))
+                    if (filters.TryGetValue("lecturerUserId", out var lecturerIdObj) && 
+                        lecturerIdObj is int userId && 
+                        userId > 0)
                     {
-                        query = query.Where(c => c.LecturerId == lecturerId);
+                        query = query.Where(c => c.UserId == userId);
                     }
 
                     // 按状态筛选

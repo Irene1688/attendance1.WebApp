@@ -7,8 +7,12 @@ import {
   TextButton 
 } from '../../../components/Common';
 import { CourseForm } from '../../../components/Admin';
-import { useCourseManagement } from '../../../hooks/features';
+import { 
+    useCourseManagement, 
+    useProgrammeManagement, 
+    useUserManagement } from '../../../hooks/features';
 import { useMessageContext } from '../../../contexts/MessageContext';
+import { convertNumbersToDays, NUMBER_TO_DAY } from '../../../validations/schemas/courseValidation';
 
 const CourseFormPage = () => {
   const { id } = useParams();
@@ -20,12 +24,22 @@ const CourseFormPage = () => {
     createCourse,
     updateCourse,
     fetchCourseById,
-    fetchProgrammes,
-    fetchLecturers
   } = useCourseManagement();
 
-  const [programmes, setProgrammes] = useState([]);
-  const [lecturers, setLecturers] = useState([]);
+  const { programmeSelection, fetchProgrammeSelection } = useProgrammeManagement();
+  const { lecturerSelection, fetchLecturerSelection } = useUserManagement();
+
+  // Initialize
+  useEffect(() => {
+    let isMounted = true;
+
+    fetchProgrammeSelection();
+    fetchLecturerSelection();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // 加载课程详情（如果是编辑）
   useEffect(() => {
@@ -37,33 +51,25 @@ const CourseFormPage = () => {
     loadCourse();
   }, [id, fetchCourseById]);
 
-  // 加载项目和讲师列表
-  useEffect(() => {
-    const loadData = async () => {
-      const [programmeResult, lecturerResult] = await Promise.all([
-        fetchProgrammes(),
-        fetchLecturers()
-      ]);
-      setProgrammes(programmeResult?.data || []);
-      setLecturers(lecturerResult?.data || []);
-    };
-    loadData();
-  }, [fetchProgrammes, fetchLecturers]);
 
   const handleSubmit = async (values, { setSubmitting }) => {
     const operation = id ? updateCourse : createCourse;
     const success = await operation(values);
     if (success) {
       showSuccessMessage(
-        id ? 'Course updated successfully' : 'Course created successfully'
+        id 
+        ? 'Class updated successfully. Auto redirecting to class list.' 
+        : 'Class created successfully. Auto redirecting to class list.'
       );
-      navigate('/admin/courses');
+      setTimeout(() => {
+        navigate('/admin/courses');
+      }, 3000); 
     }
     setSubmitting(false);
   };
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box>
       {loading && <Loader />}
       
       {message.show && message.severity === 'success' && (
@@ -76,30 +82,24 @@ const CourseFormPage = () => {
         />
       )}
 
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h5">
-          {id ? 'Edit Course' : 'Add New Course'}
-        </Typography>
-      </Box>
-
       <CourseForm
         initialValues={id ? {
           courseCode: selectedCourse?.courseCode,
           courseName: selectedCourse?.courseName,
           courseSession: selectedCourse?.courseSession,
           programmeId: selectedCourse?.programmeId,
-          lecturerId: selectedCourse?.lecturerId,
-          classDay: selectedCourse?.classDay,
+          userId: selectedCourse?.userId,
+          classDays: selectedCourse?.classDays ? convertNumbersToDays(selectedCourse.classDays) : [],
           startDate: selectedCourse?.startDate,
           endDate: selectedCourse?.endDate,
           tutorials: selectedCourse?.tutorials?.map(t => ({
             id: t.tutorialId,
             name: t.tutorialName,
-            classDay: t.classDay
+            classDay: NUMBER_TO_DAY[t.classDay]
           })) || []
         } : undefined}
-        programmes={programmes}
-        lecturers={lecturers}
+        programmes={programmeSelection}
+        lecturers={lecturerSelection}
         onSubmit={handleSubmit}
         onCancel={() => navigate('/admin/courses')}
         isEditing={!!id}

@@ -8,6 +8,7 @@ namespace attendance1.Application.Interfaces
     {
         Task<Result<AllTotalCountResponseDto>> GetAllTotalCountAsync();
         #region programme CRUD
+        Task<Result<GetProgrammeSelectionResponseDto>> GetProgrammeSelectionAsync();
         Task<Result<bool>> CreateNewProgrammeAsync(CreateProgrammeRequestDto requestDto);
         Task<Result<PaginatedResult<GetProgrammeResponseDto>>> GetAllProgrammeAsync(GetProgrammeRequestDto requestDto);
         Task<Result<bool>> EditProgrammeAsync(EditProgrammeRequestDto requestDto);
@@ -22,6 +23,7 @@ namespace attendance1.Application.Interfaces
         #endregion
 
         #region View Lecturer & Student
+        Task<Result<GetLecturerSelectionResponseDto>> GetLecturerSelectionAsync();
         Task<Result<PaginatedResult<GetLecturerResponseDto>>> GetAllLecturerWithClassAsync(GetLecturerRequestDto requestDto);
         Task<Result<PaginatedResult<GetStudentResponseDto>>> GetAllStudentWithClassAsync(GetStudentRequestDto requestDto);
         #endregion

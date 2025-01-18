@@ -111,6 +111,19 @@ namespace attendance1.Infrastructure.Persistence.Repositories
             return await query.CountAsync();
         }
 
+        public async Task<List<(int id, string name)>> GetLecturerSelectionAsync()
+        {
+            return await ExecuteGetAsync(async () => 
+                await _database.UserDetails
+                    .Where(u => 
+                        u.AccRole == AccRoleEnum.Lecturer.ToString() && 
+                        u.IsDeleted == false)
+                    .Select(u => new { u.UserId, UserName = u.UserName ?? string.Empty })
+                    .ToListAsync()
+                    .ContinueWith(t => 
+                        t.Result.Select(x => (id: x.UserId, name: x.UserName)).ToList()));
+        }
+
         public async Task<int> GetTotalStudentAsync(string searchTerm = "")
         {
             var query = _database.UserDetails
@@ -143,6 +156,7 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                 .Where(u => 
                     u.AccRole == AccRoleEnum.Lecturer.ToString() &&
                     u.IsDeleted == false)
+                .Include(u => u.Programme)
                 .AsNoTracking();
 
             if (!string.IsNullOrEmpty(searchTerm)) 
@@ -151,6 +165,7 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                 query = query.Where(p => 
                     EF.Functions.Collate(p.UserName ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm) ||
                     EF.Functions.Collate(p.LecturerId ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm) ||
+                    EF.Functions.Collate(p.Programme.ProgrammeName ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm) ||
                     EF.Functions.Collate(p.Email ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm));
             }
 
@@ -165,6 +180,9 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                 "email" => isAscending 
                     ? query.OrderBy(p => p.Email) 
                     : query.OrderByDescending(p => p.Email),
+                "programme" => isAscending 
+                    ? query.OrderBy(p => p.Programme.ProgrammeName) 
+                    : query.OrderByDescending(p => p.Programme.ProgrammeName),
                 _ => query.OrderBy(p => p.UserName)
             };
 
@@ -186,6 +204,7 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                 .Where(u => 
                     u.AccRole == AccRoleEnum.Student.ToString() &&
                     u.IsDeleted == false)
+                .Include(u => u.Programme)
                 .AsNoTracking();
 
             if (!string.IsNullOrEmpty(searchTerm)) 
@@ -194,7 +213,8 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                 query = query.Where(p => 
                     EF.Functions.Collate(p.UserName ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm) ||
                     EF.Functions.Collate(p.StudentId ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm) ||
-                    EF.Functions.Collate(p.Email ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm));
+                    EF.Functions.Collate(p.Email ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm) ||
+                    EF.Functions.Collate(p.Programme.ProgrammeName ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm));
             }
 
             var orderedQuery = orderBy.ToLower() switch
@@ -208,6 +228,9 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                 "email" => isAscending 
                     ? query.OrderBy(p => p.Email) 
                     : query.OrderByDescending(p => p.Email),
+                "programme" => isAscending 
+                    ? query.OrderBy(p => p.Programme.ProgrammeName) 
+                    : query.OrderByDescending(p => p.Programme.ProgrammeName),
                 _ => query.OrderBy(p => p.UserName)
             };
 

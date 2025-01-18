@@ -37,6 +37,13 @@ namespace attendance1.WebApi.Controllers
             return StatusCode((int)result.StatusCode, result);
         }
 
+        [HttpPost("getProgrammeSelection")]
+        public async Task<ActionResult<GetProgrammeSelectionResponseDto>> GetProgrammeSelection()
+        {
+            var result = await _adminService.GetProgrammeSelectionAsync();
+            return StatusCode((int)result.StatusCode, result);
+        }
+
         [HttpPost("getAllProgramme")]
         public async Task<ActionResult<PaginatedResult<GetProgrammeResponseDto>>> GetAllProgramme([FromBody] GetProgrammeRequestDto requestDto)
         {
@@ -92,6 +99,13 @@ namespace attendance1.WebApi.Controllers
         public async Task<ActionResult<PaginatedResult<GetLecturerResponseDto>>> GetAllLecturer([FromBody] GetLecturerRequestDto requestDto)
         {
             var result = await _adminService.GetAllLecturerWithClassAsync(requestDto);
+            return StatusCode((int)result.StatusCode, result);
+        }
+
+        [HttpPost("getLecturerSelection")]
+        public async Task<ActionResult<GetLecturerSelectionResponseDto>> GetLecturerSelection()
+        {
+            var result = await _adminService.GetLecturerSelectionAsync();
             return StatusCode((int)result.StatusCode, result);
         }
 

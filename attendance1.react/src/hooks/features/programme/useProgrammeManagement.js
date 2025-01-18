@@ -5,6 +5,7 @@ import { useApiExecutor } from '../../common';
 export const useProgrammeManagement = () => {
   // states
   const [programmes, setProgrammes] = useState([]);
+  const [programmeSelection, setProgrammeSelection] = useState([]);
   const [selectedProgramme, setSelectedProgramme] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [confirmDeleteDialog, setConfirmDeleteDialog] = useState({
@@ -16,6 +17,16 @@ export const useProgrammeManagement = () => {
   const { loading, handleApiCall } = useApiExecutor();
 
   // CRUD operations
+  const fetchProgrammeSelection = useCallback(async () => {
+    return await handleApiCall(
+      () => adminApi.getProgrammeSelection(),
+      (response) => {
+        setProgrammeSelection(response.programmes || []);
+        return response.programmes;
+      }
+    );
+  }, [handleApiCall]);
+
   const fetchProgrammes = useCallback(async (params) => {
     const requestDto = {
       paginatedRequest: {
@@ -73,6 +84,7 @@ export const useProgrammeManagement = () => {
   return {
     // states
     programmes,
+    programmeSelection,
     selectedProgramme,
     openDialog,
     confirmDeleteDialog,
@@ -80,11 +92,13 @@ export const useProgrammeManagement = () => {
     
     // setters
     setSelectedProgramme,
+    setProgrammeSelection,
     setOpenDialog,
     setConfirmDeleteDialog,
     
     // operations
     fetchProgrammes,
+    fetchProgrammeSelection,
     createProgramme,
     updateProgramme,
     deleteProgramme

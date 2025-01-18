@@ -20,6 +20,7 @@ namespace attendance1.Domain.Interfaces
 
         #region CRUD
         Task<int> GetTotalLecturerAsync(string searchTerm = "");
+        Task<List<(int id, string name)>> GetLecturerSelectionAsync();
         Task<int> GetTotalStudentAsync(string searchTerm = "");
         Task<List<UserDetail>> GetAllLecturerAsync(
             int pageNumber = 1, 

@@ -48,6 +48,17 @@ namespace attendance1.Infrastructure.Persistence.Repositories
             return await query.CountAsync();
         }
 
+        public async Task<List<(int id, string name)>> GetProgrammeSelectionAsync()
+        {
+            return await ExecuteGetAsync(async () => 
+                await _database.Programmes
+                    .Where(p => p.IsDeleted == false)
+                    .Select(p => new { p.ProgrammeId, p.ProgrammeName })
+                    .ToListAsync()
+                    .ContinueWith(t => 
+                        t.Result.Select(x => (id: x.ProgrammeId, name: x.ProgrammeName)).ToList()));
+        }
+
         public async Task<List<Programme>> GetAllProgrammeAsync(
             int pageNumber = 1, 
             int pageSize = 15, 

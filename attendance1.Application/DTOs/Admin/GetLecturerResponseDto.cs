@@ -6,6 +6,7 @@ namespace attendance1.Application.DTOs.Admin
         public string LecturerId { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
+        public string ProgrammeName { get; set; } = string.Empty;
         public List<LecturerCourseViewResponseDto> RegisteredCourses { get; set; } = [];
     }
 

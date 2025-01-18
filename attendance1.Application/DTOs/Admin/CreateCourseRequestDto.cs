@@ -8,14 +8,14 @@ namespace attendance1.Application.DTOs.Admin
         public DateOnly CourseStartFrom { get; set; }
         public DateOnly CourseEndTo { get; set; }
         public int ProgrammeId { get; set; }
-        public string LecturerId { get; set; } = string.Empty;
-        public string ClassDay { get; set; } = string.Empty;
+        public int UserId { get; set; }
+        public List<int> ClassDays { get; set; } = [];
         public List<CreateTutorialDto> Tutorials { get; set; } = [];
     }
 
     public class CreateTutorialDto
     {
-        public string ClassDay { get; set; } = string.Empty;
+        public int ClassDay { get; set; }
         public string TutorialName { get; set; } = string.Empty;
     }
 }

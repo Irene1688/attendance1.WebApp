@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { adminApi } from '../../../api/admin';
 import { useApiExecutor } from '../../common';
+import { DAY_TO_NUMBER } from '../../../validations/schemas/courseValidation';
 
 export const useCourseManagement = () => {
   // states
@@ -28,8 +29,8 @@ export const useCourseManagement = () => {
       },
       searchTerm: params.searchTerm || '',
       filters: {
-        programmeId: params.filters?.programmeId || null,
-        lecturerId: params.filters?.lecturerId || null,
+        programmeId: params.filters?.programmeId || 0,
+        lecturerUserId: params.filters?.lecturerUserId || 0,
         status: params.filters?.status || null,
         session: params.filters?.session || null
       }
@@ -49,17 +50,17 @@ export const useCourseManagement = () => {
       courseCode: values.courseCode,
       courseName: values.courseName,
       courseSession: values.courseSession,
-      programmeId: values.programmeId,
-      lecturerId: values.lecturerId,
-      classDay: values.classDay,
+      programmeId: Number(values.programmeId),
+      userId: Number(values.userId),
+      classDays: values.classDays,
       courseStartFrom: values.startDate,
       courseEndTo: values.endDate,
       tutorials: values.tutorials.map(tutorial => ({
         tutorialName: tutorial.name,
-        classDay: tutorial.classDay
+        classDay: Number(tutorial.classDay)
       }))
     };
-
+    console.log('Request:', requestDto);
     return await handleApiCall(
       () => adminApi.createCourse(requestDto),
       () => true
@@ -111,26 +112,6 @@ export const useCourseManagement = () => {
     );
   }, [handleApiCall]);
 
-  const loadFilterOptions = useCallback(async () => {
-    const [programmeResult, lecturerResult] = await Promise.all([
-      handleApiCall(
-        () => adminApi.getAllProgrammes({ 
-          paginatedRequest: { pageNumber: 1, pageSize: 100 } 
-        }),
-        (result) => result
-      ),
-      handleApiCall(
-        () => adminApi.getAllLecturers({ 
-          paginatedRequest: { pageNumber: 1, pageSize: 100 } 
-        }),
-        (result) => result
-      )
-    ]);
-    
-    setProgrammes(programmeResult?.data || []);
-    setLecturers(lecturerResult?.data || []);
-  }, [handleApiCall]);
-
   const bulkDeleteCourses = useCallback(async (courseIds) => {
     return await handleApiCall(
       () => adminApi.bulkDeleteCourses({ courseIds }),
@@ -159,7 +140,6 @@ export const useCourseManagement = () => {
     updateCourse,
     deleteCourse,
     fetchCourseById,
-    loadFilterOptions,
     bulkDeleteCourses
   };
 }; 

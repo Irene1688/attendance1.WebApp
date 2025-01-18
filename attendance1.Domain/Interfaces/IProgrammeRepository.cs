@@ -7,6 +7,7 @@ namespace attendance1.Domain.Interfaces
         Task<bool> HasProgrammeExistedAsync(int programmeId);
         Task<bool> HasProgrammeNameExistedAsync(string programmeName);
         Task<int> GetTotalProgrammeAsync(string searchTerm = "");
+        Task<List<(int id, string name)>> GetProgrammeSelectionAsync();
         Task<List<Programme>> GetAllProgrammeAsync(
             int pageNumber = 1, 
             int pageSize = 15, 

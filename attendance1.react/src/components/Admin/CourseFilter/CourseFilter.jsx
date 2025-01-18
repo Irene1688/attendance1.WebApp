@@ -57,8 +57,8 @@ const CourseFilter = ({
 
   const handleReset = () => {
     const resetFilters = {
-      programmeId: '',
-      lecturerId: '',
+      programmeId: 0,
+      lecturerUserId: 0,
       status: '',
       month: '',
       year: ''
@@ -88,7 +88,7 @@ const CourseFilter = ({
 
     const filterValues = {
       programmeId: filters.programmeId,
-      lecturerId: filters.lecturerId,
+      lecturerUserId: filters.lecturerUserId,
       status: filters.status,
       session: filters.month && filters.year 
         ? `${filters.month} ${filters.year}`
@@ -121,9 +121,12 @@ const CourseFilter = ({
                 onChange={handleChange('programmeId')}
               >
                 <MenuItem value="">All Programmes</MenuItem>
-                {programmes.map((programme) => (
-                  <MenuItem key={programme.programmeId} value={programme.programmeId}>
-                    {programme.programmeName}
+                {programmes.map((programme) => ( 
+                  <MenuItem 
+                    key={programme.id} 
+                    value={programme.id}
+                  >
+                    {programme.name}
                   </MenuItem>
                 ))}
               </TextField>
@@ -135,12 +138,15 @@ const CourseFilter = ({
                 select
                 size="small"
                 label="Lecturer"
-                value={filters.lecturerId}
-                onChange={handleChange('lecturerId')}
+                value={filters.lecturerUserId}
+                onChange={handleChange('lecturerUserId')}
               >
                 <MenuItem value="">All Lecturers</MenuItem>
                 {lecturers.map((lecturer) => (
-                  <MenuItem key={lecturer.lecturerId} value={lecturer.lecturerId}>
+                  <MenuItem 
+                    key={lecturer.id} 
+                    value={lecturer.id}
+                  >
                     {lecturer.name}
                   </MenuItem>
                 ))}

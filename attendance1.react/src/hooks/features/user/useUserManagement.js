@@ -7,6 +7,7 @@ export const useUserManagement = () => {
     // states
     const [lecturers, setLecturers] = useState([]);
     const [students, setStudents] = useState([]);
+    const [lecturerSelection, setLecturerSelection] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
     const [openDialog, setOpenDialog] = useState(false);
     const [confirmDeleteDialog, setConfirmDeleteDialog] = useState({
@@ -22,6 +23,16 @@ export const useUserManagement = () => {
     const { loading, handleApiCall } = useApiExecutor();
 
     // CRUD operations
+    const fetchLecturerSelection = useCallback(async () => {
+        return await handleApiCall(
+            () => adminApi.getLecturerSelection(),
+            (response) => {
+                setLecturerSelection(response.lecturers || []);
+                return response.lecturers;
+            }
+        );
+    }, [handleApiCall]);
+
     const fetchLecturers = useCallback(async (params) => {
         try {
         const requestDto = {
@@ -125,6 +136,7 @@ export const useUserManagement = () => {
         // states
         lecturers,
         students,
+        lecturerSelection,
         selectedUser,
         openDialog,
         confirmDeleteDialog,
@@ -134,6 +146,7 @@ export const useUserManagement = () => {
         // setters
         setLecturers,
         setStudents,
+        setLecturerSelection,
         setSelectedUser,
         setOpenDialog,
         setConfirmDeleteDialog,
@@ -142,6 +155,7 @@ export const useUserManagement = () => {
         // operations
         fetchLecturers,
         fetchStudents,
+        fetchLecturerSelection,
         createUser,
         updateUser,
         deleteUser,

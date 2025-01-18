@@ -10,6 +10,7 @@ public partial class Course
     public int ProgrammeId { get; set; }
 
     public int SemesterId { get; set; }
+    public int? UserId { get; set; }
 
     public string CourseCode { get; set; } = null!;
 
@@ -28,6 +29,8 @@ public partial class Course
     public int? AttendanceCodeDuration { get; set; }
 
     public string? ClassDay { get; set; }
+
+    public virtual UserDetail User { get; set; } = null!;
 
     public virtual ICollection<AttendanceRecord> AttendanceRecords { get; set; } = new List<AttendanceRecord>();
 
