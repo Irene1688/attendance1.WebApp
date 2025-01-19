@@ -26,18 +26,18 @@ export const adminMenuItems = [
     icon: PeopleAltIcon,
   },
   {
-    title: 'Course Management',
+    title: 'Classes',
     path: '/admin/courses',
     icon: ClassIcon,
-    children: [
-      {
-        title: 'All Courses',
-        path: '/admin/courses',
-      },
-      {
-        title: 'Add Course',
-        path: '/admin/courses/add',
-      }
-    ]
+    // children: [
+    //   {
+    //     title: 'All Courses',
+    //     path: '/admin/courses',
+    //   },
+    //   {
+    //     title: 'Add Course',
+    //     path: '/admin/courses/add',
+    //   }
+    // ]
   }
 ];

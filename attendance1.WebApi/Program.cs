@@ -20,6 +20,7 @@ builder.Services.AddControllers()
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("AdminAndLecturer", policy => policy.RequireRole("Admin", "Lecturer"));
     options.AddPolicy("StudentOnly", policy => policy.RequireRole("Student"));
     options.AddPolicy("LecturerOnly", policy => policy.RequireRole("Lecturer"));
 });

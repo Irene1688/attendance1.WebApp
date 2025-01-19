@@ -1,5 +1,7 @@
 import { TableCell, TableRow } from '@mui/material';
 import { PaginatedTable } from '../../Common';
+import { useTheme } from '@mui/material';
+import { styles } from './AttendanceRecordTable.styles';
 
 const AttendanceRecordTable = ({
   records,
@@ -13,6 +15,9 @@ const AttendanceRecordTable = ({
   onSort,
   searchTerm
 }) => {
+  const theme = useTheme();
+  const themedStyles = styles(theme);
+
   const columns = [
     {
       id: 'date',
@@ -20,12 +25,17 @@ const AttendanceRecordTable = ({
       sortable: true
     },
     {
-      id: 'time',
-      label: 'Time',
+      id: 'startTime',
+      label: 'Start Time',
       sortable: true
     },
     {
-      id: 'type',
+      id: 'endTime',
+      label: 'End Time',
+      sortable: true
+    },
+    {
+      id: 'isLecture',
       label: 'Type',
       sortable: true
     },
@@ -46,25 +56,28 @@ const AttendanceRecordTable = ({
     },
     {
       id: 'attendanceRate',
-      label: 'Rate',
+      label: 'Attendance Rate',
       sortable: true
     }
   ];
 
   const renderRow = (record) => (
     <TableRow key={record.recordId}>
-      <TableCell>{record.date}</TableCell>
-      <TableCell>{`${record.startTime} - ${record.endTime}`}</TableCell>
-      <TableCell>{record.isLecture ? 'Lecture' : 'Tutorial'}</TableCell>
+      {/* <TableCell>{record.date}</TableCell> */}
+      <TableCell>{new Date(record.date).toLocaleDateString()}</TableCell>
+      <TableCell>{record.startTime}</TableCell>
+      <TableCell>{record.endTime}</TableCell>
+      <TableCell sx={themedStyles.typeCell(record.isLecture)}>
+        {record.isLecture ? 'Lecture' : 'Tutorial'}
+      </TableCell>
       <TableCell>{record.tutorialName || '-'}</TableCell>
-      <TableCell>{record.presentCount}</TableCell>
-      <TableCell>{record.absentCount}</TableCell>
+      <TableCell sx={themedStyles.countCell}>{record.presentCount}</TableCell>
+      <TableCell sx={themedStyles.countCell}>{record.absentCount}</TableCell>
       <TableCell>
         <span style={{ 
-          color: record.attendanceRate >= 80 ? 'green' : 
-                 record.attendanceRate >= 60 ? 'orange' : 'red'
+          ...themedStyles.attendanceRate(record.attendanceRate)
         }}>
-          {record.attendanceRate}%
+          {(record.attendanceRate * 100).toFixed(1)}%
         </span>
       </TableCell>
     </TableRow>

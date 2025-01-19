@@ -202,7 +202,11 @@ const CourseManagement = () => {
         onPageChange={handlePageChange}
         onRowsPerPageChange={handleRowsPerPageChange}
         onSort={handleSort}
-        onView={(course) => navigate(`/admin/courses/${course.courseId}`)}
+        onView={(course) => navigate(`/admin/courses/${course.courseId}`, {
+          state: {
+            course
+          }
+        })}
         onEdit={(course) => navigate(`/admin/courses/${course.courseId}/edit`, { 
           state: { 
             course: {

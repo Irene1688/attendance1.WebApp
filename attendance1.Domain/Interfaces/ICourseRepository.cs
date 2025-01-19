@@ -42,6 +42,16 @@ namespace attendance1.Domain.Interfaces
         #endregion
         
         #region student CRUD    
+        Task<int> GetTotalEnrolledStudentsAsync(int courseId, string searchTerm = "");
+        Task<List<EnrolledStudent>> GetEnrolledStudentsAsync(
+            int courseId, 
+            int pageNumber = 1, 
+            int pageSize = 15,
+            string searchTerm = "", 
+            string orderBy = "studentid", 
+            bool isAscending = true);
+        Task<List<UserDetail>> GetAvailableStudentsAsync(int programmeId, int courseId);
+        Task<bool> AddStudentsToCourseByUserIdAsync(int courseId, int tutorialId, List<int> studentUserIds);
         Task<bool> AddStudentToClassAsync(int courseId, List<EnrolledStudent> students);
         Task<bool> AddStudentToTutorialAsync(int tutorialId, int courseId, List<string> studentIdList);
         Task<bool> RemoveStudentFromClassAsync(int courseId, List<string> studentIdList);

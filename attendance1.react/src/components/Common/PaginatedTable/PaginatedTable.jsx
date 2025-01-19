@@ -3,10 +3,12 @@ import {
   TableContainer, 
   TableBody, 
   TablePagination, 
-  Paper 
+  Paper,
+  useTheme
 } from '@mui/material';
 import { SortableTableHead } from '../';
 import { EmptyState } from '../';
+import { styles } from './PaginatedTable.styles';
 
 const PaginatedTable = ({
   columns,
@@ -27,16 +29,23 @@ const PaginatedTable = ({
   },
   ...props
 }) => {
+  const theme = useTheme();
+  const themedStyles = styles(theme);
+
   return (
-    <TableContainer component={Paper} {...props}>
-      <Table>
+    <TableContainer 
+      component={Paper} 
+      sx={themedStyles.container}
+      {...props}
+    >
+      <Table sx={themedStyles.table}>
         <SortableTableHead
           columns={columns}
           order={order}
           orderBy={orderBy}
           onSort={onSort}
         />
-        <TableBody>
+        <TableBody sx={themedStyles.tableBody}>
           {data.length > 0 ? (
             data.map((row) => renderRow(row))
           ) : (
@@ -56,6 +65,7 @@ const PaginatedTable = ({
         rowsPerPage={rowsPerPage}
         onRowsPerPageChange={onRowsPerPageChange}
         rowsPerPageOptions={rowsPerPageOptions}
+        sx={themedStyles.pagination}
       />
     </TableContainer>
   );

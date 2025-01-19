@@ -352,6 +352,25 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                 return true;
             });
         }
+        
+        public async Task<bool> MultipleDeleteUserAsync(List<int> userIds)
+        {
+            return await ExecuteWithTransactionAsync(async () =>
+            {
+                var usersToDelete = await _database.UserDetails
+                    .Where(u => 
+                        userIds.Contains(u.UserId) && 
+                        u.IsDeleted == false)
+                    .ToListAsync();
+
+                foreach (var user in usersToDelete)
+                {
+                    user.IsDeleted = true;
+                }
+                await _database.SaveChangesAsync();
+                return true;
+            });
+        }
         #endregion
 
         #region Get one property

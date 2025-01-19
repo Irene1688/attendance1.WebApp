@@ -3,17 +3,18 @@ import {
   TableCell, 
   TableRow, 
   Checkbox, 
-  IconButton, 
   Tooltip,
   Box,
-  Chip
+  Chip,
+  useTheme
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import { PaginatedTable } from '../../Common';
+import { PaginatedTable, IconButton } from '../../Common';
 // import { COURSE_STATUS, STATUS } from '../../../validations/schemas/courseValidation';
 import { STATUS, isActive } from '../../../constants/status';
+import { styles } from './CourseTable.styles';
 
 const CourseTable = ({
   courses,
@@ -32,6 +33,8 @@ const CourseTable = ({
   searchTerm
 }) => {
   const [selected, setSelected] = useState([]);
+  const theme = useTheme();
+  const themedStyles = styles(theme);
 
   const handleSelectAll = (event) => {
     if (event.target.checked) {
@@ -75,7 +78,7 @@ const CourseTable = ({
     },
     {
       id: 'courseName',
-      label: 'Course Name',
+      label: 'Class Name',
       sortable: true
     },
     {
@@ -123,24 +126,19 @@ const CourseTable = ({
           label={STATUS[course.status]} 
           color={isActive(course.status) ? 'success' : 'default'}
           size="small"
+          sx={themedStyles.statusChip(course.status)}
         />
       </TableCell>
       <TableCell>
-        <Box sx={{ display: 'flex', gap: 1 }}>
+        <Box sx={themedStyles.actionButton}>
           <Tooltip title="View Details">
-            <IconButton size="small" onClick={() => onView(course)}>
-              <VisibilityIcon />
-            </IconButton>
+            <IconButton Icon={<VisibilityIcon />} onClick={() => onView(course)} color="primary" />
           </Tooltip>
           <Tooltip title="Edit">
-            <IconButton size="small" onClick={() => onEdit(course)}>
-              <EditIcon />
-            </IconButton>
+            <IconButton Icon={<EditIcon />} onClick={() => onEdit(course)} color="primary" />
           </Tooltip>
           <Tooltip title="Delete">
-            <IconButton size="small" onClick={() => onDelete(course)}>
-              <DeleteIcon />
-            </IconButton>
+            <IconButton Icon={<DeleteIcon />} onClick={() => onDelete(course)} color="delete" />
           </Tooltip>
         </Box>
       </TableCell>
@@ -158,12 +156,11 @@ const CourseTable = ({
   return (
     <>
       {selected.length > 0 && (
-        <Box sx={{ mb: 2 }}>
+        <Box sx={themedStyles.bulkActionContainer}>
           <Chip
             label={`${selected.length} selected`}
             onDelete={() => setSelected([])}
             color="primary"
-            sx={{ mr: 1 }}
           />
           <Chip
             label="Delete Selected"

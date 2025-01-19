@@ -19,6 +19,7 @@ namespace attendance1.Application.Interfaces
         Task<Result<bool>> CreateNewUserAsync(CreateAccountRequestDto requestDto);
         Task<Result<bool>> EditUserAsync(EditProfileRequestDto requestDto);
         Task<Result<bool>> DeleteUserAsync(DeleteRequestDto requestDto);
+        Task<Result<bool>> MultipleDeleteUserAsync(List<DeleteRequestDto> requestDto);
         Task<Result<bool>> ResetPasswordAsync(DataIdRequestDto requestDto);
         #endregion
 
@@ -36,6 +37,14 @@ namespace attendance1.Application.Interfaces
         Task<Result<bool>> MultipleDeleteCourseAsync(List<DeleteRequestDto> requestDto);
         #endregion
 
-        
+        #region Students in Course CRUD
+        Task<Result<bool>> AddStudentsToCourseAsync(AddStudentsToCourseRequestDto requestDto);
+        #endregion
+
+        #region Attendance Record
+        Task<Result<PaginatedResult<GetAttendanceRecordByCourseIdResponseDto>>> GetAttendanceRecordByCourseIdAsync(GetAttendanceRecordByCourseIdRequestDto requestDto);
+        #endregion
+
+
     }
 }

@@ -88,6 +88,13 @@ namespace attendance1.WebApi.Controllers
             return StatusCode((int)result.StatusCode, result);
         }
 
+        [HttpPost("multipleDeleteUser")]
+        public async Task<ActionResult<bool>> MultipleDeleteUser([FromBody] List<DeleteRequestDto> requestDto)
+        {
+            var result = await _adminService.MultipleDeleteUserAsync(requestDto);
+            return StatusCode((int)result.StatusCode, result);
+        }
+
         [HttpPost("resetPassword")]
         public async Task<ActionResult<bool>> ResetPassword([FromBody] DataIdRequestDto requestDto)
         {
@@ -150,6 +157,20 @@ namespace attendance1.WebApi.Controllers
         public async Task<ActionResult<bool>> MultipleDeleteCourse([FromBody] List<DeleteRequestDto> requestDto)
         {
             var result = await _adminService.MultipleDeleteCourseAsync(requestDto);
+            return StatusCode((int)result.StatusCode, result);
+        }
+
+        [HttpPost("addStudentsToCourse")]
+        public async Task<ActionResult<bool>> AddStudentsToCourse([FromBody] AddStudentsToCourseRequestDto requestDto)
+        {
+            var result = await _adminService.AddStudentsToCourseAsync(requestDto);
+            return StatusCode((int)result.StatusCode, result);
+        }
+
+        [HttpPost("getAttendanceRecordByCourseId")]
+        public async Task<ActionResult<PaginatedResult<GetAttendanceRecordByCourseIdResponseDto>>> GetAttendanceRecordByCourseId([FromBody] GetAttendanceRecordByCourseIdRequestDto requestDto)
+        {
+            var result = await _adminService.GetAttendanceRecordByCourseIdAsync(requestDto);
             return StatusCode((int)result.StatusCode, result);
         }
         #endregion

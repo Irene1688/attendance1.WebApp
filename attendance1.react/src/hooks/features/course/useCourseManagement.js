@@ -129,6 +129,6 @@ export const useCourseManagement = () => {
     createCourse,
     updateCourse,
     deleteCourse,
-    bulkDeleteCourses
+    bulkDeleteCourses,
   };
 }; 

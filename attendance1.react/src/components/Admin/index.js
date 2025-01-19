@@ -7,5 +7,5 @@ export { default as CourseForm } from './CourseForm/CourseForm';
 export { default as CourseTable } from './CourseTable/CourseTable';
 export { default as CourseStudentTable } from './CourseStudentTable/CourseStudentTable';
 export { default as AttendanceRecordTable } from './AttendanceRecordTable/AttendanceRecordTable';
-export { default as AddStudentDialog } from './AddStudentDialog/AddStudentDialog';
+export { default as AddStudentForm } from './AddStudentForm/AddStudentForm';
 export { default as CourseFilter } from './CourseFilter/CourseFilter';

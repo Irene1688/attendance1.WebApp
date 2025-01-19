@@ -4,10 +4,15 @@ import {
   DialogContent, 
   DialogActions, 
   Typography,
-  Box
+  Box,
+  useTheme
 } from '@mui/material';
 import { TextButton, PromptMessage } from '../../Common';
 import { useMessageContext } from '../../../contexts/MessageContext';
+import DeleteIcon from '@mui/icons-material/Delete';
+import WarningIcon from '@mui/icons-material/Warning';
+import InfoIcon from '@mui/icons-material/Info';
+import { styles } from './ConfirmDialog.styles';
 
 
 const ConfirmDialog = ({ 
@@ -18,9 +23,18 @@ const ConfirmDialog = ({
   onCancel,
   confirmText = 'Confirm',
   cancelText = 'Cancel',
-  type = 'primary' 
+  type = 'info' 
 }) => {
   const { message, hideMessage } = useMessageContext();
+  const theme = useTheme();
+  const themedStyles = styles(theme);
+
+  const Icon = type === 'delete' 
+    ? DeleteIcon 
+    : type === 'warning' 
+      ? WarningIcon 
+      : InfoIcon;
+
   return (
     <Dialog 
       open={open} 
@@ -31,9 +45,12 @@ const ConfirmDialog = ({
       disablePortal={false}
       keepMounted={false}
       disableEnforceFocus={false}
+      sx={themedStyles.dialog}
     >
       <DialogTitle id="confirm-dialog-title">{title}</DialogTitle>
-      <DialogContent>
+      <DialogContent 
+        sx={{ ...themedStyles.dialogContent, textAlign: 'center' }}
+      >
         {message.show && message.severity === 'error' && (
           <Box sx={{ mt: 2, mb: 0 }}>
             <PromptMessage
@@ -46,9 +63,17 @@ const ConfirmDialog = ({
             />
           </Box>
         )}
-        <Typography>{content}</Typography>
+        <Icon 
+          sx={themedStyles.icon(type)}
+        />
+        <Typography variant="h6" sx={themedStyles.title}>
+          {title}
+        </Typography>
+        <Typography variant="body1" sx={themedStyles.content}>
+          {content}
+        </Typography>
       </DialogContent>
-      <DialogActions sx={{ pb: 2, px: 3 }}>
+      <DialogActions sx={themedStyles.dialogActions}>
         <TextButton 
           onClick={onCancel}
           variant="text"
@@ -59,7 +84,7 @@ const ConfirmDialog = ({
         <TextButton 
           onClick={onConfirm}
           variant="contained"
-          color={type === 'delete' ? 'delete' : 'primary'}
+          color={type === 'delete' ? 'error' : 'primary'}
           autoFocus
         >
           {confirmText}

@@ -1,8 +1,18 @@
-import { TableCell, TableRow } from '@mui/material';
+import React, { useState } from 'react';
+import { 
+  TableCell, 
+  TableRow, 
+  Checkbox, 
+  Tooltip,
+  Box,
+  Chip,
+  useTheme
+} from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import LockResetIcon from '@mui/icons-material/LockReset';
-import { IconButton, PaginatedTable } from '../../Common';
+import { PaginatedTable, IconButton } from '../../Common';
+import { styles } from './StudentTable.styles';
 
 const StudentTable = ({
   students,
@@ -17,89 +27,167 @@ const StudentTable = ({
   onEdit,
   onDelete,
   onResetPassword,
+  onBulkDelete,
   searchTerm
 }) => {
-    const columns = [
-        {
-          id: 'studentName',
-          label: 'Name',
-          sortable: true
-        },
-        {
-          id: 'studentId',
-          label: 'Student ID',
-          sortable: true
-        },
-        {
-          id: 'email',
-          label: 'Email',
-          sortable: true
-        },
-        {
-          id: 'programmeName',
-          label: 'Programme',
-          sortable: true
-        },
-        {
-          id: 'classes',
-          label: 'Classes',
-          sortable: false
-        },
-        {
-          id: 'actions',
-          label: 'Actions',
-          sortable: false,
-        }
-      ];
-    
-      // define rows
-      const renderRow = (student) => (
-        <TableRow key={student.userId}>
-          <TableCell>{student.name}</TableCell>
-          <TableCell>{student.studentId}</TableCell>
-          <TableCell>{student.email}</TableCell>
-          <TableCell>{student.programmeName}</TableCell>
-          <TableCell>{student.enrolledCourses?.length || 0}</TableCell>
-          <TableCell>
-            <IconButton
-              Icon={<EditIcon />}
-              onClick={() => onEdit(student)}
-              color="primary"
+  const [selected, setSelected] = useState([]);
+  const theme = useTheme();
+  const themedStyles = styles(theme);
+
+  // 处理全选
+  const handleSelectAll = (event) => {
+    if (event.target.checked) {
+      setSelected(students.map(student => student.userId));
+    } else {
+      setSelected([]);
+    }
+  };
+
+  // 处理单个选择
+  const handleSelect = (userId) => {
+    const selectedIndex = selected.indexOf(userId);
+    let newSelected = [];
+
+    if (selectedIndex === -1) {
+      newSelected = [...selected, userId];
+    } else {
+      newSelected = selected.filter(id => id !== userId);
+    }
+
+    setSelected(newSelected);
+  };
+
+  // 检查是否被选中
+  const isSelected = (userId) => selected.indexOf(userId) !== -1;
+
+  // 处理批量删除
+  const handleBulkDelete = () => {
+    onBulkDelete(selected);
+    setSelected([]);
+  };
+
+  const columns = [
+    {
+      id: 'select',
+      label: (
+        <Checkbox
+          indeterminate={selected.length > 0 && selected.length < students.length}
+          checked={students.length > 0 && selected.length === students.length}
+          onChange={handleSelectAll}
+        />
+      ),
+      sortable: false
+    },
+    {
+      id: 'studentId',
+      label: 'Student ID',
+      sortable: true
+    },
+    {
+      id: 'studentName',
+      label: 'Name',
+      sortable: true
+    },
+    {
+      id: 'email',
+      label: 'Email',
+      sortable: true
+    },
+    {
+      id: 'programmeName',
+      label: 'Programme',
+      sortable: true
+    },
+    {
+      id: 'classes',
+      label: 'Classes',
+      sortable: false
+    },
+    {
+      id: 'actions',
+      label: 'Actions',
+      sortable: false,
+    }
+  ];
+
+  const renderRow = (student) => (
+    <TableRow key={student.userId}>
+      <TableCell padding="checkbox">
+        <Checkbox
+          checked={isSelected(student.userId)}
+          onChange={() => handleSelect(student.userId)}
+        />
+      </TableCell>
+      <TableCell>{student.studentId}</TableCell>
+      <TableCell>{student.name}</TableCell>
+      <TableCell>{student.email}</TableCell>
+      <TableCell>{student.programmeName}</TableCell>
+      <TableCell>{student.enrolledCourses?.length || 0}</TableCell>
+      <TableCell>
+        <Box sx={themedStyles.actionButton}>
+          <Tooltip title="Edit">
+            <IconButton 
+              Icon={<EditIcon />} 
+              onClick={() => onEdit(student)} 
+              color="primary" 
             />
-            <IconButton
-              Icon={<LockResetIcon />}
-              onClick={() => onResetPassword(student)}
-              color="primary"
+          </Tooltip>
+          <Tooltip title="Reset Password">
+            <IconButton 
+              Icon={<LockResetIcon />} 
+              onClick={() => onResetPassword(student)} 
+              color="primary" 
             />
-            <IconButton
-              Icon={<DeleteIcon />}
-              onClick={() => onDelete(student)}
-              color="delete"
+          </Tooltip>
+          <Tooltip title="Delete">
+            <IconButton 
+              Icon={<DeleteIcon />} 
+              onClick={() => onDelete(student)} 
+              color="delete" 
             />
-          </TableCell>
-        </TableRow>
-      );
+          </Tooltip>
+        </Box>
+      </TableCell>
+    </TableRow>
+  );
 
   return (
-    <PaginatedTable
-      columns={columns}
-      data={students}
-      total={total}
-      page={page}
-      rowsPerPage={rowsPerPage}
-      orderBy={orderBy}
-      order={order}
-      onPageChange={onPageChange}
-      onRowsPerPageChange={onRowsPerPageChange}
-      onSort={onSort}
-      renderRow={renderRow}
-      emptyState={{
-        title: "No Students Found",
-        message: searchTerm 
-          ? "Try adjusting your search to find what you're looking for."
-          : "Try adding some students using the 'Add New Student' button."
-      }}
-    />
+    <>
+      {selected.length > 0 && (
+        <Box sx={themedStyles.bulkActionContainer}>
+          <Chip
+            label={`${selected.length} selected`}
+            onDelete={() => setSelected([])}
+            color="primary"
+          />
+          <Chip
+            label="Delete Selected"
+            onClick={handleBulkDelete}
+            color="error"
+            variant="outlined"
+          />
+        </Box>
+      )}
+      <PaginatedTable
+        columns={columns}
+        data={students}
+        total={total}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        orderBy={orderBy}
+        order={order}
+        onPageChange={onPageChange}
+        onRowsPerPageChange={onRowsPerPageChange}
+        onSort={onSort}
+        renderRow={renderRow}
+        emptyState={{
+          title: "No Students Found",
+          message: searchTerm 
+            ? "Try adjusting your search to find what you're looking for."
+            : "No students available yet."
+        }}
+      />
+    </>
   );
 };
 

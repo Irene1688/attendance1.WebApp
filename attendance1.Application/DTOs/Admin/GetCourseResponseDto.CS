@@ -23,6 +23,7 @@ namespace attendance1.Application.DTOs.Admin
         public int TutorialId { get; set; }
         public string ClassDay { get; set; } = string.Empty;
         public string TutorialName { get; set; } = string.Empty;
+        public int StudentCount { get; set; }
         //public List<GetStudentResponseDto> EnrolledStudents { get; set; } = [];
         
     }

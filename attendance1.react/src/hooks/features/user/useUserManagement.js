@@ -14,6 +14,10 @@ export const useUserManagement = () => {
         open: false,
         user: null
     });
+    const [confirmMultipleDeleteDialog, setConfirmMultipleDeleteDialog] = useState({
+        open: false,
+        userIds: []
+    });
     const [confirmResetDialog, setConfirmResetDialog] = useState({
         open: false,
         user: null
@@ -121,6 +125,21 @@ export const useUserManagement = () => {
         );
     }, [handleApiCall]);
 
+    const bulkDeleteUsers = useCallback(async (userIds) => {
+        if (!userIds?.length) {
+          throw new Error('No users selected for deletion');
+        }
+    
+        const requestDto = userIds.map(id => ({
+          id: id
+        }));
+    
+        return await handleApiCall(
+          () => adminApi.MultipleDeleteUser(requestDto),
+          () => true
+        );
+      }, [handleApiCall]);
+
     const resetPassword = useCallback(async (user, role) => {
         const requestDto = {
             idInInteger: user.userId,
@@ -142,6 +161,7 @@ export const useUserManagement = () => {
         selectedUser,
         openDialog,
         confirmDeleteDialog,
+        confirmMultipleDeleteDialog,
         confirmResetDialog,
         loading,
         
@@ -152,6 +172,7 @@ export const useUserManagement = () => {
         setSelectedUser,
         setOpenDialog,
         setConfirmDeleteDialog,
+        setConfirmMultipleDeleteDialog,
         setConfirmResetDialog,
         
         // operations
@@ -161,6 +182,7 @@ export const useUserManagement = () => {
         createUser,
         updateUser,
         deleteUser,
-        resetPassword
+        resetPassword,
+        bulkDeleteUsers
     };
 };

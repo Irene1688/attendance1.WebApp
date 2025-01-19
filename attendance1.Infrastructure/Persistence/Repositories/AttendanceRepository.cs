@@ -60,6 +60,40 @@ namespace attendance1.Infrastructure.Persistence.Repositories
             return isAttendanceRecordExisted;
         }
         #endregion
+
+        #region attendance rate
+        public async Task<double> GetAttendanceRateOfStudentAsync(string studentId, int courseId)
+        {
+            return await ExecuteGetAsync<double>(async () => 
+            {
+                var totalAttendance = await _database.StudentAttendances
+                    .Where(a => 
+                        a.CourseId == courseId && 
+                        a.StudentId == studentId)
+                    .AsNoTracking()
+                    .ToListAsync();
+                
+                if (totalAttendance.Count == 0)
+                    return 0;
+                
+                 var presentAttendance = totalAttendance
+                    .Count(a => a.IsPresent == true);
+                var attendanceRate = (double)presentAttendance / totalAttendance.Count;
+                return attendanceRate;
+            });
+        }
+        #endregion
+
+        #region attendance record
+        public async Task<List<AttendanceRecord>> GetAttendanceRecordByCourseIdAsync(int courseId)
+        {
+            return await ExecuteGetAsync(async () => await _database.AttendanceRecords
+                .Where(a => a.CourseId == courseId)
+                .Include(a => a.Tutorial)
+                .AsNoTracking()
+                .ToListAsync());
+        }
+        #endregion
         
         #region lecturer: attendace CRUD
         public async Task<bool> CreateAttendanceCodeAsync(AttendanceRecord attendanceRecord)

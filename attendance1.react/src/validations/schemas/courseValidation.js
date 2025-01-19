@@ -56,11 +56,7 @@ export const courseValidationSchema = Yup.object().shape({
     .default([]),
   
   startDate: Yup.date()
-    .required('Start date is required')
-    .min(
-      new Date(), 
-      'Start date cannot be in the past'
-    ),
+    .required('Start date is required'),
   
   endDate: Yup.date()
     .required('End date is required')

@@ -44,6 +44,7 @@ namespace attendance1.Domain.Interfaces
         //Task<bool> EditUserWithPasswordAsync(UserDetail userDetail); // admin only
         Task<bool> ChangeUserPasswordAsync(int userId, string newPassword);
         Task<bool> DeleteUserAsync(int userId);
+        Task<bool> MultipleDeleteUserAsync(List<int> userIds);
         #endregion
 
         #region get one property

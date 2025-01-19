@@ -26,6 +26,7 @@ namespace attendance1.Infrastructure.Persistence.Repositories
             _logContext = logContext ?? throw new ArgumentNullException(nameof(logContext));
         }
 
+        // return T
         protected async Task<T> ExecuteGetAsync<T>(
             Func<Task<T?>> action,
             [CallerMemberName] string? methodName = null) 
@@ -50,6 +51,32 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                 throw;
             }
         } 
+
+        // return struct
+        protected async Task<T> ExecuteGetAsync<T>(
+            Func<Task<T?>> action,
+            [CallerMemberName] string? methodName = null) 
+            where T : struct
+        {
+            try 
+            {
+                _logger.LogInfoWithContext("Starting repo method...", _logContext.GetUserInfo(), methodName);
+                
+                var result = await action();
+                
+                _logger.LogInfoWithContext("Completed repo method", _logContext.GetUserInfo(), methodName);
+                
+                if (result == null)
+                    throw new KeyNotFoundException($"{typeof(T).Name} not found");
+                    
+                return result.Value;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogErrorWithContext($"Error in repo method: {ex.Message}", ex, _logContext.GetUserInfo(), methodName);
+                throw;
+            }
+        }
 
         // transaction handling
         protected async Task<IDbContextTransaction> BeginTransactionAsync()

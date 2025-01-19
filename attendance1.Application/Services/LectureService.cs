@@ -393,6 +393,74 @@ namespace attendance1.Application.Services
         #endregion
 
         #region student CRUD
+        public async Task<Result<PaginatedResult<GetEnrolledStudentResponseDto>>> GetEnrolledStudentsAsync(GetEnrolledStudentRequestDto requestDto)
+        {
+            var pageNumber = requestDto.PaginatedRequest.PageNumber;
+            var pageSize = requestDto.PaginatedRequest.PageSize;
+            var searchTerm = requestDto.SearchTerm;
+            var orderBy = requestDto.PaginatedRequest.OrderBy;
+            var isAscending = requestDto.PaginatedRequest.IsAscending;
+
+            return await ExecuteAsync(
+                async () =>
+                {
+                    if (!await _validateService.ValidateCourseAsync(requestDto.CourseId))
+                        throw new KeyNotFoundException("Course not found.");
+                    
+                    var enrolledStudents = await _courseRepository.GetEnrolledStudentsAsync(requestDto.CourseId, pageNumber, pageSize, searchTerm, orderBy, isAscending);
+                    
+                    var calculateAttendanceRateTasks = enrolledStudents.Select(async student =>
+                    {
+                        var task = _attendanceRepository.GetAttendanceRateOfStudentAsync(student.StudentId, requestDto.CourseId);
+
+                        return new GetEnrolledStudentResponseDto
+                        {
+                            StudentId = student.StudentId,
+                            StudentName = student.StudentName,
+                            TutorialName = student.Tutorial?.TutorialName ?? string.Empty,
+                            AttendanceRate = await task
+                        };
+                    });
+                    var responseData = await Task.WhenAll(calculateAttendanceRateTasks);
+                    
+                    var paginatedResult = new PaginatedResult<GetEnrolledStudentResponseDto>(
+                        responseData, 
+                        await _courseRepository.GetTotalEnrolledStudentsAsync(requestDto.CourseId, searchTerm),
+                        pageNumber, 
+                        pageSize
+                    );
+                    return paginatedResult;
+                },
+                $"Error occurred while getting the enrolled students"
+            );
+        }
+
+        public async Task<Result<GetAvailableStudentResponseDto>> GetAvailableStudentsAsync(GetAvailableStudentRequestDto requestDto)
+        {
+            return await ExecuteAsync(
+                async () =>
+                {
+                    if (!await _validateService.ValidateCourseAsync(requestDto.CourseId))
+                        throw new KeyNotFoundException("Course not found.");
+                    
+                    if (!await _validateService.HasProgrammeAsync(requestDto.ProgrammeId))
+                        throw new KeyNotFoundException("Programme not found.");
+
+                    var availableStudents = await _courseRepository.GetAvailableStudentsAsync(requestDto.ProgrammeId, requestDto.CourseId);
+                    var response = new GetAvailableStudentResponseDto
+                    {
+                        Students = availableStudents.Select(s => new DataIdResponseDto
+                        {
+                            Id = s.UserId,
+                            Name = $"{s.StudentId} - {s.UserName}"
+                        }).ToList()
+                    };
+                return response;
+                },
+                $"Error occurred while getting the available students"
+            );
+        }
+        
         public async Task<Result<bool>> AddStudentToClassAsync(AddStudentToClassRequestDto requestDto)
         {
             if (!await _validateService.ValidateCourseAsync(requestDto.CourseId))
@@ -456,15 +524,21 @@ namespace attendance1.Application.Services
 
         public async Task<Result<bool>> RemoveStudentFromClassAsync(RemoveStudentFromClassRequestDto requestDto)
         {
-            if (!await _validateService.ValidateCourseAsync(requestDto.CourseId))
-                return Result<bool>.FailureResult($"Course with ID {requestDto.CourseId} does not exist.", HttpStatusCode.NotFound);
-
             return await ExecuteAsync(
                 async () =>
                 {
+                    if (!await _validateService.ValidateCourseAsync(requestDto.CourseId))
+                        throw new KeyNotFoundException($"Class not found.");
+
+                    if (requestDto.StudentIdList.Count == 0)
+                        throw new InvalidOperationException("Student ID list is empty.");
+
+                    if (requestDto.StudentIdList.Any(s => string.IsNullOrEmpty(s)))
+                        throw new InvalidOperationException("Student ID list contains empty string.");
+
                     return await _courseRepository.RemoveStudentFromClassAsync(requestDto.CourseId, requestDto.StudentIdList);
                 },
-                $"Error occurred while removing student from class {requestDto.CourseId}"
+                $"Failed to remove student from class"
             );
         }
 

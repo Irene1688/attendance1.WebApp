@@ -21,16 +21,19 @@ const StudentManagement = () => {
     selectedUser,
     openDialog,
     confirmDeleteDialog,
+    confirmMultipleDeleteDialog,
     confirmResetDialog,
     loading,
     setSelectedUser,
     setOpenDialog,
     setConfirmDeleteDialog,
+    setConfirmMultipleDeleteDialog,
     setConfirmResetDialog,
     fetchStudents,
     createUser,
     updateUser,
     deleteUser,
+    bulkDeleteUsers,
     resetPassword
   } = useUserManagement();
   const { programmeSelection, fetchProgrammeSelection } = useProgrammeManagement();
@@ -64,7 +67,11 @@ const StudentManagement = () => {
 
   // initialize
   useEffect(() => {
+    let isMounted = true;
     fetchProgrammeSelection();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // fetch data
@@ -108,6 +115,19 @@ const StudentManagement = () => {
         await loadData();
         showSuccessMessage('Student deleted successfully');
       }
+    }
+  };
+
+  const handleBulkDeleteConfirm = async () => {
+    if (!confirmMultipleDeleteDialog.userIds?.length) {
+      return;
+    }
+    
+    const success = await bulkDeleteUsers(confirmMultipleDeleteDialog.userIds);
+    if (success) {
+      setConfirmMultipleDeleteDialog({ open: false, userIds: [] });
+      await loadData();
+      showSuccessMessage('Selected students deleted successfully');
     }
   };
 
@@ -179,6 +199,12 @@ const StudentManagement = () => {
             user
           });
         }}
+        onBulkDelete={(userIds) => {
+          setConfirmMultipleDeleteDialog({
+            open: true,
+            userIds
+          });
+        }}
         onResetPassword={(user) => {
           setConfirmResetDialog({
             open: true,
@@ -218,6 +244,17 @@ const StudentManagement = () => {
         content="Are you sure you want to delete this student? This action cannot be undone."
         onConfirm={handleDeleteConfirm}
         onCancel={() => setConfirmDeleteDialog({ open: false, user: null })}
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="delete"
+      />
+
+      <ConfirmDialog
+        open={confirmMultipleDeleteDialog.open}
+        title="Delete Students"
+        content={`Are you sure you want to delete ${confirmMultipleDeleteDialog.userIds?.length} students? This action cannot be undone.`}
+        onConfirm={handleBulkDeleteConfirm}
+        onCancel={() => setConfirmMultipleDeleteDialog({ open: false, userIds: [] })}
         confirmText="Delete"
         cancelText="Cancel"
         type="delete"

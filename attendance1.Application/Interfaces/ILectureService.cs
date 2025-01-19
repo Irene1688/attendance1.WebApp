@@ -16,6 +16,8 @@ namespace attendance1.Application.Interfaces
         #endregion
 
         #region student CRUD
+        Task<Result<PaginatedResult<GetEnrolledStudentResponseDto>>> GetEnrolledStudentsAsync(GetEnrolledStudentRequestDto requestDto);
+        Task<Result<GetAvailableStudentResponseDto>> GetAvailableStudentsAsync(GetAvailableStudentRequestDto requestDto);
         Task<Result<bool>> AddStudentToClassAsync(AddStudentToClassRequestDto requestDto);
         Task<Result<bool>> AddStudentToTutorialAsync(AddStudentToTutorialRequestDto requestDto);
         Task<Result<bool>> RemoveStudentFromClassAsync(RemoveStudentFromClassRequestDto requestDto);

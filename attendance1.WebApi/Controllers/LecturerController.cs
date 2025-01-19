@@ -8,7 +8,7 @@ namespace attendance1.WebApi.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize(Policy = "LecturerOnly")]
+    [Authorize(Policy = "AdminAndLecturer")]
     public class LecturerController : ControllerBase
     {
         private readonly ILectureService _lectureService;
@@ -60,6 +60,20 @@ namespace attendance1.WebApi.Controllers
         {
             var result = await _lectureService.DeleteClassAsync(requestDto);
             return StatusCode((int)result.StatusCode, result);
+        }
+
+        [HttpPost("getEnrolledStudents")]
+        public async Task<ActionResult<List<GetEnrolledStudentResponseDto>>> GetEnrolledStudents([FromBody] GetEnrolledStudentRequestDto requestDto)
+        {
+            var students = await _lectureService.GetEnrolledStudentsAsync(requestDto);
+            return StatusCode((int)students.StatusCode, students);
+        }
+
+        [HttpPost("getAvailableStudents")]
+        public async Task<ActionResult<List<GetAvailableStudentResponseDto>>> GetAvailableStudents([FromBody] GetAvailableStudentRequestDto requestDto)
+        {
+            var students = await _lectureService.GetAvailableStudentsAsync(requestDto);
+            return StatusCode((int)students.StatusCode, students);
         }
 
         [HttpPost("addStudentToClass")]

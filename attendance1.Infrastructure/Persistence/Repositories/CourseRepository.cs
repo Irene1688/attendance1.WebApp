@@ -288,7 +288,7 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                     course.IsDeleted = true;
                     course.Semester.IsDeleted = true;
                 }
-                //await _database.SaveChangesAsync();
+                await _database.SaveChangesAsync();
                 return true;
             });
         }
@@ -307,6 +307,7 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                     .Include(c => c.Programme)
                     .Include(c => c.Semester)
                     .Include(c => c.Tutorials)
+                    .Include(c => c.EnrolledStudents)
                     .Include(c => c.User)
                     .Where(c => c.IsDeleted == false);
 
@@ -384,11 +385,16 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                 };
 
                 // 分页
-                return await query
+                return await ExecuteGetAsync(async () => await query
                     .Skip((pageNumber - 1) * pageSize)
                     .Take(pageSize)
                     .AsNoTracking()
-                    .ToListAsync();
+                    .ToListAsync());
+                // return await query
+                //     .Skip((pageNumber - 1) * pageSize)
+                //     .Take(pageSize)
+                //     .AsNoTracking()
+                //     .ToListAsync();
             }
             catch (Exception ex)
             {
@@ -515,6 +521,125 @@ namespace attendance1.Infrastructure.Persistence.Repositories
         #endregion
 
         #region student CRUD
+        public async Task<int> GetTotalEnrolledStudentsAsync(int courseId, string searchTerm = "")
+        {
+            var query = _database.EnrolledStudents
+                .Include(s => s.Tutorial)
+                .Where(s => 
+                    s.CourseId == courseId && 
+                    s.IsDeleted == false)
+                .AsNoTracking();
+
+            // 搜索
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                searchTerm = searchTerm.ToLower();
+                query = query.Where(s =>
+                    EF.Functions.Collate(s.StudentId ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm) ||
+                    EF.Functions.Collate(s.StudentName ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm) ||
+                    EF.Functions.Collate(s.Tutorial.TutorialName ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm));
+            }
+    
+            return await query.CountAsync();
+        }
+
+        public async Task<List<EnrolledStudent>> GetEnrolledStudentsAsync(
+            int courseId, 
+            int pageNumber = 1, 
+            int pageSize = 15,
+            string searchTerm = "", 
+            string orderBy = "studentid", 
+            bool isAscending = true)
+        {
+            var query = _database.EnrolledStudents
+                .Include(s => s.Tutorial)
+                .Where(s => 
+                    s.CourseId == courseId && 
+                    s.IsDeleted == false);
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                searchTerm = searchTerm.ToLower();
+                query = query.Where(s =>
+                    EF.Functions.Collate(s.StudentId ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm) ||
+                    EF.Functions.Collate(s.StudentName ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm) ||
+                    EF.Functions.Collate(s.Tutorial.TutorialName ?? string.Empty, "SQL_Latin1_General_CP1_CI_AS").Contains(searchTerm));
+            }
+
+            query = (orderBy?.ToLower()) switch
+            {
+                "studentid" => isAscending 
+                    ? query.OrderBy(c => c.StudentId) 
+                    : query.OrderByDescending(c => c.StudentId),
+                "studentname" => isAscending 
+                    ? query.OrderBy(c => c.StudentName) 
+                    : query.OrderByDescending(c => c.StudentName),
+                "tutorialname" => isAscending 
+                    ? query.OrderBy(c => c.Tutorial.TutorialName) 
+                    : query.OrderByDescending(c => c.Tutorial.TutorialName),
+                _ => query.OrderBy(c => c.StudentId)
+            };
+
+            return await ExecuteGetAsync(async () => await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .AsNoTracking()
+                .ToListAsync());
+        }
+
+        public async Task<List<UserDetail>> GetAvailableStudentsAsync(int programmeId, int courseId)
+        {
+            return await ExecuteGetAsync(async () => 
+            {
+                var studentsInProgramme = await _database.UserDetails
+                    .Where(u => 
+                        u.ProgrammeId == programmeId && 
+                        u.AccRole == AccRoleEnum.Student.ToString() &&
+                        u.IsDeleted == false)
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                var studentsInCourse = await _database.EnrolledStudents
+                    .Where(s => 
+                        s.CourseId == courseId && 
+                        s.IsDeleted == false)
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                var availableStudents = studentsInProgramme
+                    .Where(s => 
+                        !studentsInCourse.Any(sc => sc.StudentId == s.StudentId))
+                    .ToList();
+                return availableStudents;
+            });
+        }
+
+        public async Task<bool> AddStudentsToCourseByUserIdAsync(int courseId, int tutorialId, List<int> studentUserIds)
+        {
+            return await ExecuteWithTransactionAsync(async () =>
+            {
+                var students = await _database.UserDetails
+                    .Where(u => 
+                        studentUserIds.Contains(u.UserId) && 
+                        u.IsDeleted == false && 
+                        u.AccRole == AccRoleEnum.Student.ToString())
+                    .ToListAsync();
+                foreach (var student in students)
+                {
+                    await _database.EnrolledStudents.AddAsync(new EnrolledStudent
+                    {
+                        CourseId = courseId,
+                        TutorialId = tutorialId,
+                        StudentId = student.StudentId ?? string.Empty,
+                        StudentName = student.UserName ?? string.Empty,
+                        IsDeleted = false
+                    });
+                }
+                await _database.SaveChangesAsync();
+                return true;
+            });
+        }
+
         public async Task<bool> AddStudentToClassAsync(int courseId, List<EnrolledStudent> students)
         {
             return await ExecuteWithTransactionAsync(async () =>

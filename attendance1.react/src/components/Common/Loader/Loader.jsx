@@ -1,6 +1,6 @@
 import { Box, CircularProgress, Typography } from '@mui/material';
 import PropTypes from 'prop-types';
-import { styles } from './styles';
+import { styles } from './Loader.styles';
 
 const Loader = ({ 
   message = 'Loading...', 

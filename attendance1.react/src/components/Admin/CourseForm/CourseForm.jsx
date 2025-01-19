@@ -276,7 +276,6 @@ const CourseForm = ({
                           onBlur: handleBlur
                         }
                       }}
-                      disablePast
                     />
                   </LocalizationProvider>
                 </Grid>
@@ -304,7 +303,6 @@ const CourseForm = ({
                         }
                       }}
                       minDate={values.startDate ? new Date(values.startDate) : null}
-                      disablePast
                     />
                   </LocalizationProvider>
                 </Grid>
@@ -322,7 +320,7 @@ const CourseForm = ({
                     value={values.classDays}
                     onChange={(event) => {
                       const value = event.target.value;
-                      if (value.length > 0) { // 确保至少选择一天
+                      if (value.length > 0) { 
                         setFieldValue('classDays', value);
                       }
                     }}

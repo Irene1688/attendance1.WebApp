@@ -18,6 +18,7 @@ export const adminApi = {
   createUser: (data) => api.post('Admin/createNewUser', data),
   updateUser: (data) => api.post('Admin/editUser', data),
   deleteUser: (data) => api.post('Admin/deleteUser', data),
+  MultipleDeleteUser: (data) => api.post('Admin/multipleDeleteUser', data),
   resetPassword: (data) => api.post('Admin/resetPassword', data),
 
   // Courses
@@ -28,11 +29,11 @@ export const adminApi = {
   MultipleDeleteCourse: (data) => api.post('Admin/multipleDeleteCourse', data),
 
   // Course Students
-  getEnrolledStudents: (data) => api.post('Admin/getEnrolledStudents', data),
-  getAvailableStudents: (data) => api.post('Admin/getAvailableStudents', data),
-  addStudentToCourse: (data) => api.post('Admin/addStudentToCourse', data),
-  removeStudentFromCourse: (data) => api.post('Admin/removeStudentFromCourse', data),
+  getEnrolledStudents: (data) => api.post('Lecturer/getEnrolledStudents', data),
+  getAvailableStudents: (data) => api.post('Lecturer/getAvailableStudents', data),
+  addStudentToCourse: (data) => api.post('Admin/addStudentsToCourse', data),
+  removeStudentFromCourse: (data) => api.post('Lecturer/removeStudentFromClass', data),
 
   // Course Attendance
-  getCourseAttendanceRecords: (data) => api.post('Admin/getCourseAttendanceRecords', data),
+  getAttendanceRecordsByCourseId: (data) => api.post('Admin/getAttendanceRecordByCourseId', data),
 }; 

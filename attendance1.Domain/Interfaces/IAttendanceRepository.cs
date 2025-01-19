@@ -8,6 +8,14 @@ namespace attendance1.Domain.Interfaces
         Task<bool> HasAttendanceCodeExistedByIdAsync(int attendanceCodeId);
         Task<bool> HasAttendanceRecordExistedAsync(string studentId, int attendanceCodeId);
         #endregion
+
+        # region attendance rate
+        Task<double> GetAttendanceRateOfStudentAsync(string studentId, int courseId);
+        #endregion
+
+        #region attendance record
+        Task<List<AttendanceRecord>> GetAttendanceRecordByCourseIdAsync(int courseId);
+        #endregion
         
         #region lecturer: attendace CRUD
         Task<bool> CreateAttendanceCodeAsync(AttendanceRecord attendanceRecord);

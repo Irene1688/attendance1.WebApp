@@ -23,6 +23,15 @@ const AdminLayout = () => {
           if (childTitle) return childTitle;
         }
       }
+
+      if (currentPath.includes('edit') && location.state?.course) {
+        return 'Edit ' + location.state.course.courseName;
+      }
+
+      if (location.state?.course) {
+        return location.state.course.courseName;
+      }
+
       return ''; 
     };
 

@@ -1,7 +1,15 @@
-import { TableRow, TableCell } from '@mui/material';
+import React, { useState } from 'react';
+import { 
+  TableCell, 
+  TableRow, 
+  Tooltip,
+  Box,
+  useTheme
+} from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { IconButton, PaginatedTable } from '../../Common';
+import { PaginatedTable, IconButton } from '../../Common';
+import { styles } from './ProgrammeTable.styles';
 
 const ProgrammeTable = ({
   programmes,
@@ -17,7 +25,10 @@ const ProgrammeTable = ({
   onDelete,
   searchTerm
 }) => {
-  // define columns and headers
+  const theme = useTheme();
+  const themedStyles = styles(theme);
+
+  
   const columns = [
     {
       id: 'programmeName',
@@ -27,7 +38,7 @@ const ProgrammeTable = ({
     {
       id: 'actions',
       label: 'Actions',
-      sortable: false,
+      sortable: false
     }
   ];
 
@@ -36,16 +47,22 @@ const ProgrammeTable = ({
     <TableRow key={programme.programmeId}>
       <TableCell>{programme.programmeName}</TableCell>
       <TableCell>
-        <IconButton
-          Icon={<EditIcon />}
-          onClick={() => onEdit(programme)}
-          color="primary"
-        />
-        <IconButton
-          Icon={<DeleteIcon />}
-          onClick={() => onDelete(programme)}
-          color="delete"
-        />
+        <Box sx={themedStyles.actionButton}>
+          <Tooltip title="Edit">
+            <IconButton 
+              Icon={<EditIcon />} 
+              onClick={() => onEdit(programme)} 
+              color="primary" 
+            />
+          </Tooltip>
+          <Tooltip title="Delete">
+            <IconButton 
+              Icon={<DeleteIcon />} 
+              onClick={() => onDelete(programme)} 
+              color="delete" 
+            />
+          </Tooltip>
+        </Box>
       </TableCell>
     </TableRow>
   );
