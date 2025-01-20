@@ -9,34 +9,35 @@ import { adminMenuItems } from './menuItems';
 const AdminLayout = () => {
   const location = useLocation();
   const [sideBarOpen, setSideBarOpen] = useState(true);
+  const [pageTitle, setPageTitle] = useState('');
 
-  const getCurrentTitle = () => {
-    const currentPath = location.pathname;
+  // const getCurrentTitle = () => {
+  //   const currentPath = location.pathname;
     
-    const findTitle = (items) => {
-      for (const item of items) {
-        if (item.path === currentPath) {
-          return item.title;
-        }
-        if (item.children) {
-          const childTitle = item.children.find(child => child.path === currentPath)?.title;
-          if (childTitle) return childTitle;
-        }
-      }
+  //   const findTitle = (items) => {
+  //     for (const item of items) {
+  //       if (item.path === currentPath) {
+  //         return item.title;
+  //       }
+  //       if (item.children) {
+  //         const childTitle = item.children.find(child => child.path === currentPath)?.title;
+  //         if (childTitle) return childTitle;
+  //       }
+  //     }
 
-      if (currentPath.includes('edit') && location.state?.course) {
-        return 'Edit ' + location.state.course.courseName;
-      }
+  //     if (currentPath.includes('edit') && location.state?.course) {
+  //       return 'Edit ' + location.state.course.courseName;
+  //     }
 
-      if (location.state?.course) {
-        return location.state.course.courseName;
-      }
+  //     if (location.state?.course) {
+  //       return location.state.course.courseName;
+  //     }
 
-      return ''; 
-    };
+  //     return ''; 
+  //   };
 
-    return findTitle(adminMenuItems);
-  };
+  //   return findTitle(adminMenuItems);
+  // };
 
   const handleSideBarToggle = () => {
     setSideBarOpen(!sideBarOpen);
@@ -49,14 +50,14 @@ const AdminLayout = () => {
   return (
     <>
       <Helmet>
-        <title>{formatPageTitle(getCurrentTitle())}</title>
+        <title>{formatPageTitle(pageTitle)}</title>
         <meta name="description" content="Admin dashboard for UTS attendance system" />
       </Helmet>
       <Box sx={{ display: 'flex', minHeight: '100vh' }}>
         <TopBar 
           open={sideBarOpen} 
           onToggle={handleSideBarToggle}
-          title={getCurrentTitle()}
+          title={pageTitle}
         />
         <StaffSideBar 
           menuItems={adminMenuItems} 
@@ -80,7 +81,7 @@ const AdminLayout = () => {
           }}
           // ml: `${sideBarOpen ? 320 : 80}px`,
         >
-          <Outlet /> {/* sub routes components will be rendered here */}
+          <Outlet context={{ setPageTitle }} />
         </Box>
       </Box>
     </>

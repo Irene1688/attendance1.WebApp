@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { adminApi } from '../../../api/admin';
+import { programmeApi } from '../../../api/programme';
 import { useApiExecutor } from '../../common';
 
 export const useProgrammeManagement = () => {
@@ -19,7 +19,7 @@ export const useProgrammeManagement = () => {
   // CRUD operations
   const fetchProgrammeSelection = useCallback(async () => {
     return await handleApiCall(
-      () => adminApi.getProgrammeSelection(),
+      () => programmeApi.getProgrammeSelection(),
       (response) => {
         setProgrammeSelection(response.programmes || []);
         return response.programmes;
@@ -39,7 +39,7 @@ export const useProgrammeManagement = () => {
     };
 
     return await handleApiCall(
-      () => adminApi.getAllProgrammes(requestDto),
+      () => programmeApi.getAllProgrammes(requestDto),
       (paginatedResult) => {
         setProgrammes(paginatedResult.data || []);
       }
@@ -52,10 +52,8 @@ export const useProgrammeManagement = () => {
     };
     
     return await handleApiCall(
-      () => adminApi.createProgramme(requestDto),
-      () => {
-        return true;
-      }
+      () => programmeApi.createProgramme(requestDto),
+      () => true
     );
   }, [handleApiCall]);
 
@@ -65,19 +63,15 @@ export const useProgrammeManagement = () => {
       programmeName: values.name,
     };
     return await handleApiCall(
-      () => adminApi.updateProgramme(requestDto),
-      async () => {
-        return true;
-      }
+      () => programmeApi.updateProgramme(requestDto),
+      () => true
     );
   }, [handleApiCall, selectedProgramme]);
 
   const deleteProgramme = useCallback(async (programme) => {
     return await handleApiCall(
-      () => adminApi.deleteProgramme({ id: programme.programmeId }),
-      () => {
-        return true;
-      }
+      () => programmeApi.deleteProgramme({ id: programme.programmeId }),
+      () => true
     );
   }, [handleApiCall]);
 

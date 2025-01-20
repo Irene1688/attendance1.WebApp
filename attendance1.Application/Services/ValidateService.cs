@@ -146,7 +146,7 @@ namespace attendance1.Application.Services
 
             return true;
         }
-
+        
         public bool ValidatePasswordAsync(string oldPassword, string newPassword)
         {
             if (string.IsNullOrEmpty(oldPassword) || string.IsNullOrEmpty(newPassword))

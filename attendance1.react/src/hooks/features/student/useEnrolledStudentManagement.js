@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { adminApi } from '../../../api/admin';
+import { courseApi } from '../../../api/course';
 import { useApiExecutor } from '../../common';
 
 export const useEnrolledStudentManagement = () => {
@@ -28,7 +28,7 @@ export const useEnrolledStudentManagement = () => {
           courseId: params.courseId
       };
       return await handleApiCall(
-        () => adminApi.getEnrolledStudents(requestDto),
+        () => courseApi.getEnrolledStudents(requestDto),
         (paginatedResult) => {
           setEnrolledStudents(paginatedResult.data || []);
           return paginatedResult;
@@ -42,7 +42,7 @@ export const useEnrolledStudentManagement = () => {
             courseId: Number(courseId) || 0
         };
         return await handleApiCall(
-            () => adminApi.getAvailableStudents(requestDto),
+            () => courseApi.getAvailableStudents(requestDto),
             (response) => {
                 setAvailableStudents(response.students || []);
                 return response.students;
@@ -58,7 +58,7 @@ export const useEnrolledStudentManagement = () => {
             studentIds: values.students.map(student => student.studentId)
         };
         return await handleApiCall(
-            () => adminApi.addStudentToCourse(requestDto),
+            () => courseApi.addStudentToCourseAndTutorial(requestDto),
             () => true
         );
     }, [handleApiCall]);
@@ -69,7 +69,7 @@ export const useEnrolledStudentManagement = () => {
             StudentIdList: students.map(s => s.studentId)
         };
         return await handleApiCall(
-            () => adminApi.removeStudentFromCourse(requestDto),
+            () => courseApi.removeStudentFromCourse(requestDto),
             () => true
         );
     }, [handleApiCall]);

@@ -1,15 +1,8 @@
-using attendance1.Application.DTOs.Common;
-using attendance1.Application.Interfaces;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-
 namespace attendance1.WebApi.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize(Policy = "AdminOnly")]
-    [Authorize(Policy = "LecturerOnly")]
-    [Authorize(Policy = "StudentOnly")]
+    [Authorize(Policy = "AllLoginedUser")]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -22,25 +15,32 @@ namespace attendance1.WebApi.Controllers
         }
 
         [HttpPost("viewProfile")]
-        public async Task<ActionResult<ViewProfileResponseDto>> ViewProfile([FromBody] DataIdRequestDto requestDto)
+        public async Task<ActionResult<ViewProfileResponseDto>> ViewProfile([FromBody] ViewProfileRequestDto requestDto)
         {
             var result = await _userService.ViewProfileAsync(requestDto);
             return StatusCode((int)result.StatusCode, result);
         }
 
-        [HttpPost("editProfile")]
-        public async Task<ActionResult<bool>> EditProfile([FromBody] EditProfileRequestDto requestDto)
+        [HttpPost("editProfileWithPassword")]
+        public async Task<ActionResult<bool>> EditProfileWithPassword([FromBody] EditProfileWithPasswordRequestDto requestDto)
         {
-            var result = await _userService.EditProfileAsync(requestDto);
+            var result = await _userService.EditProfileWithPasswordAsync(requestDto);
             return StatusCode((int)result.StatusCode, result);
         }
 
-        [HttpPost("changePassword")]
-        public async Task<ActionResult<bool>> ChangePassword([FromBody] EditPasswordRequestDto requestDto)
-        {
-            var result = await _userService.ChangePasswordAsync(requestDto);
-            return StatusCode((int)result.StatusCode, result);
-        }
+        // [HttpPost("editProfile")]
+        // public async Task<ActionResult<bool>> EditProfile([FromBody] EditProfileRequestDto requestDto)
+        // {
+        //     var result = await _userService.EditProfileAsync(requestDto);
+        //     return StatusCode((int)result.StatusCode, result);
+        // }
+
+        // [HttpPost("changePassword")]
+        // public async Task<ActionResult<bool>> ChangePassword([FromBody] EditPasswordRequestDto requestDto)
+        // {
+        //     var result = await _userService.ChangePasswordAsync(requestDto);
+        //     return StatusCode((int)result.StatusCode, result);
+        // }
     }
 }
 

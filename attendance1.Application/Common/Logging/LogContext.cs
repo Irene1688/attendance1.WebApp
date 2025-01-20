@@ -1,6 +1,3 @@
-using Microsoft.AspNetCore.Http;
-using System.Security.Claims;
-
 namespace attendance1.Application.Common.Logging
 {
     public class LogContext

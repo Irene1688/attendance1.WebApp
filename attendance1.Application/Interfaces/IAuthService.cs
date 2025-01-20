@@ -1,8 +1,3 @@
-using attendance1.Application.Common.Response;
-using attendance1.Application.DTOs.Admin;
-using attendance1.Application.DTOs.Common;
-using attendance1.Application.DTOs.Lecturer;
-
 namespace attendance1.Application.Interfaces
 {
     public interface IAuthService

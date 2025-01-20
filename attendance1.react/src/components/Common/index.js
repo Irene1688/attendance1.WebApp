@@ -1,5 +1,4 @@
 export { default as PromptMessage } from './PromptMessage/PromptMessage';
-export { default as ShowCountCard } from './ShowCountCard/ShowCountCard';
 export { default as StatCard } from './StatCard/StatCard';
 export { default as Loader } from './Loader/Loader';
 export { default as TextButton } from './TextButton/TextButton';
@@ -9,3 +8,4 @@ export { default as SearchField } from './SearchField/SearchField';
 export { default as EmptyState } from './EmptyState/EmptyState';
 export { default as SortableTableHead } from './SortableTableHead/SortableTableHead';
 export { default as PaginatedTable } from './PaginatedTable/PaginatedTable';
+export { default as AvatarSection } from './AvatarSection/AvatarSection';

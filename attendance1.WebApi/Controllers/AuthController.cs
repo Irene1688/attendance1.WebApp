@@ -1,9 +1,3 @@
-using attendance1.Application.DTOs.Common;
-using attendance1.Application.Interfaces;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using attendance1.Domain.Interfaces;
-
 namespace attendance1.WebApi.Controllers
 {
     [ApiController]

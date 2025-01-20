@@ -1,10 +1,4 @@
-﻿using attendance1.Application.DTOs.Common;
-using attendance1.Application.DTOs.Lecturer;
-using attendance1.Application.Interfaces;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-
-namespace attendance1.WebApi.Controllers
+﻿namespace attendance1.WebApi.Controllers
 {
     [ApiController]
     [Route("[controller]")]
@@ -62,19 +56,19 @@ namespace attendance1.WebApi.Controllers
             return StatusCode((int)result.StatusCode, result);
         }
 
-        [HttpPost("getEnrolledStudents")]
-        public async Task<ActionResult<List<GetEnrolledStudentResponseDto>>> GetEnrolledStudents([FromBody] GetEnrolledStudentRequestDto requestDto)
-        {
-            var students = await _lectureService.GetEnrolledStudentsAsync(requestDto);
-            return StatusCode((int)students.StatusCode, students);
-        }
+        // [HttpPost("getEnrolledStudents")]
+        // public async Task<ActionResult<List<GetEnrolledStudentResponseDto>>> GetEnrolledStudents([FromBody] GetEnrolledStudentRequestDto requestDto)
+        // {
+        //     var students = await _lectureService.GetEnrolledStudentsAsync(requestDto);
+        //     return StatusCode((int)students.StatusCode, students);
+        // }
 
-        [HttpPost("getAvailableStudents")]
-        public async Task<ActionResult<List<GetAvailableStudentResponseDto>>> GetAvailableStudents([FromBody] GetAvailableStudentRequestDto requestDto)
-        {
-            var students = await _lectureService.GetAvailableStudentsAsync(requestDto);
-            return StatusCode((int)students.StatusCode, students);
-        }
+        // [HttpPost("getAvailableStudents")]
+        // public async Task<ActionResult<List<GetAvailableStudentResponseDto>>> GetAvailableStudents([FromBody] GetAvailableStudentRequestDto requestDto)
+        // {
+        //     var students = await _lectureService.GetAvailableStudentsAsync(requestDto);
+        //     return StatusCode((int)students.StatusCode, students);
+        // }
 
         [HttpPost("addStudentToClass")]
         public async Task<ActionResult<bool>> AddStudentToClass([FromBody] AddStudentToClassRequestDto requestDto)
@@ -83,12 +77,12 @@ namespace attendance1.WebApi.Controllers
             return StatusCode((int)result.StatusCode, result);
         }
 
-        [HttpPost("removeStudentFromClass")]
-        public async Task<ActionResult<bool>> RemoveStudentFromClass([FromBody] RemoveStudentFromClassRequestDto requestDto)
-        {
-            var result = await _lectureService.RemoveStudentFromClassAsync(requestDto);
-            return StatusCode((int)result.StatusCode, result);
-        }
+        // [HttpPost("removeStudentFromClass")]
+        // public async Task<ActionResult<bool>> RemoveStudentFromClass([FromBody] RemoveStudentFromClassRequestDto requestDto)
+        // {
+        //     var result = await _lectureService.RemoveStudentFromClassAsync(requestDto);
+        //     return StatusCode((int)result.StatusCode, result);
+        // }
 
         [HttpPost("addStudentToTutorial")]
         public async Task<ActionResult<bool>> AddStudentToTutorial([FromBody] AddStudentToTutorialRequestDto requestDto)

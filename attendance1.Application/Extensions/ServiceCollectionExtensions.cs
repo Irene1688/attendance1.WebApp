@@ -1,15 +1,3 @@
-using attendance1.Application.Common.Logging;
-using attendance1.Application.Common.Settings;
-using attendance1.Application.Interfaces;
-using attendance1.Application.Services;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text.Json;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using System.Text;
-using Microsoft.AspNetCore.Http;
-
 namespace attendance1.Application.Extensions
 {
     public static class ServiceCollectionExtensions
@@ -22,6 +10,10 @@ namespace attendance1.Application.Extensions
             services.AddScoped<IValidateService, ValidateService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped<ICourseService, CourseService>();
+            services.AddScoped<IAttendanceService, AttendanceService>();
+            services.AddScoped<IProgrammeService, ProgrammeService>();
 
             return services;
         }

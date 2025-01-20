@@ -1,11 +1,4 @@
-﻿using attendance1.Application.Common.Logging;
-using attendance1.Application.Common.Response;
-using Microsoft.Extensions.Logging;
-using System.Runtime.CompilerServices;
-using attendance1.Application.Extensions;
-using System.Net;
-
-namespace attendance1.Application.Services
+﻿namespace attendance1.Application.Services
 {
     public abstract class BaseService
     {

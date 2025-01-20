@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import { Box, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { 
@@ -17,6 +17,7 @@ import { useProgrammeManagement } from '../../../hooks/features/programme/usePro
 import { useUserManagement } from '../../../hooks/features/user/useUserManagement';
 
 const CourseManagement = () => {
+  const { setPageTitle } = useOutletContext();
   const navigate = useNavigate();
   const { 
     courses,
@@ -68,7 +69,6 @@ const CourseManagement = () => {
     setPage(0);
   }, [setPage]);
 
-  // fetch data
   const [filters, setFilters] = useState({
     programmeId: 0,
     lecturerUserId: 0,
@@ -77,6 +77,12 @@ const CourseManagement = () => {
     year: ''
   });
 
+  // initialize
+  useEffect(() => {
+    setPageTitle('Class Management');
+  }, [setPageTitle]);
+
+  // fetch data
   const loadData = useCallback(async () => {
     const requestDto = {
       paginatedRequest: {
@@ -165,7 +171,7 @@ const CourseManagement = () => {
       )}
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
-        <Typography variant="h5">Course Management ({total})</Typography>
+        <Typography variant="h5">Classes Management ({total})</Typography>
         <TextButton 
           onClick={() => navigate('/admin/courses/add')}
           Icon={<AddIcon />}

@@ -249,13 +249,16 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                 .ToListAsync());
         }
 
-        public async Task<UserDetail> GetUserByCampusIdAsync(int userId, string campusId)
+
+        public async Task<UserDetail> GetUserByCampusIdAsync(string role, string campusId)
         {
             return await ExecuteGetAsync(async () => await _database.UserDetails
                 .AsNoTracking()
-                .FirstOrDefaultAsync(u => u.UserId == userId 
-                    && u.IsDeleted == false 
-                    && (u.StudentId == campusId || u.LecturerId == campusId)));
+                .Include(u => u.Programme)
+                .FirstOrDefaultAsync(u => 
+                    u.IsDeleted == false &&
+                    u.AccRole == role &&
+                    (u.StudentId == campusId || u.LecturerId == campusId)));
         }
 
         public async Task<bool> CreateUserAsync(UserDetail userDetail)
@@ -298,6 +301,26 @@ namespace attendance1.Infrastructure.Persistence.Repositories
             });
         }
 
+        public async Task<bool> EditUserWithPasswordAsync(UserDetail userDetail)
+        {
+            return await ExecuteWithTransactionAsync(async () =>
+            {
+                var userToEdit = await _database.UserDetails
+                    .FirstOrDefaultAsync(u => 
+                        u.UserId == userDetail.UserId && 
+                        u.IsDeleted == false);
+
+                if (userToEdit == null)
+                    throw new Exception("User not found");
+
+                userToEdit.UserName = userDetail.UserName;
+                userToEdit.Email = userDetail.Email;
+                if (!string.IsNullOrEmpty(userDetail.UserPassword))
+                    userToEdit.UserPassword = userDetail.UserPassword;
+                await _database.SaveChangesAsync();
+                return true;
+            });
+        }
         // admin only
         // public async Task<bool> EditUserWithPasswordAsync(UserDetail userDetail)
         // {

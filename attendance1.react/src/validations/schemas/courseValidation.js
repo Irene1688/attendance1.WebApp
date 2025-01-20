@@ -1,18 +1,18 @@
 import * as Yup from 'yup';
 
-export const MONTHS = [
-  { value: 'Sep', label: 'September' },
-  { value: 'Jul', label: 'July' },
-  { value: 'Feb', label: 'February' }
-];
+// export const MONTHS = [
+//   { value: 'Sep', label: 'September' },
+//   { value: 'Jul', label: 'July' },
+//   { value: 'Feb', label: 'February' }
+// ];
 
-export const generateYearOptions = () => {
-  const currentYear = new Date().getFullYear();
-  return [
-    { value: `${currentYear-1}/${currentYear}`, label: `${currentYear-1}/${currentYear}` },
-    { value: `${currentYear}/${currentYear+1}`, label: `${currentYear}/${currentYear+1}` }
-  ];
-};
+// export const generateYearOptions = () => {
+//   const currentYear = new Date().getFullYear();
+//   return [
+//     { value: `${currentYear-1}/${currentYear}`, label: `${currentYear-1}/${currentYear}` },
+//     { value: `${currentYear}/${currentYear+1}`, label: `${currentYear}/${currentYear+1}` }
+//   ];
+// };
 
 export const courseValidationSchema = Yup.object().shape({
   programmeId: Yup.number()
@@ -86,42 +86,42 @@ export const courseValidationSchema = Yup.object().shape({
 });
 
 // 常量定义
-export const TUTORIAL_DAYS = [
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday'
-];
+// export const TUTORIAL_DAYS = [
+//   'Monday',
+//   'Tuesday',
+//   'Wednesday',
+//   'Thursday',
+//   'Friday'
+// ];
 
-export const STATUS = {
-  ACTIVE: 'ACTIVE',
-  ARCHIVED: 'ARCHIVED'
-};
+// export const STATUS = {
+//   ACTIVE: 'ACTIVE',
+//   ARCHIVED: 'ARCHIVED'
+// };
 
-export const COURSE_STATUS = {
-  [STATUS.ACTIVE]: 'Active',
-  [STATUS.ARCHIVED]: 'Archived'
-};
+// export const COURSE_STATUS = {
+//   [STATUS.ACTIVE]: 'Active',
+//   [STATUS.ARCHIVED]: 'Archived'
+// };
 
 // 辅助函数
-export const generateCourseSession = () => {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth() + 1;
+// export const generateCourseSession = () => {
+//   const now = new Date();
+//   const year = now.getFullYear();
+//   const month = now.getMonth() + 1;
   
-  let sessionMonth;
-  if (month >= 9) sessionMonth = 'Sep';
-  else if (month >= 7) sessionMonth = 'Jul';
-  else if (month >= 2) sessionMonth = 'Feb';
-  else sessionMonth = 'Sep';
+//   let sessionMonth;
+//   if (month >= 9) sessionMonth = 'Sep';
+//   else if (month >= 7) sessionMonth = 'Jul';
+//   else if (month >= 2) sessionMonth = 'Feb';
+//   else sessionMonth = 'Sep';
   
-  return `${sessionMonth} ${year}/${year + 1}`;
-};
+//   return `${sessionMonth} ${year}/${year + 1}`;
+// };
 
-export const formatTutorialName = (index) => {
-  return `T${(index + 1).toString().padStart(2, '0')}`;
-};
+// export const formatTutorialName = (index) => {
+//   return `T${(index + 1).toString().padStart(2, '0')}`;
+// };
 
 export const validateTutorialName = (name) => {
   return /^T[0-9]{2}$/.test(name);
@@ -135,36 +135,36 @@ export const validateCourseSession = (session) => {
   return /^(202[0-9])(0[1-9]|1[0-2])$/.test(session);
 };
 
-export const getCourseStatus = (endWeek) => {
-  const today = new Date();
-  const endDate = new Date(endWeek);
-  return endDate > today ? STATUS.ACTIVE : STATUS.ARCHIVED;
-};
+// export const getCourseStatus = (endWeek) => {
+//   const today = new Date();
+//   const endDate = new Date(endWeek);
+//   return endDate > today ? STATUS.ACTIVE : STATUS.ARCHIVED;
+// };
 
-// 星期几到数字的映射
-export const DAY_TO_NUMBER = {
-  'Monday': 1,
-  'Tuesday': 2,
-  'Wednesday': 3,
-  'Thursday': 4,
-  'Friday': 5
-};
+// // 星期几到数字的映射
+// export const DAY_TO_NUMBER = {
+//   'Monday': 1,
+//   'Tuesday': 2,
+//   'Wednesday': 3,
+//   'Thursday': 4,
+//   'Friday': 5
+// };
 
-// 数字到星期几的映射
-export const NUMBER_TO_DAY = {
-  1: 'Monday',
-  2: 'Tuesday',
-  3: 'Wednesday',
-  4: 'Thursday',
-  5: 'Friday'
-};
+// // 数字到星期几的映射
+// export const NUMBER_TO_DAY = {
+//   1: 'Monday',
+//   2: 'Tuesday',
+//   3: 'Wednesday',
+//   4: 'Thursday',
+//   5: 'Friday'
+// };
 
 // 转换星期几数组到数字数组
-export const convertDaysToNumbers = (days) => {
-  return days.map(day => DAY_TO_NUMBER[day]).sort((a, b) => a - b);
-};
+// export const convertDaysToNumbers = (days) => {
+//   return days.map(day => DAY_TO_NUMBER[day]).sort((a, b) => a - b);
+// };
 
-// 转换数字数组到星期几数组
-export const convertNumbersToDays = (numbers) => {
-  return numbers.map(num => NUMBER_TO_DAY[num]).sort();
-}; 
+// // 转换数字数组到星期几数组
+// export const convertNumbersToDays = (numbers) => {
+//   return numbers.map(num => NUMBER_TO_DAY[num]).sort();
+// }; 

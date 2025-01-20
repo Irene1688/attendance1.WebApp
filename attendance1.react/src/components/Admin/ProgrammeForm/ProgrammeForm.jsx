@@ -34,6 +34,7 @@ const ProgrammeForm = ({ initialValues, onSubmit, onCancel, isEditing }) => {
                   severity={message.severity}
                   fullWidth
                   onClose={hideMessage}
+                  scrollToTop={false}
                 />
               </Box>
             )}

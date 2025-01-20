@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useNavigate, useParams, useLocation, useOutletContext } from 'react-router-dom';
 import { Box, Typography } from '@mui/material';
 import { 
   Loader, 
@@ -15,6 +15,7 @@ import { useMessageContext } from '../../../contexts/MessageContext';
 import { convertNumbersToDays, NUMBER_TO_DAY } from '../../../validations/schemas/courseValidation';
 
 const CourseFormPage = () => {
+  const { setPageTitle } = useOutletContext();
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -42,6 +43,10 @@ const CourseFormPage = () => {
   };
 
   // Initialize
+  useEffect(() => {
+    setPageTitle('Class Form');
+  }, [setPageTitle]);
+
   useEffect(() => {
     let isMounted = true;
 
@@ -75,7 +80,7 @@ const CourseFormPage = () => {
     <Box>
       {loading && <Loader />}
       
-      {message.show && message.severity === 'success' && (
+    {message.show &&(
         <PromptMessage
           open={true}
           message={message.text}

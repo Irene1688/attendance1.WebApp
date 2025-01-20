@@ -29,7 +29,7 @@ export const useApiExecutor = () => {
           const messageFromServer = error.response.data?.errorMessage;
           const messageFromClientServer = error.message;
           
-          if (messageFromServer === "Failed to refresh token: Invalid or expired refresh token") {
+          if (messageFromServer.includes("Failed to refresh token")) {
             dispatch(logout());
             navigate('/login');
             showErrorMessage('Your session has expired. Please login again.');

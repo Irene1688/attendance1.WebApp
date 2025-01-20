@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { adminApi } from '../../../api/admin';
+import { accountApi } from '../../../api/account';
 import { useApiExecutor } from '../../common';
 import { USER_ROLES } from '../../../constants/userRoles';
 
@@ -29,7 +29,7 @@ export const useUserManagement = () => {
     // CRUD operations
     const fetchLecturerSelection = useCallback(async () => {
         return await handleApiCall(
-            () => adminApi.getLecturerSelection(),
+            () => accountApi.getLecturerSelection(),
             (response) => {
                 setLecturerSelection(response.lecturers || []);
                 return response.lecturers;
@@ -50,7 +50,7 @@ export const useUserManagement = () => {
         };
 
         return await handleApiCall(
-            () => adminApi.getAllLecturers(requestDto),
+            () => accountApi.getAllLecturers(requestDto),
             (paginatedResult) => {
                 setLecturers(paginatedResult.data || []);
                 return paginatedResult;
@@ -74,7 +74,7 @@ export const useUserManagement = () => {
         };
 
         return await handleApiCall(
-            () => adminApi.getAllStudents(requestDto),
+            () => accountApi.getAllStudents(requestDto),
             (paginatedResult) => {
                 setStudents(paginatedResult.data || []);
                 return paginatedResult;
@@ -92,7 +92,7 @@ export const useUserManagement = () => {
             programmeId: Number(values.programmeId),
         };
         return await handleApiCall(
-            () => adminApi.createUser(requestDto),
+            () => accountApi.createUser(requestDto),
             () => {
                 return true;
             }
@@ -109,7 +109,7 @@ export const useUserManagement = () => {
         };
         console.log('selectedUser', selectedUser);
         return await handleApiCall(
-            () => adminApi.updateUser(requestDto),
+            () => accountApi.updateUser(requestDto),
             () => {
                 return true;
             }
@@ -118,7 +118,7 @@ export const useUserManagement = () => {
 
     const deleteUser = useCallback(async (user) => {
         return await handleApiCall(
-            () => adminApi.deleteUser({ id: user.userId }),
+            () => accountApi.deleteUser({ id: user.userId }),
             () => {
                 return true;
             }
@@ -135,7 +135,7 @@ export const useUserManagement = () => {
         }));
     
         return await handleApiCall(
-          () => adminApi.MultipleDeleteUser(requestDto),
+          () => accountApi.MultipleDeleteUser(requestDto),
           () => true
         );
       }, [handleApiCall]);
@@ -146,7 +146,7 @@ export const useUserManagement = () => {
             idInString: role === USER_ROLES.LECTURER ? user.lecturerId : user.studentId
         };
         return await handleApiCall(
-            () => adminApi.resetPassword(requestDto),
+            () => accountApi.resetPassword(requestDto),
             () => {
                 return true;
             }

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import { Box, Typography, Dialog } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { 
@@ -8,13 +9,15 @@ import {
   ConfirmDialog,
   SearchField,
 } from '../../components/Common';
-import { UserForm, LecturerTable } from '../../components/Admin';
+import { AdminHeader, UserForm, LecturerTable } from '../../components/Admin';
 import { useUserManagement, useProgrammeManagement } from '../../hooks/features';
 import { usePagination, useSorting } from '../../hooks/common';
 import { useMessageContext } from '../../contexts/MessageContext';
 import { USER_ROLES } from '../../constants/userRoles';
 
 const LecturerManagement = () => {
+  const { setPageTitle } = useOutletContext();
+
   // hooks
   const { 
     lecturers,
@@ -68,6 +71,10 @@ const LecturerManagement = () => {
 
   // Initialize
   useEffect(() => {
+    setPageTitle('Lecturer Management');
+  }, [setPageTitle]);
+
+  useEffect(() => {
     let isMounted = true;
     fetchProgrammeSelection();
     return () => {
@@ -85,7 +92,6 @@ const LecturerManagement = () => {
       searchTerm: searchTerm,
     };
     const paginatedResult = await fetchLecturers(requestDto);
-    console.log('loadData', paginatedResult);
     setTotal(paginatedResult.totalCount);
   }, [getPaginationParams, getSortParams, searchTerm]);
   
@@ -158,9 +164,7 @@ const LecturerManagement = () => {
           sx={{ mb: 2 }}
         />
       )}
-
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
-        <Typography variant="h5">Lecturer Management ({total})</Typography>
+      <AdminHeader title={`Lecturer Management (${total})`}>
         <TextButton 
           onClick={() => {
             setSelectedUser(null);
@@ -171,15 +175,13 @@ const LecturerManagement = () => {
         >
           Add New Lecturer
         </TextButton>
-      </Box>
+      </AdminHeader>
 
-      <Box sx={{ mb: 3 }}>
-        <SearchField
-          placeholder="Search lecturers..."
-          onSearch={handleSearch}
-          debounceTime={1000}
-        />
-      </Box>
+      <SearchField
+        placeholder="Search lecturers..."
+        onSearch={handleSearch}
+        debounceTime={1000}
+      />
 
       <LecturerTable
         lecturers={lecturers}

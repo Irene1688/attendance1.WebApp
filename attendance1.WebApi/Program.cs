@@ -1,8 +1,3 @@
-using System.Text.Json.Serialization;
-using attendance1.Application.Extensions;
-using attendance1.Infrastructure.Extensions;
-using attendance1.WebApi.Middleware;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
@@ -21,6 +16,7 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
     options.AddPolicy("AdminAndLecturer", policy => policy.RequireRole("Admin", "Lecturer"));
+    options.AddPolicy("AllLoginedUser", policy => policy.RequireRole("Admin", "Lecturer", "Student"));
     options.AddPolicy("StudentOnly", policy => policy.RequireRole("Student"));
     options.AddPolicy("LecturerOnly", policy => policy.RequireRole("Lecturer"));
 });

@@ -3,6 +3,7 @@ import ClassIcon from '@mui/icons-material/Class';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import SchoolIcon from '@mui/icons-material/School';
 import PersonIcon from '@mui/icons-material/Person';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 export const adminMenuItems = [
   {

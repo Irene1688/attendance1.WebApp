@@ -1,7 +1,7 @@
 export const styles = {
   container: (fullWidth) => ({
     width: fullWidth ? '100%' : 'auto',
-    position: 'relative'
+    position: 'relative',
   }),
   alert: (severity) => ({
     mb: 2,

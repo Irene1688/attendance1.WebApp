@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { TextButton } from '../../Common';
-import { COURSE_STATUS } from '../../../validations/schemas/courseValidation';
+import { STATUS } from '../../../constants/status';
 
 const MONTHS = [
   { value: 'SEP', label: 'September' },
@@ -179,7 +179,7 @@ const CourseFilter = ({
                 onChange={handleChange('status')}
               >
                 <MenuItem value="">All Status</MenuItem>
-                {Object.entries(COURSE_STATUS).map(([key, value]) => (
+                {Object.entries(STATUS.toLowerCase()).map(([key, value]) => (
                   <MenuItem key={key} value={key}>
                     {value}
                   </MenuItem>

@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { adminApi } from '../../../api/admin';
+import { attendanceApi } from '../../../api/attendance';
 import { useApiExecutor } from '../../common';
 
 export const useAttendanceManagement = () => {
@@ -21,7 +21,7 @@ export const useAttendanceManagement = () => {
             }
         };
         return await handleApiCall(
-          () => adminApi.getAttendanceRecordsByCourseId(requestDto),
+          () => attendanceApi.getAttendanceRecordsByCourseId(requestDto),
           (paginatedResult) => {
             setAttendanceRecords(paginatedResult.data || []);
             return paginatedResult;

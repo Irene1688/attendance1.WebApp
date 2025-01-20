@@ -1,12 +1,12 @@
 export const styles = (theme) => ({
   searchField: {
     width: '100%',
-    maxWidth: 500,
-    backgroundColor: theme.palette.background.paper,
+    marginBottom: 3,
+    backgroundColor: 'transparent',
     borderRadius: theme.shape.borderRadius,
     '& .MuiOutlinedInput-root': {
       '& fieldset': {
-        borderColor: theme.palette.divider
+        borderColor: theme.palette.primary.main
       },
       '&:hover fieldset': {
         borderColor: theme.palette.primary.main
@@ -21,14 +21,7 @@ export const styles = (theme) => ({
     color: theme.palette.text.secondary
   },
 
-  clearButton: {
-    padding: theme.spacing(0.5),
-    '&:hover': {
-      backgroundColor: 'transparent'
-    }
-  },
-
-  loadingIndicator: {
+  oadingIndicator: {
     color: theme.palette.primary.main
   }
 }); 

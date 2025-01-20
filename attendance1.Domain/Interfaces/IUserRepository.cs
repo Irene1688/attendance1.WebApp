@@ -37,10 +37,11 @@ namespace attendance1.Domain.Interfaces
             bool isAscending = true
         );
         Task<List<string>> GetAllExistedStudentIdAsync();
-        Task<UserDetail> GetUserByCampusIdAsync(int userId, string campusId);
+        Task<UserDetail> GetUserByCampusIdAsync(string role, string campusId);
         Task<bool> CreateUserAsync(UserDetail userDetail);
         Task<bool> CreateMultipleUserAsync(List<UserDetail> userDetails);
         Task<bool> EditUserAsync(UserDetail userDetail);
+        Task<bool> EditUserWithPasswordAsync(UserDetail userDetail);
         //Task<bool> EditUserWithPasswordAsync(UserDetail userDetail); // admin only
         Task<bool> ChangeUserPasswordAsync(int userId, string newPassword);
         Task<bool> DeleteUserAsync(int userId);

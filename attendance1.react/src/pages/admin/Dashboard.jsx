@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import { Grid, Box } from '@mui/material';
 import ClassIcon from '@mui/icons-material/Class';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
@@ -7,7 +8,9 @@ import { StatCard, PromptMessage, Loader } from '../../components/Common';
 import { adminApi } from '../../api/admin';
 import { useApiExecutor } from '../../hooks/common';
 import { useMessageContext } from '../../contexts/MessageContext';
+
 const AdminDashboard = () => {
+  const { setPageTitle } = useOutletContext();
   const [counts, setCounts] = useState({
     totalProgrammes: 0,
     totalLecturers: 0,
@@ -17,6 +20,11 @@ const AdminDashboard = () => {
 
   const { message, hideMessage } = useMessageContext();
   const { loading, handleApiCall } = useApiExecutor();
+
+  // initialize
+  useEffect(() => {
+    setPageTitle('Dashboard');
+  }, [setPageTitle]);
 
   // Fetch dashboard data
   const fetchDashboardData = useCallback(async () => {

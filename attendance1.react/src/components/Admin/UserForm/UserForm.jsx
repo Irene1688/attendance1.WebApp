@@ -49,6 +49,7 @@ const UserForm = ({ initialValues, userRole, onSubmit, onCancel, isEditing, prog
                   severity={message.severity}
                   fullWidth
                   onClose={hideMessage}
+                  scrollToTop={false}
                 />
               </Box>
             )}

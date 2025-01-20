@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import { Box, Typography, Dialog } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { 
@@ -8,13 +9,13 @@ import {
   ConfirmDialog,
   SearchField,
 } from '../../components/Common';
-import { ProgrammeForm, ProgrammeTable } from '../../components/Admin';
+import { AdminHeader, ProgrammeForm, ProgrammeTable } from '../../components/Admin';
 import { useProgrammeManagement } from '../../hooks/features'
 import { usePagination, useSorting } from '../../hooks/common';
 import { useMessageContext } from '../../contexts/MessageContext';
 
 const ProgrammeManagement = () => {
-
+  const { setPageTitle } = useOutletContext();
   // hooks
   const { 
     programmes,
@@ -50,6 +51,10 @@ const ProgrammeManagement = () => {
     handleSort,
     getSortParams 
   } = useSorting('programmeName', 'asc');
+
+  useEffect(() => {
+    setPageTitle('Programme Management');
+  }, [setPageTitle]);
 
   // search
   const [searchTerm, setSearchTerm] = useState('');
@@ -118,8 +123,7 @@ const ProgrammeManagement = () => {
         />
       )}
 
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
-        <Typography variant="h5">Programme Management ({total})</Typography>
+      <AdminHeader title={`Programme Management (${total})`}>
         <TextButton 
           onClick={() => {
             setSelectedProgramme(null);
@@ -130,15 +134,13 @@ const ProgrammeManagement = () => {
         >
           Add New Programme
         </TextButton>
-      </Box>
+      </AdminHeader>
 
-      <Box sx={{ mb: 3 }}>
-        <SearchField
-          placeholder="Search programmes..."
-          onSearch={handleSearch}
-          debounceTime={1000}
-        />
-      </Box>
+      <SearchField
+        placeholder="Search programmes..."
+        onSearch={handleSearch}
+        debounceTime={1000}
+      />
 
       <ProgrammeTable
         programmes={programmes}

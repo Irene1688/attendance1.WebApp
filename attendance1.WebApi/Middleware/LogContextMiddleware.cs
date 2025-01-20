@@ -1,5 +1,3 @@
-using attendance1.Application.Common.Logging;
-
 namespace attendance1.WebApi.Middleware
 {
     public class LogContextMiddleware

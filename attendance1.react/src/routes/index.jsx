@@ -13,6 +13,7 @@ import {
   CourseDetail,
   CourseFormPage
 } from '../pages/admin';
+import Profile from '../pages/admin/Profile';
 
 export const router = createBrowserRouter([
   {
@@ -70,6 +71,10 @@ export const router = createBrowserRouter([
       {
         path: 'courses/:id/edit',
         element: <CourseFormPage />
+      },
+      {
+        path: 'profile',
+        element: <Profile />
       }
     ]
   },

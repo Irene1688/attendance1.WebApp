@@ -12,14 +12,14 @@ export const adminApi = {
   deleteProgramme: (data) => api.post('Admin/deleteProgramme', data),
 
   // Users
-  getLecturerSelection: () => api.post('Admin/getLecturerSelection'),
-  getAllLecturers: (data) => api.post('Admin/getAllLecturer', data),
-  getAllStudents: (data) => api.post('Admin/getAllStudent', data),
-  createUser: (data) => api.post('Admin/createNewUser', data),
-  updateUser: (data) => api.post('Admin/editUser', data),
-  deleteUser: (data) => api.post('Admin/deleteUser', data),
-  MultipleDeleteUser: (data) => api.post('Admin/multipleDeleteUser', data),
-  resetPassword: (data) => api.post('Admin/resetPassword', data),
+  // getLecturerSelection: () => api.post('Admin/getLecturerSelection'),
+  // getAllLecturers: (data) => api.post('Admin/getAllLecturer', data),
+  // getAllStudents: (data) => api.post('Admin/getAllStudent', data),
+  // createUser: (data) => api.post('Admin/createNewUser', data),
+  // updateUser: (data) => api.post('Admin/editUser', data),
+  // deleteUser: (data) => api.post('Admin/deleteUser', data),
+  // MultipleDeleteUser: (data) => api.post('Admin/multipleDeleteUser', data),
+  // resetPassword: (data) => api.post('Admin/resetPassword', data),
 
   // Courses
   getAllCourses: (data) => api.post('Admin/getAllCourse', data),

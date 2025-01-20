@@ -7,7 +7,7 @@ export const styles = (theme) => ({
     maxHeight: 300,
     overflow: 'auto',
     border: `1px solid ${theme.palette.divider}`,
-    borderRadius: theme.shape.borderRadius,
+    borderRadius: 4,
     backgroundColor: theme.palette.background.paper
   },
 

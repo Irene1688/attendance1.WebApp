@@ -60,6 +60,7 @@ const ConfirmDialog = ({
               severity={message.severity}
               fullWidth
               onClose={hideMessage}
+              scrollToTop={false}
             />
           </Box>
         )}

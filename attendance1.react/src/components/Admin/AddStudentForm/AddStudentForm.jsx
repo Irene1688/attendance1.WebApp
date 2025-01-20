@@ -127,6 +127,7 @@ const AddStudentForm = ({
             severity={message.severity}
             onClose={hideMessage}
             sx={{ mb: 2 }}
+            scrollToTop={false}
           />
         )}
         

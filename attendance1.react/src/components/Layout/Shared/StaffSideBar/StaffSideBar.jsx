@@ -4,11 +4,12 @@ import 'simplebar-react/dist/simplebar.min.css';
 import { SideBarItem } from '../..';
 import PersonIcon from '@mui/icons-material/Person';
 import LogoutIcon from '@mui/icons-material/Logout';
+import { useAuth } from '../../../../hooks/auth/useAuth';
 import { styles } from './StaffSideBar.styles';
 
 const StaffSideBar = ({ menuItems = [], open = true, onExpand }) => {
   const theme = useTheme();
-  
+  const { user } = useAuth();
   return (
     <Drawer
       variant="permanent"
@@ -53,7 +54,7 @@ const StaffSideBar = ({ menuItems = [], open = true, onExpand }) => {
           <SideBarItem
             icon={PersonIcon}
             title="Profile"
-            path="/profile"
+            path={`/${user.role.toLowerCase()}/profile`}
             collapsed={!open}
             onExpandSidebar={onExpand}
           />

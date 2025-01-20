@@ -9,7 +9,8 @@ const PromptMessage = ({
   severity = 'success', // error || success
   duration = 5000,
   fullWidth = false,    
-  onClose
+  onClose,
+  scrollToTop = true
 }) => {
   const [show, setShow] = useState(open);
   const [progress, setProgress] = useState(100);
@@ -17,7 +18,11 @@ const PromptMessage = ({
   useEffect(() => {
     setShow(open);
     setProgress(100);  // reset progress
-  }, [open]);
+    if (scrollToTop) {
+      // Smoothly scroll to the top of the page when the prompt message opens
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [open, scrollToTop]);
 
   useEffect(() => {
     if (show && duration) {

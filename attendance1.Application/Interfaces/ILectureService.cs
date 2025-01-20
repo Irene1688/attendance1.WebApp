@@ -1,8 +1,4 @@
-﻿using attendance1.Application.Common.Response;
-using attendance1.Application.DTOs.Common;
-using attendance1.Application.DTOs.Lecturer;
-
-namespace attendance1.Application.Interfaces
+﻿namespace attendance1.Application.Interfaces
 {
     public interface ILectureService
     {
@@ -16,11 +12,11 @@ namespace attendance1.Application.Interfaces
         #endregion
 
         #region student CRUD
-        Task<Result<PaginatedResult<GetEnrolledStudentResponseDto>>> GetEnrolledStudentsAsync(GetEnrolledStudentRequestDto requestDto);
-        Task<Result<GetAvailableStudentResponseDto>> GetAvailableStudentsAsync(GetAvailableStudentRequestDto requestDto);
+        //Task<Result<PaginatedResult<GetEnrolledStudentResponseDto>>> GetEnrolledStudentsAsync(GetEnrolledStudentRequestDto requestDto);
+        //Task<Result<GetAvailableStudentResponseDto>> GetAvailableStudentsAsync(GetAvailableStudentRequestDto requestDto);
         Task<Result<bool>> AddStudentToClassAsync(AddStudentToClassRequestDto requestDto);
         Task<Result<bool>> AddStudentToTutorialAsync(AddStudentToTutorialRequestDto requestDto);
-        Task<Result<bool>> RemoveStudentFromClassAsync(RemoveStudentFromClassRequestDto requestDto);
+        //Task<Result<bool>> RemoveStudentFromClassAsync(RemoveStudentFromCourseRequestDto requestDto);
         Task<Result<bool>> RemoveStudentFromTutorialAsync(RemoveStudentFromTutorialRequestDto requestDto);
         #endregion
 

@@ -12,35 +12,22 @@ import {
   Checkbox,
   ListItemText,
   OutlinedInput,
-  InputAdornment,
-  Select
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { courseValidationSchema } from '../../../validations/schemas/courseValidation';
+import { TextButton } from '../../Common';
 import { 
-  courseValidationSchema, 
-  formatTutorialName, 
-  TUTORIAL_DAYS,
-  MONTHS,
-  generateYearOptions,
-  convertDaysToNumbers,
-  DAY_TO_NUMBER
-} from '../../../validations/schemas/courseValidation';
-import { TextButton, PromptMessage } from '../../Common';
-import { useMessageContext } from '../../../contexts/MessageContext';
+  SESSION_MONTH, 
+  ON_CLASS_DAYS, 
+  DAY_TO_NUMBER, 
+  convertDaysToNumbers, 
+  generateSessionYearOptions, 
+  generateDefaultTutorialName } from '../../../constants/courseConstant';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { format } from 'date-fns';
-
-// 只包含周一到周五
-const CLASS_DAYS = [
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday'
-];
 
 const CourseForm = ({ 
   initialValues, 
@@ -50,8 +37,6 @@ const CourseForm = ({
   onCancel, 
   isEditing 
 }) => {
-  const { message, hideMessage } = useMessageContext();
-  
   // 用于多选菜单的样式
   const ITEM_HEIGHT = 48;
   const ITEM_PADDING_TOP = 8;
@@ -76,14 +61,14 @@ const CourseForm = ({
         classDays: [],
         startDate: '',
         endDate: '',
-        tutorials: [{ name: formatTutorialName(0), classDay: '' }],
+        tutorials: [{ name: generateDefaultTutorialName(0), classDay: '' }],
         ...(initialValues || {})
       }}
       validationSchema={courseValidationSchema}
       onSubmit={(values, actions) => {
         try {
           // 组合 session
-          const monthLabel = MONTHS.find(m => m.value === values.sessionMonth)?.label.substring(0, 3);
+          const monthLabel = SESSION_MONTH.find(m => m.value === values.sessionMonth)?.label.substring(0, 3);
           
           // 转换 classDays 到数字数组
           const classNumbers = values.classDays ? convertDaysToNumbers(values.classDays) : [];
@@ -119,20 +104,8 @@ const CourseForm = ({
               {isEditing ? 'Edit Class' : 'Add New Class'}
             </DialogTitle>
             <DialogContent>
-              {message.show && message.severity === 'error' && (
-                <Box sx={{ mt: 2, mb: 0 }}>
-                  <PromptMessage
-                    open={true}
-                    message={message.text}
-                    duration={10000}
-                    severity={message.severity}
-                    fullWidth
-                    onClose={hideMessage}
-                  />
-                </Box>
-              )}
               <Grid container spacing={2}>
-              <Grid item xs={12}>
+                <Grid item xs={12}>
                   <Typography variant="subtitle1" sx={{ mt: 2, mb: 0 }}>
                     Class Information
                   </Typography>
@@ -221,7 +194,7 @@ const CourseForm = ({
                     helperText={touched.sessionMonth && errors.sessionMonth}
                     margin="normal"
                   >
-                    {MONTHS.map((month) => (
+                    {SESSION_MONTH.map((month) => (
                       <MenuItem key={month.value} value={month.value}>
                         {month.label}
                       </MenuItem>
@@ -241,7 +214,7 @@ const CourseForm = ({
                     helperText={touched.sessionYear && errors.sessionYear}
                     margin="normal"
                   >
-                    {generateYearOptions().map((year) => (
+                    {generateSessionYearOptions().map((year) => (
                       <MenuItem key={year.value} value={year.value}>
                         {year.label}
                       </MenuItem>
@@ -330,7 +303,7 @@ const CourseForm = ({
                     margin="normal"
                     input={<OutlinedInput label="Class Day" />}
                   >
-                    {CLASS_DAYS.map((day) => (
+                    {ON_CLASS_DAYS.map((day) => (
                       <MenuItem key={day} value={day}>
                         <Checkbox checked={values.classDays.indexOf(day) > -1} />
                         <ListItemText primary={day} />
@@ -388,7 +361,7 @@ const CourseForm = ({
                               }
                               margin="normal"
                             >
-                              {TUTORIAL_DAYS.map((day) => (
+                              {ON_CLASS_DAYS.map((day) => (
                                 <MenuItem key={day} value={day}>
                                   {day}
                                 </MenuItem>
@@ -407,7 +380,7 @@ const CourseForm = ({
                       ))}
                       <TextButton
                         onClick={() => push({ 
-                          name: formatTutorialName(values.tutorials.length), 
+                          name: generateDefaultTutorialName(values.tutorials.length), 
                           classDay: '' 
                         })}
                         startIcon={<AddIcon />}

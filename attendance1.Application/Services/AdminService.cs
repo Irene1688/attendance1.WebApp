@@ -1,15 +1,3 @@
-using attendance1.Application.Common.Enum;
-using attendance1.Application.Common.Logging;
-using attendance1.Application.Common.Response;
-using attendance1.Application.DTOs.Admin;
-using attendance1.Application.DTOs.Common;
-using attendance1.Application.Interfaces;
-using attendance1.Domain.Entities;
-using attendance1.Domain.Interfaces;
-using Microsoft.Extensions.Logging;
-using System.Globalization;
-using System.Text.RegularExpressions;
-
 namespace attendance1.Application.Services
 {
     public class AdminService : BaseService, IAdminService
@@ -28,29 +16,6 @@ namespace attendance1.Application.Services
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             _courseRepository = courseRepository ?? throw new ArgumentNullException(nameof(courseRepository));
             _attendanceRepository = attendanceRepository ?? throw new ArgumentNullException(nameof(attendanceRepository));
-        }
-
-        private string FormatName(string name)
-        {
-            var match = Regex.Match(name, @"(.+?)(\s*\(.*\))?\s*(\d+)?$");
-            
-            var outsideBrackets = match.Groups[1].Value.Trim();
-            var insideBrackets = match.Groups[2].Success ? match.Groups[2].Value : null;
-            var number = match.Groups[3].Success ? match.Groups[3].Value : null;
-
-            var formattedOutside = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(outsideBrackets.ToLower());
-
-            var result = formattedOutside;
-            if (insideBrackets != null)
-            {
-                result += " " + insideBrackets;
-            }
-            if (number != null)
-            {
-                result += " " + number;
-            }
-
-            return result;
         }
 
         public async Task<Result<AllTotalCountResponseDto>> GetAllTotalCountAsync()
@@ -75,688 +40,688 @@ namespace attendance1.Application.Services
         }
 
         #region programme CRUD
-        public async Task<Result<GetProgrammeSelectionResponseDto>> GetProgrammeSelectionAsync()
-        {
-            return await ExecuteAsync(async () =>
-            {
-                var programmes = await _programmeRepository.GetProgrammeSelectionAsync();
-                var response = new GetProgrammeSelectionResponseDto
-                {
-                    Programmes = programmes.Select(p => new DataIdResponseDto
-                    {
-                        Id = p.id,
-                        Name = p.name
-                    }).ToList()
-                };
-                return response;
-            }, "Failed to get programme selection");
-        }
-        public async Task<Result<bool>> CreateNewProgrammeAsync(CreateProgrammeRequestDto requestDto) 
-        {
-            return await ExecuteAsync(async () =>
-            {
-                var isExisted = await _validateService.HasProgrammeNameExistedAsync(requestDto.ProgrammeName);
-                if (isExisted)
-                    throw new InvalidOperationException("The programme name has been used");
+        // public async Task<Result<GetProgrammeSelectionResponseDto>> GetProgrammeSelectionAsync()
+        // {
+        //     return await ExecuteAsync(async () =>
+        //     {
+        //         var programmes = await _programmeRepository.GetProgrammeSelectionAsync();
+        //         var response = new GetProgrammeSelectionResponseDto
+        //         {
+        //             Programmes = programmes.Select(p => new DataIdResponseDto
+        //             {
+        //                 Id = p.id,
+        //                 Name = p.name
+        //             }).ToList()
+        //         };
+        //         return response;
+        //     }, "Failed to get programme selection");
+        // }
+        // public async Task<Result<bool>> CreateNewProgrammeAsync(CreateProgrammeRequestDto requestDto) 
+        // {
+        //     return await ExecuteAsync(async () =>
+        //     {
+        //         var isExisted = await _validateService.HasProgrammeNameExistedAsync(requestDto.ProgrammeName);
+        //         if (isExisted)
+        //             throw new InvalidOperationException("The programme name has been used");
 
-                var programme = new Programme
-                {
-                    ProgrammeName = FormatName(requestDto.ProgrammeName),
-                    IsDeleted = false,
-                };
+        //         var programme = new Programme
+        //         {
+        //             ProgrammeName = FormatName(requestDto.ProgrammeName),
+        //             IsDeleted = false,
+        //         };
 
-                await _programmeRepository.CreateNewProgrammeAsync(programme);
-                return true;
-            },
-            $"Failed to create new programme");
-        }
+        //         await _programmeRepository.CreateNewProgrammeAsync(programme);
+        //         return true;
+        //     },
+        //     $"Failed to create new programme");
+        // }
         
-        public async Task<Result<PaginatedResult<GetProgrammeResponseDto>>> GetAllProgrammeAsync(GetProgrammeRequestDto requestDto)
-        {
-            var pageNumber = requestDto.PaginatedRequest.PageNumber;
-            var pageSize = requestDto.PaginatedRequest.PageSize;
-            var searchTerm = requestDto.SearchTerm;
-            var orderBy = requestDto.PaginatedRequest.OrderBy;
-            var isAscending = requestDto.PaginatedRequest.IsAscending;
-            return await ExecuteAsync(async () =>
-            {
-                var programmes = await _programmeRepository.GetAllProgrammeAsync(pageNumber, pageSize, searchTerm, orderBy, isAscending);
-                var response = programmes.Select(programme => new GetProgrammeResponseDto
-                {
-                    ProgrammeId = programme.ProgrammeId,
-                    ProgrammeName = programme.ProgrammeName, 
-                }).ToList();
+        // public async Task<Result<PaginatedResult<GetProgrammeResponseDto>>> GetAllProgrammeAsync(GetProgrammeRequestDto requestDto)
+        // {
+        //     var pageNumber = requestDto.PaginatedRequest.PageNumber;
+        //     var pageSize = requestDto.PaginatedRequest.PageSize;
+        //     var searchTerm = requestDto.SearchTerm;
+        //     var orderBy = requestDto.PaginatedRequest.OrderBy;
+        //     var isAscending = requestDto.PaginatedRequest.IsAscending;
+        //     return await ExecuteAsync(async () =>
+        //     {
+        //         var programmes = await _programmeRepository.GetAllProgrammeAsync(pageNumber, pageSize, searchTerm, orderBy, isAscending);
+        //         var response = programmes.Select(programme => new GetProgrammeResponseDto
+        //         {
+        //             ProgrammeId = programme.ProgrammeId,
+        //             ProgrammeName = programme.ProgrammeName, 
+        //         }).ToList();
                 
-                var paginatedResult = new PaginatedResult<GetProgrammeResponseDto>(
-                    response, 
-                    await _programmeRepository.GetTotalProgrammeAsync(searchTerm),
-                    pageNumber, 
-                    pageSize
-                );
-                return paginatedResult;
-            }, 
-            "Failed to get all programmes");
-        }
+        //         var paginatedResult = new PaginatedResult<GetProgrammeResponseDto>(
+        //             response, 
+        //             await _programmeRepository.GetTotalProgrammeAsync(searchTerm),
+        //             pageNumber, 
+        //             pageSize
+        //         );
+        //         return paginatedResult;
+        //     }, 
+        //     "Failed to get all programmes");
+        // }
 
-        public async Task<Result<bool>> EditProgrammeAsync(EditProgrammeRequestDto requestDto)
-        {
-            return await ExecuteAsync(async () =>
-            {
-                if (!await _validateService.HasProgrammeAsync(requestDto.ProgrammeId))
-                    throw new KeyNotFoundException("Programme not found");
+        // public async Task<Result<bool>> EditProgrammeAsync(EditProgrammeRequestDto requestDto)
+        // {
+        //     return await ExecuteAsync(async () =>
+        //     {
+        //         if (!await _validateService.HasProgrammeAsync(requestDto.ProgrammeId))
+        //             throw new KeyNotFoundException("Programme not found");
 
-                if (await _validateService.HasProgrammeNameExistedAsync(requestDto.ProgrammeName))
-                    throw new InvalidOperationException("The programme name has been used");
+        //         if (await _validateService.HasProgrammeNameExistedAsync(requestDto.ProgrammeName))
+        //             throw new InvalidOperationException("The programme name has been used");
 
-                var programme = new Programme
-                {
-                    ProgrammeId = requestDto.ProgrammeId,
-                    ProgrammeName = FormatName(requestDto.ProgrammeName),
-                };
-                await _programmeRepository.EditProgrammeAsync(programme);
-                return true;
-            },
-            $"Failed to edit programme");
+        //         var programme = new Programme
+        //         {
+        //             ProgrammeId = requestDto.ProgrammeId,
+        //             ProgrammeName = FormatName(requestDto.ProgrammeName),
+        //         };
+        //         await _programmeRepository.EditProgrammeAsync(programme);
+        //         return true;
+        //     },
+        //     $"Failed to edit programme");
 
-        }
+        // }
         
-        public async Task<Result<bool>> DeleteProgrammeAsync(DeleteRequestDto requestDto)
-        {
-            return await ExecuteAsync(async () =>
-            {
-                if (!await _validateService.HasProgrammeAsync(requestDto.Id))
-                    throw new KeyNotFoundException("Programme not found");
+        // public async Task<Result<bool>> DeleteProgrammeAsync(DeleteRequestDto requestDto)
+        // {
+        //     return await ExecuteAsync(async () =>
+        //     {
+        //         if (!await _validateService.HasProgrammeAsync(requestDto.Id))
+        //             throw new KeyNotFoundException("Programme not found");
 
-                await _programmeRepository.DeleteProgrammeAsync(requestDto.Id);
-                return true;
-            },
-            $"Failed to delete programme with ID {requestDto.Id}");
-        }
+        //         await _programmeRepository.DeleteProgrammeAsync(requestDto.Id);
+        //         return true;
+        //     },
+        //     $"Failed to delete programme with ID {requestDto.Id}");
+        // }
         #endregion
 
         #region User CRUD
-        public async Task<Result<bool>> CreateNewUserAsync(CreateAccountRequestDto requestDto) 
-        {
-            return await ExecuteAsync(async () =>
-            {
-                if (requestDto.Role == AccRoleEnum.Student && !_validateService.HasStudentIdMatchEmail(requestDto.CampusId, requestDto.Email))
-                    throw new InvalidOperationException("The student ID does not match with the email");
+        // public async Task<Result<bool>> CreateNewUserAsync(CreateAccountRequestDto requestDto) 
+        // {
+        //     return await ExecuteAsync(async () =>
+        //     {
+        //         if (requestDto.Role == AccRoleEnum.Student && !_validateService.HasStudentIdMatchEmail(requestDto.CampusId, requestDto.Email))
+        //             throw new InvalidOperationException("The student ID does not match with the email");
 
-                if (!await _validateService.HasProgrammeAsync(requestDto.ProgrammeId))
-                    throw new KeyNotFoundException("Programme not found");
+        //         if (!await _validateService.HasProgrammeAsync(requestDto.ProgrammeId))
+        //             throw new KeyNotFoundException("Programme not found");
 
-                if (await _validateService.ValidateEmailAsync(requestDto.Email))
-                    throw new InvalidOperationException("The email has been used");
+        //         if (await _validateService.ValidateEmailAsync(requestDto.Email))
+        //             throw new InvalidOperationException("The email has been used");
                 
-                if (requestDto.Role == AccRoleEnum.Lecturer && await _validateService.ValidateLecturerAsync(requestDto.CampusId))
-                    throw new InvalidOperationException("The lecturer ID has been used");
+        //         if (requestDto.Role == AccRoleEnum.Lecturer && await _validateService.ValidateLecturerAsync(requestDto.CampusId))
+        //             throw new InvalidOperationException("The lecturer ID has been used");
 
-                if (requestDto.Role == AccRoleEnum.Student && await _validateService.ValidateStudentAsync(requestDto.CampusId))
-                    throw new InvalidOperationException("The student ID has been used");
+        //         if (requestDto.Role == AccRoleEnum.Student && await _validateService.ValidateStudentAsync(requestDto.CampusId))
+        //             throw new InvalidOperationException("The student ID has been used");
 
-                var newUser = new UserDetail
-                {
-                    StudentId = requestDto.Role == AccRoleEnum.Student ? requestDto.CampusId : null, 
-                    LecturerId = requestDto.Role != AccRoleEnum.Student ? requestDto.CampusId : null, 
-                    ProgrammeId = requestDto.ProgrammeId,
-                    UserName = FormatName(requestDto.Name),
-                    Email = requestDto.Email,
-                    UserPassword = BCrypt.Net.BCrypt.HashPassword(requestDto.CampusId.ToLower()),
-                    AccRole = requestDto.Role.ToString(),
-                    IsDeleted = false
-                };
-                await _userRepository.CreateUserAsync(newUser);
-                return true;
-            },
-            $"Failed to create new account");
-        }
+        //         var newUser = new UserDetail
+        //         {
+        //             StudentId = requestDto.Role == AccRoleEnum.Student ? requestDto.CampusId : null, 
+        //             LecturerId = requestDto.Role != AccRoleEnum.Student ? requestDto.CampusId : null, 
+        //             ProgrammeId = requestDto.ProgrammeId,
+        //             UserName = FormatName(requestDto.Name),
+        //             Email = requestDto.Email,
+        //             UserPassword = BCrypt.Net.BCrypt.HashPassword(requestDto.CampusId.ToLower()),
+        //             AccRole = requestDto.Role.ToString(),
+        //             IsDeleted = false
+        //         };
+        //         await _userRepository.CreateUserAsync(newUser);
+        //         return true;
+        //     },
+        //     $"Failed to create new account");
+        // }
         
-        public async Task<Result<bool>> EditUserAsync(EditProfileRequestDto requestDto)
-        {
-            return await ExecuteAsync(async () =>
-            {
-                if (requestDto.Role == AccRoleEnum.Student && !_validateService.HasStudentIdMatchEmail(requestDto.CampusId, requestDto.Email))
-                    throw new InvalidOperationException("The student ID does not match with the email");
+        // public async Task<Result<bool>> EditUserAsync(EditProfileRequestDto requestDto)
+        // {
+        //     return await ExecuteAsync(async () =>
+        //     {
+        //         if (requestDto.Role == AccRoleEnum.Student && !_validateService.HasStudentIdMatchEmail(requestDto.CampusId, requestDto.Email))
+        //             throw new InvalidOperationException("The student ID does not match with the email");
 
-                if (!await _validateService.ValidateUserAsync(requestDto.UserId))
-                    throw new KeyNotFoundException("User not found");
+        //         if (!await _validateService.ValidateUserAsync(requestDto.UserId))
+        //             throw new KeyNotFoundException("User not found");
                 
-                if (!await _validateService.ValidateEmailWithUserIdAsync(requestDto.Email, requestDto.UserId))
-                {
-                    // if the email is changed, check if the new email has been used
-                    if (await _validateService.ValidateEmailAsync(requestDto.Email))
-                        throw new InvalidOperationException("The email has been used");
-                }
+        //         if (!await _validateService.ValidateEmailWithUserIdAsync(requestDto.Email, requestDto.UserId))
+        //         {
+        //             // if the email is changed, check if the new email has been used
+        //             if (await _validateService.ValidateEmailAsync(requestDto.Email))
+        //                 throw new InvalidOperationException("The email has been used");
+        //         }
 
-                if (requestDto.Role == AccRoleEnum.Student && !await _validateService.ValidateStudentIdWithUserIdAsync(requestDto.CampusId, requestDto.UserId))
-                {
-                    // if the stduent id is changed, check if the new student id has been used
-                    if (await _validateService.ValidateStudentAsync(requestDto.CampusId))
-                        throw new InvalidOperationException("The student ID has been used");
-                }
+        //         if (requestDto.Role == AccRoleEnum.Student && !await _validateService.ValidateStudentIdWithUserIdAsync(requestDto.CampusId, requestDto.UserId))
+        //         {
+        //             // if the stduent id is changed, check if the new student id has been used
+        //             if (await _validateService.ValidateStudentAsync(requestDto.CampusId))
+        //                 throw new InvalidOperationException("The student ID has been used");
+        //         }
 
-                var user = new UserDetail
-                {
-                    UserId = requestDto.UserId,
-                    StudentId = requestDto.Role == AccRoleEnum.Student ? requestDto.CampusId : null,
-                    UserName = FormatName(requestDto.Name),
-                    Email = requestDto.Email,
-                };
-                await _userRepository.EditUserAsync(user);
-                return true;
-            },
-            $"Failed to edit user");
-        }
+        //         var user = new UserDetail
+        //         {
+        //             UserId = requestDto.UserId,
+        //             StudentId = requestDto.Role == AccRoleEnum.Student ? requestDto.CampusId : null,
+        //             UserName = FormatName(requestDto.Name),
+        //             Email = requestDto.Email,
+        //         };
+        //         await _userRepository.EditUserAsync(user);
+        //         return true;
+        //     },
+        //     $"Failed to edit user");
+        // }
         
-        public async Task<Result<bool>> DeleteUserAsync(DeleteRequestDto requestDto)
-        {
-            return await ExecuteAsync(async () =>
-            {
-                if (!await _validateService.ValidateUserAsync(requestDto.Id))
-                    throw new KeyNotFoundException("User not found");
+        // public async Task<Result<bool>> DeleteUserAsync(DeleteRequestDto requestDto)
+        // {
+        //     return await ExecuteAsync(async () =>
+        //     {
+        //         if (!await _validateService.ValidateUserAsync(requestDto.Id))
+        //             throw new KeyNotFoundException("User not found");
 
-                await _userRepository.DeleteUserAsync(requestDto.Id);
-                return true;
-            },
-            $"Failed to delete user with ID {requestDto.Id}");
-        }
+        //         await _userRepository.DeleteUserAsync(requestDto.Id);
+        //         return true;
+        //     },
+        //     $"Failed to delete user with ID {requestDto.Id}");
+        // }
 
-        public async Task<Result<bool>> MultipleDeleteUserAsync(List<DeleteRequestDto> requestDto)
-        {
-            return await ExecuteAsync(async () =>
-            {
-                var userIds = requestDto.Select(r => r.Id).ToList();
-                if (userIds.Count == 0)
-                    throw new InvalidOperationException("No user IDs provided");
-                if (userIds.Any(id => id <= 0))
-                    throw new InvalidOperationException("Invalid user ID found");
+        // public async Task<Result<bool>> MultipleDeleteUserAsync(List<DeleteRequestDto> requestDto)
+        // {
+        //     return await ExecuteAsync(async () =>
+        //     {
+        //         var userIds = requestDto.Select(r => r.Id).ToList();
+        //         if (userIds.Count == 0)
+        //             throw new InvalidOperationException("No user IDs provided");
+        //         if (userIds.Any(id => id <= 0))
+        //             throw new InvalidOperationException("Invalid user ID found");
                 
-                await _userRepository.MultipleDeleteUserAsync(userIds);
-                return true;
-            },
-            $"Failed to delete users");
-        }
+        //         await _userRepository.MultipleDeleteUserAsync(userIds);
+        //         return true;
+        //     },
+        //     $"Failed to delete users");
+        // }
 
-        public async Task<Result<bool>> ResetPasswordAsync(DataIdRequestDto requestDto)
-        {
-            return await ExecuteAsync(async () =>
-            {
-                if (!await _validateService.ValidateUserAsync(requestDto.IdInInteger ?? 0))
-                    throw new KeyNotFoundException("User not found");
-                if (string.IsNullOrEmpty(requestDto.IdInString))
-                    throw new InvalidOperationException("Invalid new password");
+        // public async Task<Result<bool>> ResetPasswordAsync(DataIdRequestDto requestDto)
+        // {
+        //     return await ExecuteAsync(async () =>
+        //     {
+        //         if (!await _validateService.ValidateUserAsync(requestDto.IdInInteger ?? 0))
+        //             throw new KeyNotFoundException("User not found");
+        //         if (string.IsNullOrEmpty(requestDto.IdInString))
+        //             throw new InvalidOperationException("Invalid new password");
                 
-                // campus id (lower case) as the new password
-                var newPassword = BCrypt.Net.BCrypt.HashPassword(requestDto.IdInString.ToLower());
-                return await _userRepository.ChangeUserPasswordAsync(requestDto.IdInInteger ?? 0, newPassword);
-            },
-            $"Failed to reset password for the user");
-        }
+        //         // campus id (lower case) as the new password
+        //         var newPassword = BCrypt.Net.BCrypt.HashPassword(requestDto.IdInString.ToLower());
+        //         return await _userRepository.ChangeUserPasswordAsync(requestDto.IdInInteger ?? 0, newPassword);
+        //     },
+        //     $"Failed to reset password for the user");
+        // }
         #endregion
 
         #region View Lecturer & Student
-        public async Task<Result<GetLecturerSelectionResponseDto>> GetLecturerSelectionAsync()
-        {
-            return await ExecuteAsync(async () =>
-            {
-                var lecturers = await _userRepository.GetLecturerSelectionAsync();
-                var response = new GetLecturerSelectionResponseDto
-                {
-                    Lecturers = lecturers.Select(l => new DataIdResponseDto
-                    {
-                        Id = l.id,
-                        Name = l.name,  
-                    }).ToList()
-                };
-                return response;
-            }, "Failed to get lecturer selection");
-        }
+        // public async Task<Result<GetLecturerSelectionResponseDto>> GetLecturerSelectionAsync()
+        // {
+        //     return await ExecuteAsync(async () =>
+        //     {
+        //         var lecturers = await _userRepository.GetLecturerSelectionAsync();
+        //         var response = new GetLecturerSelectionResponseDto
+        //         {
+        //             Lecturers = lecturers.Select(l => new DataIdResponseDto
+        //             {
+        //                 Id = l.id,
+        //                 Name = l.name,  
+        //             }).ToList()
+        //         };
+        //         return response;
+        //     }, "Failed to get lecturer selection");
+        // }
 
-        public async Task<Result<PaginatedResult<GetLecturerResponseDto>>> GetAllLecturerWithClassAsync(GetLecturerRequestDto requestDto)
-        {
-            var pageNumber = requestDto.PaginatedRequest.PageNumber;
-            var pageSize = requestDto.PaginatedRequest.PageSize;
-            var searchTerm = requestDto.SearchTerm;
-            var orderBy = requestDto.PaginatedRequest.OrderBy;
-            var isAscending = requestDto.PaginatedRequest.IsAscending;
-            return await ExecuteAsync(async () =>
-            {
-                var lecturers = await _userRepository.GetAllLecturerAsync(pageNumber, pageSize, searchTerm, orderBy, isAscending);
-                if (lecturers.Count == 0)
-                    return new PaginatedResult<GetLecturerResponseDto>([], 0, pageNumber, pageSize);
+        // public async Task<Result<PaginatedResult<GetLecturerResponseDto>>> GetAllLecturerWithClassAsync(GetLecturerRequestDto requestDto)
+        // {
+        //     var pageNumber = requestDto.PaginatedRequest.PageNumber;
+        //     var pageSize = requestDto.PaginatedRequest.PageSize;
+        //     var searchTerm = requestDto.SearchTerm;
+        //     var orderBy = requestDto.PaginatedRequest.OrderBy;
+        //     var isAscending = requestDto.PaginatedRequest.IsAscending;
+        //     return await ExecuteAsync(async () =>
+        //     {
+        //         var lecturers = await _userRepository.GetAllLecturerAsync(pageNumber, pageSize, searchTerm, orderBy, isAscending);
+        //         if (lecturers.Count == 0)
+        //             return new PaginatedResult<GetLecturerResponseDto>([], 0, pageNumber, pageSize);
                 
-                var courses = await _courseRepository.GetCoursesByMultipleLecturerIdAsync(
-                    lecturers.Select(lecturer => lecturer.LecturerId ?? string.Empty)
-                        .ToList());
-                var response = lecturers.Select(lecturer => new GetLecturerResponseDto
-                {
-                    UserId = lecturer.UserId,
-                    LecturerId = lecturer.LecturerId ?? string.Empty,
-                    Name = lecturer.UserName ?? string.Empty, 
-                    Email = lecturer.Email ?? string.Empty,
-                    ProgrammeName = lecturer.Programme != null 
-                        ? lecturer.Programme.ProgrammeName ?? string.Empty 
-                        : string.Empty,
-                    RegisteredCourses = courses.Where(c => c.LecturerId == lecturer.LecturerId)
-                        .Select(course => new LecturerCourseViewResponseDto
-                        {
-                            CourseId = course.CourseId,
-                            CourseCode = course.CourseCode,
-                            CourseName = course.CourseName,
-                            CourseSession = course.CourseSession,
-                            Status = course.Semester.EndWeek <= DateOnly.FromDateTime(DateTime.Now) ? "Archived" : "Active",
-                            EnrolledStudentsCount = course.EnrolledStudents.Count,
-                        }).ToList(),
-                }).ToList();
+        //         var courses = await _courseRepository.GetCoursesByMultipleLecturerIdAsync(
+        //             lecturers.Select(lecturer => lecturer.LecturerId ?? string.Empty)
+        //                 .ToList());
+        //         var response = lecturers.Select(lecturer => new GetLecturerResponseDto
+        //         {
+        //             UserId = lecturer.UserId,
+        //             LecturerId = lecturer.LecturerId ?? string.Empty,
+        //             Name = lecturer.UserName ?? string.Empty, 
+        //             Email = lecturer.Email ?? string.Empty,
+        //             ProgrammeName = lecturer.Programme != null 
+        //                 ? lecturer.Programme.ProgrammeName ?? string.Empty 
+        //                 : string.Empty,
+        //             RegisteredCourses = courses.Where(c => c.LecturerId == lecturer.LecturerId)
+        //                 .Select(course => new LecturerCourseViewResponseDto
+        //                 {
+        //                     CourseId = course.CourseId,
+        //                     CourseCode = course.CourseCode,
+        //                     CourseName = course.CourseName,
+        //                     CourseSession = course.CourseSession,
+        //                     Status = course.Semester.EndWeek <= DateOnly.FromDateTime(DateTime.Now) ? "Archived" : "Active",
+        //                     EnrolledStudentsCount = course.EnrolledStudents.Count,
+        //                 }).ToList(),
+        //         }).ToList();
                 
-                var paginatedResult = new PaginatedResult<GetLecturerResponseDto>(
-                    response, 
-                    await _userRepository.GetTotalLecturerAsync(searchTerm),
-                    pageNumber, 
-                    pageSize
-                );
-                return paginatedResult;
-            }, 
-            "Failed to get all lecturers with class");
-        }
+        //         var paginatedResult = new PaginatedResult<GetLecturerResponseDto>(
+        //             response, 
+        //             await _userRepository.GetTotalLecturerAsync(searchTerm),
+        //             pageNumber, 
+        //             pageSize
+        //         );
+        //         return paginatedResult;
+        //     }, 
+        //     "Failed to get all lecturers with class");
+        // }
 
-        public async Task<Result<PaginatedResult<GetStudentResponseDto>>> GetAllStudentWithClassAsync(GetStudentRequestDto requestDto)
-        {
-            var pageNumber = requestDto.PaginatedRequest.PageNumber;
-            var pageSize = requestDto.PaginatedRequest.PageSize;
-            var searchTerm = requestDto.SearchTerm;
-            var orderBy = requestDto.PaginatedRequest.OrderBy;
-            var isAscending = requestDto.PaginatedRequest.IsAscending;
-            return await ExecuteAsync(async () =>
-            {
-                var students = await _userRepository.GetAllStudentAsync(pageNumber, pageSize, searchTerm, orderBy, isAscending);
-                if (students.Count == 0)
-                    return new PaginatedResult<GetStudentResponseDto>(new List<GetStudentResponseDto>(), 0, pageNumber, pageSize);
+        // public async Task<Result<PaginatedResult<GetStudentResponseDto>>> GetAllStudentWithClassAsync(GetStudentRequestDto requestDto)
+        // {
+        //     var pageNumber = requestDto.PaginatedRequest.PageNumber;
+        //     var pageSize = requestDto.PaginatedRequest.PageSize;
+        //     var searchTerm = requestDto.SearchTerm;
+        //     var orderBy = requestDto.PaginatedRequest.OrderBy;
+        //     var isAscending = requestDto.PaginatedRequest.IsAscending;
+        //     return await ExecuteAsync(async () =>
+        //     {
+        //         var students = await _userRepository.GetAllStudentAsync(pageNumber, pageSize, searchTerm, orderBy, isAscending);
+        //         if (students.Count == 0)
+        //             return new PaginatedResult<GetStudentResponseDto>(new List<GetStudentResponseDto>(), 0, pageNumber, pageSize);
                 
-                var studentIds = students.Select(student => student.StudentId ?? string.Empty).ToList();
-                var courses = await _courseRepository.GetEnrollmentCoursesByMultipleStudentIdAsync(studentIds);
-                var response = new List<GetStudentResponseDto>();
-                foreach (var student in students)
-                {
-                    var enrolledCourses = new List<StudentCourseViewResponseDto>();
-                    var studentCourses = courses.Where(c => c.EnrolledStudents
-                        .Any(s => s.StudentId == student.StudentId));
+        //         var studentIds = students.Select(student => student.StudentId ?? string.Empty).ToList();
+        //         var courses = await _courseRepository.GetEnrollmentCoursesByMultipleStudentIdAsync(studentIds);
+        //         var response = new List<GetStudentResponseDto>();
+        //         foreach (var student in students)
+        //         {
+        //             var enrolledCourses = new List<StudentCourseViewResponseDto>();
+        //             var studentCourses = courses.Where(c => c.EnrolledStudents
+        //                 .Any(s => s.StudentId == student.StudentId));
                     
-                    foreach (var course in studentCourses)
-                    {
-                        var tutorialId = course.EnrolledStudents
-                            .Where(s => s.StudentId == student.StudentId)
-                            .Select(s => s.TutorialId)
-                            .FirstOrDefault();
+        //             foreach (var course in studentCourses)
+        //             {
+        //                 var tutorialId = course.EnrolledStudents
+        //                     .Where(s => s.StudentId == student.StudentId)
+        //                     .Select(s => s.TutorialId)
+        //                     .FirstOrDefault();
                         
-                        enrolledCourses.Add(new StudentCourseViewResponseDto
-                        {
-                            CourseId = course.CourseId,
-                            CourseCode = course.CourseCode,
-                            CourseName = course.CourseName,
-                            LecturerName = await _userRepository.GetLecturerNameByLecturerIdAsync(course.LecturerId),
-                            Status = course.Semester.EndWeek <= DateOnly.FromDateTime(DateTime.Now) ? "Archived" : "Active",
-                            TutorialSession = await _courseRepository.GetTutorialNameByTutorialIdAsync(tutorialId)
-                        });
-                    }
+        //                 enrolledCourses.Add(new StudentCourseViewResponseDto
+        //                 {
+        //                     CourseId = course.CourseId,
+        //                     CourseCode = course.CourseCode,
+        //                     CourseName = course.CourseName,
+        //                     LecturerName = await _userRepository.GetLecturerNameByLecturerIdAsync(course.LecturerId),
+        //                     Status = course.Semester.EndWeek <= DateOnly.FromDateTime(DateTime.Now) ? "Archived" : "Active",
+        //                     TutorialSession = await _courseRepository.GetTutorialNameByTutorialIdAsync(tutorialId)
+        //                 });
+        //             }
 
-                    response.Add(new GetStudentResponseDto
-                    {
-                        UserId = student.UserId,
-                        StudentId = student.StudentId ?? string.Empty,
-                        Name = student.UserName ?? string.Empty,
-                        Email = student.Email ?? string.Empty,
-                        ProgrammeName = student.Programme != null 
-                            ? student.Programme.ProgrammeName ?? string.Empty 
-                            : string.Empty,
-                        EnrolledCourses = enrolledCourses
-                    });
-                }
+        //             response.Add(new GetStudentResponseDto
+        //             {
+        //                 UserId = student.UserId,
+        //                 StudentId = student.StudentId ?? string.Empty,
+        //                 Name = student.UserName ?? string.Empty,
+        //                 Email = student.Email ?? string.Empty,
+        //                 ProgrammeName = student.Programme != null 
+        //                     ? student.Programme.ProgrammeName ?? string.Empty 
+        //                     : string.Empty,
+        //                 EnrolledCourses = enrolledCourses
+        //             });
+        //         }
 
-                return new PaginatedResult<GetStudentResponseDto>(
-                    response,
-                    await _userRepository.GetTotalStudentAsync(searchTerm),
-                    pageNumber,
-                    pageSize
-                );
-            },
-            "Failed to get all students with class");
-        }
+        //         return new PaginatedResult<GetStudentResponseDto>(
+        //             response,
+        //             await _userRepository.GetTotalStudentAsync(searchTerm),
+        //             pageNumber,
+        //             pageSize
+        //         );
+        //     },
+        //     "Failed to get all students with class");
+        // }
         #endregion
 
         #region Class CRUD
-        public async Task<Result<bool>> CreateNewCourseAsync(CreateCourseRequestDto requestDto)
-        {
-            return await ExecuteAsync(async () =>
-            {
-                var course = new Course 
-                {
-                    CourseCode = requestDto.CourseCode,
-                    CourseName = requestDto.CourseName,
-                    CourseSession = requestDto.CourseSession,
-                    ClassDay = string.Join(",", requestDto.ClassDays),
-                    ProgrammeId = requestDto.ProgrammeId,
-                    UserId = requestDto.UserId,
-                    IsDeleted = false,
-                };
+        // public async Task<Result<bool>> CreateNewCourseAsync(CreateCourseRequestDto requestDto)
+        // {
+        //     return await ExecuteAsync(async () =>
+        //     {
+        //         var course = new Course 
+        //         {
+        //             CourseCode = requestDto.CourseCode,
+        //             CourseName = requestDto.CourseName,
+        //             CourseSession = requestDto.CourseSession,
+        //             ClassDay = string.Join(",", requestDto.ClassDays),
+        //             ProgrammeId = requestDto.ProgrammeId,
+        //             UserId = requestDto.UserId,
+        //             IsDeleted = false,
+        //         };
 
-                var semester = new CourseSemester
-                {
-                    StartWeek = requestDto.CourseStartFrom,
-                    EndWeek = requestDto.CourseEndTo,
-                    IsDeleted = false,
-                };
+        //         var semester = new CourseSemester
+        //         {
+        //             StartWeek = requestDto.CourseStartFrom,
+        //             EndWeek = requestDto.CourseEndTo,
+        //             IsDeleted = false,
+        //         };
 
-                var tutorials = requestDto.Tutorials.Select(t => new Tutorial
-                {
-                    TutorialName = t.TutorialName,
-                    TutorialClassDay = t.ClassDay.ToString(),
-                    IsDeleted = false,
-                }).ToList();
+        //         var tutorials = requestDto.Tutorials.Select(t => new Tutorial
+        //         {
+        //             TutorialName = t.TutorialName,
+        //             TutorialClassDay = t.ClassDay.ToString(),
+        //             IsDeleted = false,
+        //         }).ToList();
 
-                var students = new List<EnrolledStudent>();
-                await _courseRepository.CreateNewCourseAsync(course, semester, tutorials, students);
-                return true;
-            },
-            $"Failed to create new course: {requestDto.CourseName}");
-        }
+        //         var students = new List<EnrolledStudent>();
+        //         await _courseRepository.CreateNewCourseAsync(course, semester, tutorials, students);
+        //         return true;
+        //     },
+        //     $"Failed to create new course: {requestDto.CourseName}");
+        // }
 
-        public async Task<Result<PaginatedResult<GetCourseResponseDto>>> GetAllCourseAsync(GetCourseRequestDto requestDto)
-        {
-            var pageNumber = requestDto.PaginatedRequest.PageNumber;
-            var pageSize = requestDto.PaginatedRequest.PageSize;
-            var searchTerm = requestDto.SearchTerm;
-            var orderBy = requestDto.PaginatedRequest.OrderBy;
-            var isAscending = requestDto.PaginatedRequest.IsAscending;
+        // public async Task<Result<PaginatedResult<GetCourseResponseDto>>> GetAllCourseAsync(GetCourseRequestDto requestDto)
+        // {
+        //     var pageNumber = requestDto.PaginatedRequest.PageNumber;
+        //     var pageSize = requestDto.PaginatedRequest.PageSize;
+        //     var searchTerm = requestDto.SearchTerm;
+        //     var orderBy = requestDto.PaginatedRequest.OrderBy;
+        //     var isAscending = requestDto.PaginatedRequest.IsAscending;
 
-            var filters = requestDto.Filters != null ? new Dictionary<string, object>
-            {
-                { "programmeId", requestDto.Filters.ProgrammeId ?? 0 },
-                { "lecturerUserId", requestDto.Filters.LecturerUserId ?? 0 },
-                { "status", requestDto.Filters.Status ?? string.Empty },
-                { "session", requestDto.Filters.Session ?? string.Empty }
-            } : null;
+        //     var filters = requestDto.Filters != null ? new Dictionary<string, object>
+        //     {
+        //         { "programmeId", requestDto.Filters.ProgrammeId ?? 0 },
+        //         { "lecturerUserId", requestDto.Filters.LecturerUserId ?? 0 },
+        //         { "status", requestDto.Filters.Status ?? string.Empty },
+        //         { "session", requestDto.Filters.Session ?? string.Empty }
+        //     } : null;
             
-            return await ExecuteAsync(async () =>
-            {
-                var courses = await _courseRepository.GetAllCourseAsync(pageNumber, pageSize, searchTerm, orderBy, isAscending, filters);
-                var processCoursesTask = courses.Select(course => new GetCourseResponseDto
-                {
-                    CourseId = course.CourseId,
-                    CourseCode = course.CourseCode,
-                    CourseName = course.CourseName,
-                    CourseSession = course.CourseSession,
-                    ProgrammeId = course.ProgrammeId,
-                    ProgrammeName = course.Programme.ProgrammeName, 
-                    LecturerUserId = course.UserId ?? 0,
-                    LecturerName = course.User != null 
-                        ? course.User.UserName ?? string.Empty 
-                        : string.Empty,
-                    ClassDay = course.ClassDay ?? string.Empty,
-                    StartDate = course.Semester.StartWeek,
-                    EndDate = course.Semester.EndWeek,
-                    Status = course.Semester.EndWeek <= DateOnly.FromDateTime(DateTime.Now) ? "ARCHIVED" : "ACTIVE",
-                    Tutorials = course.Tutorials
-                        .Where(t => t.IsDeleted == false)
-                        .Select(t => new GetTutorialResponseDto
-                        {
-                            TutorialId = t.TutorialId,
-                            TutorialName = t.TutorialName ?? string.Empty,
-                            ClassDay = t.TutorialClassDay ?? string.Empty,
-                            StudentCount = course.EnrolledStudents
-                                .Where(s => 
-                                    s.TutorialId == t.TutorialId &&
-                                    s.IsDeleted == false
-                                ).Count(),
-                        }).ToList(),
-                }).ToList();
+        //     return await ExecuteAsync(async () =>
+        //     {
+        //         var courses = await _courseRepository.GetAllCourseAsync(pageNumber, pageSize, searchTerm, orderBy, isAscending, filters);
+        //         var processCoursesTask = courses.Select(course => new GetCourseResponseDto
+        //         {
+        //             CourseId = course.CourseId,
+        //             CourseCode = course.CourseCode,
+        //             CourseName = course.CourseName,
+        //             CourseSession = course.CourseSession,
+        //             ProgrammeId = course.ProgrammeId,
+        //             ProgrammeName = course.Programme.ProgrammeName, 
+        //             LecturerUserId = course.UserId ?? 0,
+        //             LecturerName = course.User != null 
+        //                 ? course.User.UserName ?? string.Empty 
+        //                 : string.Empty,
+        //             ClassDay = course.ClassDay ?? string.Empty,
+        //             StartDate = course.Semester.StartWeek,
+        //             EndDate = course.Semester.EndWeek,
+        //             Status = course.Semester.EndWeek <= DateOnly.FromDateTime(DateTime.Now) ? "ARCHIVED" : "ACTIVE",
+        //             Tutorials = course.Tutorials
+        //                 .Where(t => t.IsDeleted == false)
+        //                 .Select(t => new GetTutorialResponseDto
+        //                 {
+        //                     TutorialId = t.TutorialId,
+        //                     TutorialName = t.TutorialName ?? string.Empty,
+        //                     ClassDay = t.TutorialClassDay ?? string.Empty,
+        //                     StudentCount = course.EnrolledStudents
+        //                         .Where(s => 
+        //                             s.TutorialId == t.TutorialId &&
+        //                             s.IsDeleted == false
+        //                         ).Count(),
+        //                 }).ToList(),
+        //         }).ToList();
 
-                //var response = await Task.WhenAll(processCoursesTask);
+        //         //var response = await Task.WhenAll(processCoursesTask);
                 
-                var paginatedResult = new PaginatedResult<GetCourseResponseDto>(
-                    processCoursesTask.ToList(), 
-                    await _courseRepository.GetTotalCourseAsync(searchTerm, filters),
-                    pageNumber, 
-                    pageSize
-                );
-                return paginatedResult;
-            }, 
-            "Failed to get all courses");
-        }
+        //         var paginatedResult = new PaginatedResult<GetCourseResponseDto>(
+        //             processCoursesTask.ToList(), 
+        //             await _courseRepository.GetTotalCourseAsync(searchTerm, filters),
+        //             pageNumber, 
+        //             pageSize
+        //         );
+        //         return paginatedResult;
+        //     }, 
+        //     "Failed to get all courses");
+        // }
 
-        public async Task<Result<bool>> EditCourseAsync(EditCourseRequestDto requestDto)
-        {
-            return await ExecuteAsync(async () =>
-            {
-                if (!await _validateService.ValidateCourseAsync(requestDto.CourseId))
-                    throw new KeyNotFoundException("Course not found");
+        // public async Task<Result<bool>> EditCourseAsync(EditCourseRequestDto requestDto)
+        // {
+        //     return await ExecuteAsync(async () =>
+        //     {
+        //         if (!await _validateService.ValidateCourseAsync(requestDto.CourseId))
+        //             throw new KeyNotFoundException("Course not found");
 
-                var lecturerId = await _userRepository.GetLecturerIdByUserIdAsync(requestDto.LecturerUserId);
+        //         var lecturerId = await _userRepository.GetLecturerIdByUserIdAsync(requestDto.LecturerUserId);
                 
-                var course = new Course 
-                {
-                    CourseId = requestDto.CourseId,
-                    CourseCode = requestDto.CourseCode,
-                    CourseName = requestDto.CourseName,
-                    CourseSession = requestDto.CourseSession,
-                    ClassDay = string.Join(",", requestDto.ClassDays),
-                    ProgrammeId = requestDto.ProgrammeId,
-                    UserId = requestDto.LecturerUserId,
-                    LecturerId = lecturerId,
-                    IsDeleted = false,
-                };
+        //         var course = new Course 
+        //         {
+        //             CourseId = requestDto.CourseId,
+        //             CourseCode = requestDto.CourseCode,
+        //             CourseName = requestDto.CourseName,
+        //             CourseSession = requestDto.CourseSession,
+        //             ClassDay = string.Join(",", requestDto.ClassDays),
+        //             ProgrammeId = requestDto.ProgrammeId,
+        //             UserId = requestDto.LecturerUserId,
+        //             LecturerId = lecturerId,
+        //             IsDeleted = false,
+        //         };
 
-                var semester = new CourseSemester
-                {
-                    StartWeek = requestDto.CourseStartFrom,
-                    EndWeek = requestDto.CourseEndTo,
-                    IsDeleted = false,
-                };
+        //         var semester = new CourseSemester
+        //         {
+        //             StartWeek = requestDto.CourseStartFrom,
+        //             EndWeek = requestDto.CourseEndTo,
+        //             IsDeleted = false,
+        //         };
 
-                var tutorials = requestDto.Tutorials.Select(t => new Tutorial
-                {
-                    TutorialId = t.TutorialId,
-                    TutorialName = t.TutorialName,
-                    TutorialClassDay = t.ClassDay.ToString(),
-                    IsDeleted = false,
-                }).ToList();
+        //         var tutorials = requestDto.Tutorials.Select(t => new Tutorial
+        //         {
+        //             TutorialId = t.TutorialId,
+        //             TutorialName = t.TutorialName,
+        //             TutorialClassDay = t.ClassDay.ToString(),
+        //             IsDeleted = false,
+        //         }).ToList();
 
-                var isSuccess = await _courseRepository.EditCourseAsync(course, semester);
-                if (!isSuccess)
-                    throw new Exception("Cancelled editing course");
+        //         var isSuccess = await _courseRepository.EditCourseAsync(course, semester);
+        //         if (!isSuccess)
+        //             throw new Exception("Cancelled editing course");
 
-                var isSuccessTutorials = await _courseRepository.EditCourseTutorialsAsync(course.CourseId, tutorials);
-                if (!isSuccessTutorials)
-                    throw new Exception("Cancelled editing tutorials");
+        //         var isSuccessTutorials = await _courseRepository.EditCourseTutorialsAsync(course.CourseId, tutorials);
+        //         if (!isSuccessTutorials)
+        //             throw new Exception("Cancelled editing tutorials");
 
-                return true;
-            },
-            $"Failed to edit course");
-        }
+        //         return true;
+        //     },
+        //     $"Failed to edit course");
+        // }
 
-        public async Task<Result<bool>> DeleteCourseAsync(DeleteRequestDto requestDto)
-        {
-            return await ExecuteAsync(async () =>
-            {
-                if (!await _validateService.ValidateCourseAsync(requestDto.Id))
-                    throw new KeyNotFoundException("Course not found");
+        // public async Task<Result<bool>> DeleteCourseAsync(DeleteRequestDto requestDto)
+        // {
+        //     return await ExecuteAsync(async () =>
+        //     {
+        //         if (!await _validateService.ValidateCourseAsync(requestDto.Id))
+        //             throw new KeyNotFoundException("Course not found");
 
-                await _courseRepository.DeleteCourseAsync(requestDto.Id);
-                return true;
-            },
-            $"Failed to delete the course");
+        //         await _courseRepository.DeleteCourseAsync(requestDto.Id);
+        //         return true;
+        //     },
+        //     $"Failed to delete the course");
 
-        }
+        // }
 
-        public async Task<Result<bool>> MultipleDeleteCourseAsync(List<DeleteRequestDto> requestDto)
-        {
-            return await ExecuteAsync(async () =>
-            {
-                var courseIds = requestDto.Select(r => r.Id).ToList();
-                if (courseIds.Count == 0)
-                    throw new InvalidOperationException("No course IDs provided");
-                if (courseIds.Any(id => id <= 0))
-                    throw new InvalidOperationException("Invalid course ID found");
+        // public async Task<Result<bool>> MultipleDeleteCourseAsync(List<DeleteRequestDto> requestDto)
+        // {
+        //     return await ExecuteAsync(async () =>
+        //     {
+        //         var courseIds = requestDto.Select(r => r.Id).ToList();
+        //         if (courseIds.Count == 0)
+        //             throw new InvalidOperationException("No course IDs provided");
+        //         if (courseIds.Any(id => id <= 0))
+        //             throw new InvalidOperationException("Invalid course ID found");
                 
-                await _courseRepository.MultipleDeleteCourseAsync(courseIds);
-                return true;
-            },
-            $"Failed to delete the courses");
-        }
+        //         await _courseRepository.MultipleDeleteCourseAsync(courseIds);
+        //         return true;
+        //     },
+        //     $"Failed to delete the courses");
+        // }
         #endregion
 
         #region Students in Course CRUD
-        public async Task<Result<bool>> AddStudentsToCourseAsync(AddStudentsToCourseRequestDto requestDto)
-        {
-            return await ExecuteAsync(async () =>
-            {
-                if (!await _validateService.ValidateCourseAsync(requestDto.CourseId))
-                    throw new KeyNotFoundException("Course not found");
-                if (!await _validateService.ValidateTutorialAsync(requestDto.TutorialId, requestDto.CourseId))
-                    throw new KeyNotFoundException("Tutorial not found");
-                if (requestDto.StudentUserIds.Count == 0)
-                    throw new InvalidOperationException("No students provided");
+        // public async Task<Result<bool>> AddStudentsToCourseAndTutorialAsync(AddStudentsToCourseRequestDto requestDto)
+        // {
+        //     return await ExecuteAsync(async () =>
+        //     {
+        //         if (!await _validateService.ValidateCourseAsync(requestDto.CourseId))
+        //             throw new KeyNotFoundException("Course not found");
+        //         if (!await _validateService.ValidateTutorialAsync(requestDto.TutorialId, requestDto.CourseId))
+        //             throw new KeyNotFoundException("Tutorial not found");
+        //         if (requestDto.StudentUserIds.Count == 0)
+        //             throw new InvalidOperationException("No students provided");
 
-                var success = await _courseRepository.AddStudentsToCourseByUserIdAsync(requestDto.CourseId, requestDto.TutorialId, requestDto.StudentUserIds);
-                if (!success)
-                    throw new Exception("Cancelled adding students to course");
+        //         var success = await _courseRepository.AddStudentsToCourseByUserIdAsync(requestDto.CourseId, requestDto.TutorialId, requestDto.StudentUserIds);
+        //         if (!success)
+        //             throw new Exception("Cancelled adding students to course");
                 
-                return true;
-            }, $"Failed to add students to course");
-        }
+        //         return true;
+        //     }, $"Failed to add students to course");
+        // }
         #endregion
 
         #region Attendance Record
-        public async Task<Result<PaginatedResult<GetAttendanceRecordByCourseIdResponseDto>>> GetAttendanceRecordByCourseIdAsync(GetAttendanceRecordByCourseIdRequestDto requestDto)
-        {
-            return await ExecuteAsync(async () =>
-            {
-                var pageNumber = requestDto.PaginatedRequest.PageNumber;
-                var pageSize = requestDto.PaginatedRequest.PageSize;
-                var orderBy = requestDto.PaginatedRequest.OrderBy;
-                var isAscending = requestDto.PaginatedRequest.IsAscending;
+        // public async Task<Result<PaginatedResult<GetAttendanceRecordByCourseIdResponseDto>>> GetAttendanceRecordByCourseIdAsync(GetAttendanceRecordByCourseIdRequestDto requestDto)
+        // {
+        //     return await ExecuteAsync(async () =>
+        //     {
+        //         var pageNumber = requestDto.PaginatedRequest.PageNumber;
+        //         var pageSize = requestDto.PaginatedRequest.PageSize;
+        //         var orderBy = requestDto.PaginatedRequest.OrderBy;
+        //         var isAscending = requestDto.PaginatedRequest.IsAscending;
 
-                var attendanceRecords = await _attendanceRepository.GetAttendanceRecordByCourseIdAsync(requestDto.CourseId);
-                var studentAttendance = await _attendanceRepository.GetAttendanceDataByCourseIdAsync(requestDto.CourseId);
+        //         var attendanceRecords = await _attendanceRepository.GetAttendanceRecordByCourseIdAsync(requestDto.CourseId);
+        //         var studentAttendance = await _attendanceRepository.GetAttendanceDataByCourseIdAsync(requestDto.CourseId);
 
-                var response = attendanceRecords.Select(ar => new GetAttendanceRecordByCourseIdResponseDto
-                {
-                    RecordId = ar.RecordId,
-                    Date = ar.Date,
-                    StartTime = ar.StartTime?.ToString("HH:mm:ss") ?? "00:00:00",
-                    EndTime = ar.EndTime?.ToString("HH:mm:ss") ?? "00:00:00",
-                    IsLecture = ar.IsLecture,
-                    TutorialName = ar.Tutorial?.TutorialName ?? string.Empty,
-                    PresentCount = studentAttendance.Count(sa => 
-                        sa.RecordId == ar.RecordId && 
-                        sa.IsPresent == true),
-                    AbsentCount = studentAttendance.Count(sa => 
-                        sa.RecordId == ar.RecordId && 
-                        sa.IsPresent == false),
-                    AttendanceRate = studentAttendance
-                        .Where(sa => sa.RecordId == ar.RecordId)
-                        .Average(sa => sa.IsPresent ? 1 : 0),
-                    // alternative way to calculate attendance rate
-                    // AttendanceRate = studentAttendance.Count(sa => sa.RecordId == ar.RecordId) > 0
-                    //     ? (double)studentAttendance.Count(sa => sa.RecordId == ar.RecordId && sa.IsPresent) / studentAttendance.Count(sa => sa.RecordId == ar.RecordId)
-                    //     : 0
-                }).ToList();
+        //         var response = attendanceRecords.Select(ar => new GetAttendanceRecordByCourseIdResponseDto
+        //         {
+        //             RecordId = ar.RecordId,
+        //             Date = ar.Date,
+        //             StartTime = ar.StartTime?.ToString("HH:mm:ss") ?? "00:00:00",
+        //             EndTime = ar.EndTime?.ToString("HH:mm:ss") ?? "00:00:00",
+        //             IsLecture = ar.IsLecture,
+        //             TutorialName = ar.Tutorial?.TutorialName ?? string.Empty,
+        //             PresentCount = studentAttendance.Count(sa => 
+        //                 sa.RecordId == ar.RecordId && 
+        //                 sa.IsPresent == true),
+        //             AbsentCount = studentAttendance.Count(sa => 
+        //                 sa.RecordId == ar.RecordId && 
+        //                 sa.IsPresent == false),
+        //             AttendanceRate = studentAttendance
+        //                 .Where(sa => sa.RecordId == ar.RecordId)
+        //                 .Average(sa => sa.IsPresent ? 1 : 0),
+        //             // alternative way to calculate attendance rate
+        //             // AttendanceRate = studentAttendance.Count(sa => sa.RecordId == ar.RecordId) > 0
+        //             //     ? (double)studentAttendance.Count(sa => sa.RecordId == ar.RecordId && sa.IsPresent) / studentAttendance.Count(sa => sa.RecordId == ar.RecordId)
+        //             //     : 0
+        //         }).ToList();
 
-                // sorting
-                IOrderedEnumerable<GetAttendanceRecordByCourseIdResponseDto> sortedResponse;
-                switch (orderBy)
-                {
-                    case "date":
-                        sortedResponse = isAscending 
-                            ? response.OrderBy(r => r.Date) 
-                            : response.OrderByDescending(r => r.Date);
-                        break;
-                    case "startTime":
-                        sortedResponse = isAscending 
-                            ? response.OrderBy(r => r.StartTime) 
-                            : response.OrderByDescending(r => r.StartTime);
-                        break;
-                    case "endTime":
-                        sortedResponse = isAscending 
-                            ? response.OrderBy(r => r.EndTime) 
-                            : response.OrderByDescending(r => r.EndTime);
-                        break;
-                    case "isLecture":
-                        sortedResponse = isAscending 
-                            ? response.OrderBy(r => r.IsLecture) 
-                            : response.OrderByDescending(r => r.IsLecture);
-                        break;
-                    case "tutorialName":
-                        sortedResponse = isAscending 
-                            ? response.OrderBy(r => r.TutorialName) 
-                            : response.OrderByDescending(r => r.TutorialName);
-                        break;
-                    case "presentCount":
-                        sortedResponse = isAscending 
-                            ? response.OrderBy(r => r.PresentCount) 
-                            : response.OrderByDescending(r => r.PresentCount);
-                        break;
-                    case "absentCount":
-                        sortedResponse = isAscending 
-                            ? response.OrderBy(r => r.AbsentCount) 
-                            : response.OrderByDescending(r => r.AbsentCount);
-                        break;
-                    case "attendanceRate":
-                        sortedResponse = isAscending 
-                            ? response.OrderBy(r => r.AttendanceRate) 
-                            : response.OrderByDescending(r => r.AttendanceRate);
-                        break;
-                    default:
-                        sortedResponse = response.OrderBy(r => r.RecordId); // Default sorting
-                        break;
-                }
-                // if (orderBy == "date")
-                // {
-                //     response = response.OrderBy(r => r.Date).ToList();
-                // }
-                // else if (orderBy == "startTime")
-                // {
-                //     response = response.OrderBy(r => r.StartTime).ToList();
-                // }
-                // else if (orderBy == "endTime")
-                // {
-                //     response = response.OrderBy(r => r.EndTime).ToList();
-                // }
-                // else if (orderBy == "isLecture")
-                // {
-                //     response = response.OrderBy(r => r.IsLecture).ToList();
-                // }
-                // else if (orderBy == "tutorialName")
-                // {
-                //     response = response.OrderBy(r => r.TutorialName).ToList();
-                // }
-                // else if (orderBy == "presentCount")
-                // {
-                //     response = response.OrderBy(r => r.PresentCount).ToList();
-                // }
-                // else if (orderBy == "absentCount")
-                // {
-                //     response = response.OrderBy(r => r.AbsentCount).ToList();
-                // }
-                // else if (orderBy == "attendanceRate")
-                // {
-                //     response = response.OrderBy(r => r.AttendanceRate).ToList();
-                // }
+        //         // sorting
+        //         IOrderedEnumerable<GetAttendanceRecordByCourseIdResponseDto> sortedResponse;
+        //         switch (orderBy)
+        //         {
+        //             case "date":
+        //                 sortedResponse = isAscending 
+        //                     ? response.OrderBy(r => r.Date) 
+        //                     : response.OrderByDescending(r => r.Date);
+        //                 break;
+        //             case "startTime":
+        //                 sortedResponse = isAscending 
+        //                     ? response.OrderBy(r => r.StartTime) 
+        //                     : response.OrderByDescending(r => r.StartTime);
+        //                 break;
+        //             case "endTime":
+        //                 sortedResponse = isAscending 
+        //                     ? response.OrderBy(r => r.EndTime) 
+        //                     : response.OrderByDescending(r => r.EndTime);
+        //                 break;
+        //             case "isLecture":
+        //                 sortedResponse = isAscending 
+        //                     ? response.OrderBy(r => r.IsLecture) 
+        //                     : response.OrderByDescending(r => r.IsLecture);
+        //                 break;
+        //             case "tutorialName":
+        //                 sortedResponse = isAscending 
+        //                     ? response.OrderBy(r => r.TutorialName) 
+        //                     : response.OrderByDescending(r => r.TutorialName);
+        //                 break;
+        //             case "presentCount":
+        //                 sortedResponse = isAscending 
+        //                     ? response.OrderBy(r => r.PresentCount) 
+        //                     : response.OrderByDescending(r => r.PresentCount);
+        //                 break;
+        //             case "absentCount":
+        //                 sortedResponse = isAscending 
+        //                     ? response.OrderBy(r => r.AbsentCount) 
+        //                     : response.OrderByDescending(r => r.AbsentCount);
+        //                 break;
+        //             case "attendanceRate":
+        //                 sortedResponse = isAscending 
+        //                     ? response.OrderBy(r => r.AttendanceRate) 
+        //                     : response.OrderByDescending(r => r.AttendanceRate);
+        //                 break;
+        //             default:
+        //                 sortedResponse = response.OrderBy(r => r.RecordId); // Default sorting
+        //                 break;
+        //         }
+        //         // if (orderBy == "date")
+        //         // {
+        //         //     response = response.OrderBy(r => r.Date).ToList();
+        //         // }
+        //         // else if (orderBy == "startTime")
+        //         // {
+        //         //     response = response.OrderBy(r => r.StartTime).ToList();
+        //         // }
+        //         // else if (orderBy == "endTime")
+        //         // {
+        //         //     response = response.OrderBy(r => r.EndTime).ToList();
+        //         // }
+        //         // else if (orderBy == "isLecture")
+        //         // {
+        //         //     response = response.OrderBy(r => r.IsLecture).ToList();
+        //         // }
+        //         // else if (orderBy == "tutorialName")
+        //         // {
+        //         //     response = response.OrderBy(r => r.TutorialName).ToList();
+        //         // }
+        //         // else if (orderBy == "presentCount")
+        //         // {
+        //         //     response = response.OrderBy(r => r.PresentCount).ToList();
+        //         // }
+        //         // else if (orderBy == "absentCount")
+        //         // {
+        //         //     response = response.OrderBy(r => r.AbsentCount).ToList();
+        //         // }
+        //         // else if (orderBy == "attendanceRate")
+        //         // {
+        //         //     response = response.OrderBy(r => r.AttendanceRate).ToList();
+        //         // }
 
-                // Paging
-                var pagedResponse = response.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+        //         // Paging
+        //         var pagedResponse = response.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
 
-                // Pagination
-                var paginatedResult = new PaginatedResult<GetAttendanceRecordByCourseIdResponseDto>(
-                    pagedResponse,
-                    attendanceRecords.Count,
-                    pageNumber,
-                    pageSize
-                );
+        //         // Pagination
+        //         var paginatedResult = new PaginatedResult<GetAttendanceRecordByCourseIdResponseDto>(
+        //             pagedResponse,
+        //             attendanceRecords.Count,
+        //             pageNumber,
+        //             pageSize
+        //         );
 
-                return paginatedResult;
-            }, "Failed to get attendance record by course ID");
-        }
+        //         return paginatedResult;
+        //     }, "Failed to get attendance record by course ID");
+        // }
         #endregion
     }
 }

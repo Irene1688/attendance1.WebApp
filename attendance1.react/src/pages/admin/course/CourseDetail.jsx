@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, useOutletContext } from 'react-router-dom';
 import { 
   Box, 
   Typography, 
@@ -35,6 +35,7 @@ const CourseDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const { setPageTitle } = useOutletContext();
   const [tabValue, setTabValue] = useState(0);
   
   const { 
@@ -97,6 +98,10 @@ const CourseDetail = () => {
 
   // initialize
   const course = location.state.course;
+
+  useEffect(() => {
+    setPageTitle(course.courseName);
+  }, [setPageTitle, course]);
 
   const loadEnrolledStudents = useCallback(async () => {
     const requestDto = {

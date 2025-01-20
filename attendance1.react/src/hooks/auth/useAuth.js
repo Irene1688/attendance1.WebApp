@@ -1,8 +1,9 @@
-import { useCallback } from 'react';
-import { useDispatch } from 'react-redux';
+import { useCallback, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { setCredentials, logout } from '../../store/slices/authSlice';
+import { setCredentials, logout, updateUserProfile } from '../../store/slices/authSlice';
 import { authApi } from '../../api/auth';
+import { userApi } from '../../api/user';
 import { useApiExecutor } from '../../hooks/common';
 import { USER_ROLES } from '../../constants/userRoles';
 
@@ -10,10 +11,12 @@ export const useAuth = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { loading, handleApiCall } = useApiExecutor();
+  const [profileData, setProfileData] = useState(null);
+  const user = useSelector(state => state.auth.user);
 
   const handleLogin = useCallback(async (values, formikHelpers, isStaff) => {
     try {
-      const loginData = isStaff 
+      const loginData = isStaff
         ? {
             username: values.username,
             password: values.password,
@@ -28,9 +31,9 @@ export const useAuth = () => {
       await handleApiCall(
         () => isStaff ? authApi.staffLogin(loginData) : authApi.studentLogin(loginData),
         (data) => {
-          const { name, role, campusId, accessToken, refreshToken } = data;
+          const { userId, name, role, campusId, accessToken, refreshToken } = data;
           dispatch(setCredentials({
-            user: { name, role, campusId },
+            user: { userId, name, role, campusId },
             accessToken,
             refreshToken
           }));
@@ -72,9 +75,62 @@ export const useAuth = () => {
     }
   }, [dispatch, navigate, handleApiCall]);
 
+  const fetchUserProfile = useCallback(async () => {
+    if (!user) return false;
+    var requestDto = {
+      campusId: user.campusId,
+      role: user.role
+    }
+    return await handleApiCall(
+      () => userApi.getUserProfile(requestDto),
+      (response) => {
+        setProfileData(response);
+        dispatch(updateUserProfile({
+          userId: user.userId,
+          name: response.name,
+          role: response.role,
+          campusId: response.campusId
+        }));
+        return true;
+      }
+    );
+  }, [handleApiCall, user, dispatch]);
+
+  const updateProfile = useCallback(async (values) => {
+    const requestDto = {
+      campusId: user.campusId,
+      role: user.role,
+      name: values.name,
+      email: values.email
+    };
+
+    // if password is changed
+    if (values.currentPassword && values.newPassword) {
+      requestDto.currentPassword = values.currentPassword;
+      requestDto.newPassword = values.newPassword;
+    }
+
+    return await handleApiCall(
+      () => userApi.updateProfileWithPassword(requestDto),
+      (response) => {
+        dispatch(updateUserProfile({
+          userId: user.userId,
+          name: values.name,
+          email: values.email,
+          campusId: user.campusId,
+        }));
+        return true;
+      }
+    );
+  }, [dispatch, handleApiCall]);
+
   return {
     loading,
+    user,
     handleLogin,
-    handleLogout
+    handleLogout,
+    profileData,
+    updateProfile,
+    fetchUserProfile
   };
-}; 
+};

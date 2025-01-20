@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { adminApi } from '../../../api/admin';
+import { courseApi } from '../../../api/course';
 import { useApiExecutor } from '../../common';
 
 export const useCourseManagement = () => {
@@ -35,7 +35,7 @@ export const useCourseManagement = () => {
       }
     };
     return await handleApiCall(
-      () => adminApi.getAllCourses(requestDto),
+      () => courseApi.getAllCourses(requestDto),
       (paginatedResult) => {
         setCourses(paginatedResult.data || []);
         return paginatedResult;
@@ -59,7 +59,7 @@ export const useCourseManagement = () => {
       }))
     };
     return await handleApiCall(
-      () => adminApi.createCourse(requestDto),
+      () => courseApi.createCourse(requestDto),
       () => true
     );
   }, [handleApiCall]);
@@ -87,14 +87,14 @@ export const useCourseManagement = () => {
     };
     console.log('Request:', requestDto);
     return await handleApiCall(
-      () => adminApi.updateCourse(requestDto),
+      () => courseApi.updateCourse(requestDto),
       () => true
     );
   }, [handleApiCall]);
 
   const deleteCourse = useCallback(async (course) => {
     return await handleApiCall(
-      () => adminApi.deleteCourse({ id: course.courseId }),
+      () => courseApi.deleteCourse({ id: course.courseId }),
       () => true
     );
   }, [handleApiCall]);
@@ -109,7 +109,7 @@ export const useCourseManagement = () => {
     }));
 
     return await handleApiCall(
-      () => adminApi.MultipleDeleteCourse(requestDto),
+      () => courseApi.MultipleDeleteCourse(requestDto),
       () => true
     );
   }, [handleApiCall]);

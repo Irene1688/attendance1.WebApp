@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import { Box, Typography, Dialog } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { 
@@ -8,13 +9,15 @@ import {
   ConfirmDialog,
   SearchField,
 } from '../../components/Common';
-import { UserForm, StudentTable } from '../../components/Admin';
+import { AdminHeader, UserForm, StudentTable } from '../../components/Admin';
 import { useUserManagement, useProgrammeManagement } from '../../hooks/features';
 import { usePagination, useSorting } from '../../hooks/common';
 import { useMessageContext } from '../../contexts/MessageContext';
 import { USER_ROLES } from '../../constants/userRoles';
 
 const StudentManagement = () => {
+  const { setPageTitle } = useOutletContext();
+
   // hooks
   const { 
     students,
@@ -66,6 +69,10 @@ const StudentManagement = () => {
   }, [setPage]);
 
   // initialize
+  useEffect(() => {
+    setPageTitle('Student Management');
+  }, [setPageTitle]);
+
   useEffect(() => {
     let isMounted = true;
     fetchProgrammeSelection();
@@ -157,8 +164,7 @@ const StudentManagement = () => {
         />
       )}
 
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
-        <Typography variant="h5">Student Management ({total})</Typography>
+      <AdminHeader title={`Student Management (${total})`}>
         <TextButton 
           onClick={() => {
             setSelectedUser(null);
@@ -169,15 +175,13 @@ const StudentManagement = () => {
         >
           Add New Student
         </TextButton>
-      </Box>
+      </AdminHeader>
 
-      <Box sx={{ mb: 3 }}>
-        <SearchField
-          placeholder="Search students..."
-          onSearch={handleSearch}
-          debounceTime={1000}
-        />
-      </Box>
+      <SearchField
+        placeholder="Search students..."
+        onSearch={handleSearch}
+        debounceTime={1000}
+      />
 
       <StudentTable
         students={students}

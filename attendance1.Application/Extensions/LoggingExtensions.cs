@@ -1,6 +1,3 @@
-using Microsoft.Extensions.Logging;
-using System.Runtime.CompilerServices;
-
 namespace attendance1.Application.Extensions
 {
     public static class LoggingExtensions

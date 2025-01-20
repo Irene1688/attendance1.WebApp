@@ -1,4 +1,4 @@
-import { TextField, InputAdornment } from '@mui/material';
+import { TextField, InputAdornment, useTheme } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { useEffect, useState } from 'react';
 import { styles } from './SearchField.styles';
@@ -7,9 +7,12 @@ const SearchField = ({
   onSearch, 
   placeholder = "Search...",
   debounceTime = 1000,  // default debounce time
+  sx,
   ...props 
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const theme = useTheme();
+  const themedStyles = styles(theme);
 
   // handle search input
   const handleSearchChange = (event) => {
@@ -35,11 +38,11 @@ const SearchField = ({
       InputProps={{
         startAdornment: (
           <InputAdornment position="start">
-            <SearchIcon />
+            <SearchIcon sx={themedStyles.searchIcon} />
           </InputAdornment>
         ),
       }}
-      sx={styles.textField}
+      sx={{ ...themedStyles.searchField, ...sx }}
       {...props}
     />
   );

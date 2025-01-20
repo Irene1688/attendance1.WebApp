@@ -1,7 +1,3 @@
-using attendance1.Application.Common.Response;
-using attendance1.Application.DTOs.Student;
-using attendance1.Application.DTOs.Common;
-
 namespace attendance1.Application.Interfaces
 {
     public interface IStudentService
