@@ -13,6 +13,7 @@ const LecturerLayout = () => {
   const { courseMenuItems, loading, fetchActiveCoursesMenuItems } = useCourseById();
   const [menuItems, setMenuItems] = useState(lecturerBaseMenuItems);
 
+  // fetch active courses menu items
   useEffect(() => {
     let isMounted = true;
     fetchActiveCoursesMenuItems();
@@ -21,8 +22,7 @@ const LecturerLayout = () => {
     };
   }, []);
 
-
-  // 只在 courses 变化时更新菜单项
+  // fill menu items
   useEffect(() => {
     if (courseMenuItems) {
       const newMenuItems = generateLecturerClassMenuItems(courseMenuItems);

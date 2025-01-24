@@ -5,12 +5,13 @@ import {
   Typography, 
   Grid,
 } from '@mui/material';
+import MoodIcon from '@mui/icons-material/Mood';
 import { useOutletContext } from 'react-router-dom';
 import { Loader, EmptyState } from '../../components/Common';
 import { CourseCard } from '../../components/Lecturer';
 import { useCourseById } from '../../hooks/features';
 import { useAttendanceManagement } from '../../hooks/features';
-import { isToday } from '../../utils/dateHelpers';
+import { isTodayOnClass } from '../../constants/courseConstant';
 import PromptMessage from '../../components/Common/PromptMessage/PromptMessage';
 import { useMessageContext } from '../../contexts/MessageContext';
 
@@ -27,6 +28,16 @@ const TakeAttendance = () => {
     fetchActiveCourses();
   }, [setPageTitle]);
 
+  // categorize courses
+  const { todayClasses, otherClasses } = activeCourses?.reduce((acc, course) => {
+    if (course && isTodayOnClass(course.onClassDay)) {
+      acc.todayClasses.push(course);
+    } else if (course) {
+      acc.otherClasses.push(course);
+    }
+    return acc;
+  }, { todayClasses: [], otherClasses: [] }) || { todayClasses: [], otherClasses: [] };
+
   const handleTakeAttendance = async (duration, selectedTutorialId, courseInfo) => {
     const requestDto = {
       courseId: courseInfo.courseId,
@@ -36,16 +47,6 @@ const TakeAttendance = () => {
     const attendanceCode = await generateAttendanceCode(requestDto);
     if (attendanceCode) navigate(`/lecturer/codePage`, { state: { attendanceCode, courseInfo } });
   };
-
-  // categorize courses
-  const { todayClasses, otherClasses } = activeCourses?.reduce((acc, course) => {
-    if (course && isToday(course.classDay)) {
-      acc.todayClasses.push(course);
-    } else if (course) {
-      acc.otherClasses.push(course);
-    }
-    return acc;
-  }, { todayClasses: [], otherClasses: [] }) || { todayClasses: [], otherClasses: [] };
 
   if (loading) return <Loader />;
 
@@ -71,7 +72,7 @@ const TakeAttendance = () => {
       {todayClasses.length > 0 ? (
         <Grid container spacing={3} sx={{ mb: 4 }}>
           {todayClasses.map((course) => (
-            <Grid item xs={12} sm={6} md={4} key={course.id}>
+            <Grid item xs={12} sm={4} md={3} key={course.courseId}>
               <CourseCard
                 course={course}
                 onTakeAttendance={handleTakeAttendance}
@@ -83,6 +84,7 @@ const TakeAttendance = () => {
         <EmptyState
           title="No Classes Today"
           message="You don't have any classes scheduled for today."
+          icon={MoodIcon}
         />
       )}
 
@@ -96,7 +98,7 @@ const TakeAttendance = () => {
           </Box>
           <Grid container spacing={3}>
             {otherClasses.map((course) => (
-              <Grid item xs={12} sm={6} md={4} key={course.id}>
+              <Grid item xs={12} sm={4} md={3} key={course.courseId}>
                 <CourseCard
                   course={course}
                   onTakeAttendance={handleTakeAttendance}

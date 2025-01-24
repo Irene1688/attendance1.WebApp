@@ -14,7 +14,7 @@ import {
   CourseFormPage
 } from '../pages/admin';
 import { TakeAttendance, CodePage } from '../pages/lecturer';
-import Profile from '../pages/admin/Profile';
+import Profile from '../pages/Shared/Profile';
 
 export const router = createBrowserRouter([
   {

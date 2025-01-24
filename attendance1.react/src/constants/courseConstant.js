@@ -69,3 +69,13 @@ export const getCourseStatus = (endWeek) => {
   const endDate = new Date(endWeek);
   return endDate > today ? STATUS.ACTIVE : STATUS.ARCHIVED;
 };
+
+export const isTodayOnClass = (classDay) => {
+  if (!classDay) return false;
+  
+  const today = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
+  const classDays = classDay.split(',').map(Number);
+  // change Sunday to 7 to avoid 0
+  const adjustedToday = today === 0 ? 7 : today;
+  return classDays.includes(adjustedToday);
+}; 

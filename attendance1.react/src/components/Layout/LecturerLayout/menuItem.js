@@ -9,7 +9,7 @@ export const lecturerBaseMenuItems = [
   },
   {
     title: 'Active Classes',
-    path: '',
+    path: '/lecturer/classes',
     icon: ClassIcon,
     children: [] 
   }

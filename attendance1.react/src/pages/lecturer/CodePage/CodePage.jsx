@@ -7,10 +7,12 @@ import {
   Divider,
   useTheme
 } from '@mui/material';
-import { TextButton } from '../../components/Common';
+import { TextButton } from '../../../components/Common';
+import { styles } from './CodePage.styles';
 
 const CodePage = () => {
   const theme = useTheme();
+  const themedStyles = styles(theme);
   const navigate = useNavigate();
   const location = useLocation();
   const attendanceCode = location.state.attendanceCode;
@@ -40,7 +42,7 @@ const CodePage = () => {
     if (!attendanceCode) navigate('/lecturer/take-attendance');
 
     const { remainingTime } = calculateTimes();
-    setTimeLeft(Math.ceil(remainingTime / 1000)); // 转换为秒
+    setTimeLeft(Math.ceil(remainingTime / 1000)); // convert to seconds
   }, [attendanceCode, navigate]);
 
   // countdown effect
@@ -93,63 +95,32 @@ const CodePage = () => {
 
   return (
     <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '100vh',
-        bgcolor: theme.palette.background.default,
-        p: 0
-      }}
+      sx={themedStyles.container}
     >
         {/* Header */}
-        <Box sx={{ display: 'flex', justifyContent: 'start', alignItems: 'center', width: '100%', px: 3 }}>
+        <Box sx={themedStyles.header}>
             <Typography variant="h6" sx={{ mb: 1, color: theme.palette.grey[600] }}>
                 {courseInfo.courseCode} - {courseInfo.courseName}
             </Typography>
         </Box>
 
-        <Divider sx={{ width: '100%', mb: 5 }} />
+        <Divider sx={themedStyles.divider} />
       
         {/* Progress Bar */}
         <Box
-          sx={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            height: 4,
-            width: `${progress}%`,
-            backgroundColor: timeLeft <= 5 ? theme.palette.error.main : theme.palette.primary.main,
-            transition: 'width 1s linear, background-color 0.3s ease'
-          }}
+          sx={themedStyles.progressBar(progress, timeLeft)}
         />
 
         <Typography variant="h6" color="textSecondary" sx={{ mb: 1 }}>
           Attendance Code
         </Typography>
 
-        <Typography 
-          variant="h2" 
-          sx={{ 
-            fontWeight: 'bold',
-            color: theme.palette.primary.main,
-            letterSpacing: 8,
-            mb: 3
-          }}
-        >
+        <Typography variant="h2" sx={themedStyles.code}>
           {attendanceCode.attendanceCode}
         </Typography>
 
         {/* Duration */}
-        <Typography 
-          variant="h6" 
-          sx={{ 
-              color: theme.palette.text.disabled,
-              fontWeight: 'bold',
-              mb: 2
-          }}
-        >
+        <Typography variant="h6" sx={themedStyles.duration}>
           {formatDuration(attendanceCode.startTime, attendanceCode.endTime)}
         </Typography>
 
@@ -160,24 +131,10 @@ const CodePage = () => {
             value={progress}
             size={150}
             thickness={3}
-            sx={{
-              color: timeLeft <= 5 ? theme.palette.error.main : theme.palette.primary.main,
-              transition: 'color 0.3s ease'
-            }}
+            sx={themedStyles.circularProgress(timeLeft)}
           />
-          <Box
-            sx={{
-              top: 0,
-              left: 0,
-              bottom: 0,
-              right: 0,
-              position: 'absolute',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Typography variant="h5" component="div" sx={{ color: timeLeft === 0 ? theme.palette.error.main : theme.palette.text.secondary }}>
+          <Box sx={themedStyles.circularProgressText(timeLeft)}>
+            <Typography variant="h5" component="div" sx={themedStyles.circularProgressText(timeLeft)}>
               {formatTimeLeft(timeLeft)}
             </Typography>
           </Box>
