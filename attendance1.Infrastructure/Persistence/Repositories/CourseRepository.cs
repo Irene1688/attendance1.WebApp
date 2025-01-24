@@ -128,6 +128,17 @@ namespace attendance1.Infrastructure.Persistence.Repositories
             return await query.CountAsync();
         }
 
+        public async Task<List<Course>> GetActiveCourseSelectionByLecturerIdAsync(string lecturerId)
+        {
+            return await ExecuteGetAsync(async () => await _database.Courses
+                .Where(c => 
+                    c.LecturerId == lecturerId && 
+                    c.IsDeleted == false &&
+                    c.Semester.EndWeek > DateOnly.FromDateTime(DateTime.Now))
+                .AsNoTracking()
+                .ToListAsync());
+        }
+
         public async Task<Course> GetCourseDetailsAsync(int courseId)
         {
             return await ExecuteGetAsync(async () => await _database.Courses
@@ -418,7 +429,10 @@ namespace attendance1.Infrastructure.Persistence.Repositories
         public async Task<List<Course>> GetCoursesByLecturerIdAsync(string lectureId)
         {
             return await ExecuteGetAsync(async () => await _database.Courses
-                .Where(c => c.LecturerId == lectureId && c.IsDeleted == false)
+                .Where(c => 
+                    c.LecturerId == lectureId && 
+                    c.IsDeleted == false)
+                .Include(c => c.Tutorials)
                 .AsNoTracking()
                 .ToListAsync());
         }

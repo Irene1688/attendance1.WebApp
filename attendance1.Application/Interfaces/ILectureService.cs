@@ -3,7 +3,7 @@
     public interface ILectureService
     {
         #region class CRUD
-        Task<Result<List<GetLecturerClassRequestDto>>> GetClassesOfLecturerAsync(DataIdRequestDto requestDto);
+        //Task<Result<List<GetLecturerClassRequestDto>>> GetClassesOfLecturerAsync(DataIdRequestDto requestDto);
         Task<Result<bool>> EditClassAsync(EditClassRequestDto requestDto);
         Task<Result<bool>> DeleteClassAsync(DeleteRequestDto requestDto);
         Task<Result<DataIdResponseDto>> CreateNewClassAsync(CreateClassRequestDto requestDto);
@@ -27,7 +27,7 @@
         #endregion
 
         #region attendance CRUD
-        Task<Result<GetAttendanceCodeResponseDto>> GenerateAttendanceCodeAsync(CreateAttendanceCodeRequestDto requestDto);
+        //Task<Result<GetAttendanceCodeResponseDto>> GenerateAttendanceCodeAsync(CreateAttendanceCodeRequestDto requestDto);
         Task<Result<List<GetAttendanceWithStudentNameResponseDto>>> GetAttendanceByCodeIdAsync(DataIdRequestDto requestDto);
         Task<Result<bool>> InsertAbsentStudentAttendanceAsync(CreateAbsentStudentAttendanceRequestDto requestDto);
         Task<Result<bool>> ChangeAttendanceDataOfStudentAsync(EditAttendanceDataRequestDto requestDto);

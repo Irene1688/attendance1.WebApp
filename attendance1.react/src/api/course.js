@@ -13,4 +13,8 @@ export const courseApi = {
   getAvailableStudents: (data) => api.post('Course/getAvailableStudents', data),
   addStudentToCourseAndTutorial: (data) => api.post('Course/addStudentsToCourseAndTutorial', data),
   removeStudentFromCourse: (data) => api.post('Course/removeStudentFromCourse', data),
+
+  // lecturer module
+  getActiveCourseSelectionByLecturerId: (data) => api.post('Course/getActiveCourseSelectionByLecturerId', data),
+  getActiveCoursesByLecturerId: (data) => api.post('Course/getActiveCoursesByLecturerId', data),
 }; 

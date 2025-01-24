@@ -5,6 +5,8 @@ namespace attendance1.Application.Interfaces
         #region Course CRUD
         Task<Result<bool>> CreateNewCourseAsync(CreateCourseRequestDto requestDto);
         Task<Result<PaginatedResult<GetCourseResponseDto>>> GetAllCourseAsync(GetCourseRequestDto requestDto);
+        Task<Result<GetActiveCourseSelectionResponseDto>> GetActiveCourseSelectionByLecturerIdAsync(DataIdRequestDto requestDto);
+        Task<Result<GetLecturerClassRequestDto>> GetActiveClassesOfLecturerAsync(DataIdRequestDto requestDto);
         Task<Result<bool>> EditCourseAsync(EditCourseRequestDto requestDto);
         Task<Result<bool>> DeleteCourseAsync(DeleteRequestDto requestDto);
         Task<Result<bool>> MultipleDeleteCourseAsync(List<DeleteRequestDto> requestDto);

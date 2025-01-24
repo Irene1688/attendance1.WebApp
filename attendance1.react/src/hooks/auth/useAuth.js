@@ -40,7 +40,7 @@ export const useAuth = () => {
 
           let redirectPath;
           if (isStaff) {
-            redirectPath = role === 'Admin' ? '/admin/dashboard' : '/lecturer/dashboard';
+            redirectPath = role === 'Admin' ? '/admin/dashboard' : '/lecturer/take-attendance';
           } else {
             redirectPath = '/student/dashboard';
           }

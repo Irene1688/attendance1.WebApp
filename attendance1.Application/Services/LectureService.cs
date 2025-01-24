@@ -19,11 +19,11 @@
         }
 
         #region private methods
-        private string GenerateRandomAttendanceCode()
-        {
-            var random = new Random();
-            return random.Next(100000, 999999).ToString();
-        }
+        // private string GenerateRandomAttendanceCode()
+        // {
+        //     var random = new Random();
+        //     return random.Next(100000, 999999).ToString();
+        // }
 
         private async Task<(List<string>, List<string>)> HandleStudentListAsync(byte[] studentList)
         {
@@ -274,31 +274,7 @@
             );
         }
 
-        public async Task<Result<List<GetLecturerClassRequestDto>>> GetClassesOfLecturerAsync(DataIdRequestDto requestDto)
-        {
-            if (string.IsNullOrEmpty(requestDto.IdInString))
-                return Result<List<GetLecturerClassRequestDto>>.FailureResult($"Lecturer ID is required.", HttpStatusCode.BadRequest);
-
-            if (!await _validateService.ValidateLecturerAsync(requestDto.IdInString))
-                return Result<List<GetLecturerClassRequestDto>>.FailureResult($"Lecturer with ID {requestDto.IdInString} does not exist.", HttpStatusCode.NotFound);
-
-            return await ExecuteAsync(
-                async () =>
-                {
-                    var courses = await _courseRepository.GetCoursesByLecturerIdAsync(requestDto.IdInString);
-                    return courses.Select(c => new GetLecturerClassRequestDto
-                    {
-                        LecturerId = c.LecturerId,
-                        ClassId = c.CourseId,
-                        ClassCode = c.CourseCode,
-                        ClassName = c.CourseName,
-                        ClassSession = c.CourseSession,
-                        OnClassDay = c.ClassDay ?? string.Empty
-                    }).ToList();
-                },
-                $"Error occurred while getting the classes of lecturer {requestDto.IdInString}"
-            );
-        }
+        
 
         public async Task<Result<GetClassDetailsWithAttendanceDataResponseDto>> GetClassDetailsWithAttendanceDataAsync(DataIdRequestDto requestDto)
         {
@@ -551,38 +527,38 @@
         #endregion
         
         #region attendance CRUD
-        public async Task<Result<GetAttendanceCodeResponseDto>> GenerateAttendanceCodeAsync(CreateAttendanceCodeRequestDto requestDto)
-        {
-            if (!await _validateService.ValidateCourseAsync(requestDto.CourseId))
-                return Result<GetAttendanceCodeResponseDto>.FailureResult($"This class does not exist.", HttpStatusCode.NotFound);
+        // public async Task<Result<GetAttendanceCodeResponseDto>> GenerateAttendanceCodeAsync(CreateAttendanceCodeRequestDto requestDto)
+        // {
+        //     if (!await _validateService.ValidateCourseAsync(requestDto.CourseId))
+        //         return Result<GetAttendanceCodeResponseDto>.FailureResult($"This class does not exist.", HttpStatusCode.NotFound);
 
-            return await ExecuteAsync(
-                async () =>
-                {
-                    var code = new AttendanceRecord
-                    {
-                        AttendanceCode = GenerateRandomAttendanceCode(),
-                        Date = DateOnly.FromDateTime(DateTime.Now),
-                        StartTime = TimeOnly.FromDateTime(DateTime.Now),
-                        EndTime = TimeOnly.FromDateTime(DateTime.Now.AddSeconds(requestDto.DurationInSeconds)),
-                        CourseId = requestDto.CourseId,
-                        IsLecture = requestDto.IsLecture,
-                        TutorialId = requestDto.TutorialId ?? 0
-                    };
-                    var saveSuccess = await _attendanceRepository.CreateAttendanceCodeAsync(code);
-                    if (!saveSuccess)
-                        throw new Exception("Failed to save the attendance code.");
+        //     return await ExecuteAsync(
+        //         async () =>
+        //         {
+        //             var code = new AttendanceRecord
+        //             {
+        //                 AttendanceCode = GenerateRandomAttendanceCode(),
+        //                 Date = DateOnly.FromDateTime(DateTime.Now),
+        //                 StartTime = TimeOnly.FromDateTime(DateTime.Now),
+        //                 EndTime = TimeOnly.FromDateTime(DateTime.Now.AddSeconds(requestDto.DurationInSeconds)),
+        //                 CourseId = requestDto.CourseId,
+        //                 IsLecture = requestDto.IsLecture,
+        //                 TutorialId = requestDto.TutorialId ?? 0
+        //             };
+        //             var saveSuccess = await _attendanceRepository.CreateAttendanceCodeAsync(code);
+        //             if (!saveSuccess)
+        //                 throw new Exception("Failed to save the attendance code.");
 
-                    return new GetAttendanceCodeResponseDto
-                    {
-                        AttendanceCode = code.AttendanceCode,
-                        StartTime = code.StartTime ?? TimeOnly.MinValue,
-                        EndTime = code.EndTime ?? TimeOnly.MinValue,
-                    };
-                },
-                $"Error occurred while generating attendance code for the class"
-            );
-        }
+        //             return new GetAttendanceCodeResponseDto
+        //             {
+        //                 AttendanceCode = code.AttendanceCode,
+        //                 StartTime = code.StartTime ?? TimeOnly.MinValue,
+        //                 EndTime = code.EndTime ?? TimeOnly.MinValue,
+        //             };
+        //         },
+        //         $"Error occurred while generating attendance code for the class"
+        //     );
+        // }
 
         public async Task<Result<List<GetAttendanceWithStudentNameResponseDto>>> GetAttendanceByCodeIdAsync(DataIdRequestDto requestDto)
         {

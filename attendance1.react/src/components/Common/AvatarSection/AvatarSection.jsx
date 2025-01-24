@@ -1,5 +1,4 @@
 import { Box, Avatar, Typography, useTheme } from '@mui/material';
-import PropTypes from 'prop-types';
 import { styles } from './AvatarSection.styles';
 
 const AvatarSection = ({ name, campusId, sx }) => {

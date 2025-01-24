@@ -1,6 +1,6 @@
 using attendance1.Application.Common.Logging;
 using attendance1.Application.Common.Response;
-using attendance1.Application.DTOs.Common;
+using attendance1.Application.DTOs.CommonDTOs;
 using attendance1.Application.Interfaces;
 using attendance1.Domain.Entities;
 using attendance1.Domain.Interfaces;

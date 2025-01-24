@@ -91,7 +91,7 @@ const Profile = () => {
               initialValues={{
                 name: profileData?.name || '',
                 email: profileData?.email || '',
-                programmeName: profileData?.programme || '',
+                programmeName: profileData?.programmeName || '',
                 campusId: profileData?.campusId || '',
                 currentPassword: '',
                 newPassword: '',

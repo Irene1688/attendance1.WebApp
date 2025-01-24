@@ -1,4 +1,4 @@
-﻿using attendance1.Application.DTOs.Common;
+﻿using attendance1.Application.DTOs.CommonDTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;

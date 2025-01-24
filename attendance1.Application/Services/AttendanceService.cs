@@ -3,11 +3,19 @@ namespace attendance1.Application.Services
     public class AttendanceService : BaseService, IAttendanceService
     {
         private readonly IAttendanceRepository _attendanceRepository;
+        private readonly IValidateService _validateService;
 
-        public AttendanceService(ILogger<AttendanceService> logger, IAttendanceRepository attendanceRepository, LogContext logContext)
+        public AttendanceService(ILogger<AttendanceService> logger, IValidateService validateService, IAttendanceRepository attendanceRepository, LogContext logContext)
             : base(logger, logContext)
         {
+            _validateService = validateService ?? throw new ArgumentNullException(nameof(validateService));
             _attendanceRepository = attendanceRepository ?? throw new ArgumentNullException(nameof(attendanceRepository));
+        }
+
+        private string GenerateRandomAttendanceCode()
+        {
+            var random = new Random();
+            return random.Next(100000, 999999).ToString();
         }
 
         public async Task<Result<PaginatedResult<GetAttendanceRecordByCourseIdResponseDto>>> GetAttendanceRecordByCourseIdAsync(GetAttendanceRecordByCourseIdRequestDto requestDto)
@@ -139,6 +147,42 @@ namespace attendance1.Application.Services
 
                 return paginatedResult;
             }, "Failed to get attendance record by course ID");
+        }
+
+        public async Task<Result<GetAttendanceCodeResponseDto>> GenerateAttendanceCodeAsync(CreateAttendanceCodeRequestDto requestDto)
+        {
+            return await ExecuteAsync(
+                async () =>
+                {
+                    if (!await _validateService.ValidateCourseAsync(requestDto.CourseId))
+                        throw new KeyNotFoundException("This class does not exist.");
+
+                    if (requestDto.TutorialId < 0 && !await _validateService.ValidateTutorialAsync(requestDto.TutorialId ?? 0, requestDto.CourseId))
+                        throw new KeyNotFoundException("This tutorial does not exist.");
+
+                    var code = new AttendanceRecord
+                    {
+                        AttendanceCode = GenerateRandomAttendanceCode(),
+                        Date = DateOnly.FromDateTime(DateTime.Now),
+                        StartTime = TimeOnly.FromDateTime(DateTime.Now),
+                        EndTime = TimeOnly.FromDateTime(DateTime.Now.AddSeconds(requestDto.DurationInSeconds)),
+                        CourseId = requestDto.CourseId,
+                        IsLecture = requestDto.IsLecture,
+                        TutorialId = requestDto.IsLecture ? null : requestDto.TutorialId
+                    };
+                    var saveSuccess = await _attendanceRepository.CreateAttendanceCodeAsync(code);
+                    if (!saveSuccess)
+                        throw new Exception("Failed to save the attendance code.");
+
+                    return new GetAttendanceCodeResponseDto
+                    {
+                        AttendanceCode = code.AttendanceCode,
+                        StartTime = code.StartTime ?? TimeOnly.MinValue,
+                        EndTime = code.EndTime ?? TimeOnly.MinValue,
+                    };
+                },
+                $"Error occurred while generating attendance code for the class"
+            );
         }
     }
 }

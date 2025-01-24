@@ -1,4 +1,4 @@
-using attendance1.Application.DTOs.Common;
+using attendance1.Application.DTOs.CommonDTOs;
 
 namespace attendance1.Application.DTOs.Lecturer
 {

@@ -12,7 +12,7 @@ export const useAuthRedirect = () => {
       case 'Admin':
         return '/admin/dashboard';
       case 'Lecturer':
-        return '/lecturer/dashboard';
+        return '/lecturer/take-attendance';
       case 'Student':
         return '/student/dashboard';
       default:

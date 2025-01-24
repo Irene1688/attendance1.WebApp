@@ -26,7 +26,7 @@ import {
 import { usePagination, useSorting } from '../../../hooks/common';
 import { useMessageContext } from '../../../contexts/MessageContext';
 import { STATUS, isActive } from '../../../constants/status';
-import { NUMBER_TO_DAY } from '../../../validations/schemas/courseValidation';
+import { NUMBER_TO_DAY } from '../../../constants/courseConstant';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AddIcon from '@mui/icons-material/Add';
 import { useEnrolledStudentManagement, useAttendanceManagement } from '../../../hooks/features';

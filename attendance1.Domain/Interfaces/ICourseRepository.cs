@@ -14,6 +14,7 @@ namespace attendance1.Domain.Interfaces
 
         #region course CRUD
         Task<int> GetTotalCourseAsync(string searchTerm = "", Dictionary<string, object>? filters = null);
+        Task<List<Course>> GetActiveCourseSelectionByLecturerIdAsync(string lecturerId);
         Task<Course> GetCourseDetailsAsync(int courseId);
         Task<int> CreateNewCourseAsync(Course course, CourseSemester semester, List<Tutorial> tutorials, List<EnrolledStudent> students);
         Task<bool> EditCourseAsync(Course course, CourseSemester semester);

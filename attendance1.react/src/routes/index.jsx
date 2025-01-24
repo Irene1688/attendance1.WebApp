@@ -2,7 +2,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import PrivateRoute from './PrivateRoute';
 import PublicRoute from './PublicRoute';
 import RootRedirect from './RootRedirect';
-import AdminLayout from '../components/Layout/AdminLayout/AdminLayout';
+import { AdminLayout, LecturerLayout } from '../components/Layout';
 import Login from '../pages/auth/Login';
 import { 
   AdminDashboard, 
@@ -13,6 +13,7 @@ import {
   CourseDetail,
   CourseFormPage
 } from '../pages/admin';
+import { TakeAttendance, CodePage } from '../pages/lecturer';
 import Profile from '../pages/admin/Profile';
 
 export const router = createBrowserRouter([
@@ -77,6 +78,36 @@ export const router = createBrowserRouter([
         element: <Profile />
       }
     ]
+  },
+  {
+    path: '/lecturer',
+    element: (
+      <PrivateRoute role="Lecturer">
+        <LecturerLayout />
+      </PrivateRoute>
+    ),
+    children: [
+      {
+        index: true,
+        element: <Navigate to="/lecturer/take-attendance" replace />
+      },
+      {
+        path: 'take-attendance',
+        element: <TakeAttendance />
+      },
+      {
+        path: 'profile',
+        element: <Profile />
+      }
+    ]
+  },
+  {
+    path: '/lecturer/codePage',
+    element: (
+      <PrivateRoute role="Lecturer">
+        <CodePage />
+      </PrivateRoute>
+    )
   },
   {
     path: '*',

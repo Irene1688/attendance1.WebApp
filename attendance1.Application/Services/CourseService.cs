@@ -125,6 +125,62 @@ namespace attendance1.Application.Services
             "Failed to get all courses");
         }
 
+        public async Task<Result<GetActiveCourseSelectionResponseDto>> GetActiveCourseSelectionByLecturerIdAsync(DataIdRequestDto requestDto)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                if (!await _validateService.ValidateLecturerAsync(requestDto.IdInString ?? string.Empty))
+                    throw new InvalidOperationException("Lecturer not found");
+
+                var courses = await _courseRepository.GetActiveCourseSelectionByLecturerIdAsync(requestDto.IdInString ?? string.Empty);
+                return new GetActiveCourseSelectionResponseDto
+                {
+                    Courses = courses.Select(c => new DataIdResponseDto
+                    {
+                        Id = c.CourseId,
+                        Name = $"{c.CourseCode} - {c.CourseName}"
+                    }).ToList()
+                };
+            }, "Failed to get active course selection by lecturer ID");
+        }
+
+        public async Task<Result<GetLecturerClassRequestDto>> GetActiveClassesOfLecturerAsync(DataIdRequestDto requestDto)
+        {
+            return await ExecuteAsync(
+                async () =>
+                {
+                    if (string.IsNullOrEmpty(requestDto.IdInString))
+                        throw new InvalidOperationException("Lecturer ID is required");
+
+                    if (!await _validateService.ValidateLecturerAsync(requestDto.IdInString))
+                        throw new KeyNotFoundException($"Lecturer with ID {requestDto.IdInString} does not exist");
+
+                    var courses = await _courseRepository.GetCoursesByLecturerIdAsync(requestDto.IdInString);
+                    var response = new GetLecturerClassRequestDto
+                    {
+                        LecturerId = requestDto.IdInString,
+                        Courses = courses.Select(c => new CourseDto
+                        {
+                            CourseId = c.CourseId,
+                            CourseCode = c.CourseCode,
+                            CourseName = c.CourseName,
+                            CourseSession = c.CourseSession,
+                            OnClassDay = c.ClassDay ?? string.Empty,
+                            Tutorials = c.Tutorials
+                                .Where(t => t.IsDeleted == false)
+                                .Select(t => new DataIdResponseDto
+                                {
+                                    Id = t.TutorialId,
+                                    Name = t.TutorialName ?? string.Empty
+                                }).ToList()
+                        }).ToList()
+                    };
+                    return response;
+                },
+                $"Error occurred while getting the classes of lecturer {requestDto.IdInString}"
+            );
+        }
+
         public async Task<Result<bool>> EditCourseAsync(EditCourseRequestDto requestDto)
         {
             return await ExecuteAsync(async () =>

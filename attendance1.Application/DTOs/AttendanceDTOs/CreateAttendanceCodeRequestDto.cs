@@ -1,4 +1,4 @@
-namespace attendance1.Application.DTOs.Lecturer
+namespace attendance1.Application.DTOs.AttendanceDTOs
 {
     public class CreateAttendanceCodeRequestDto
     {

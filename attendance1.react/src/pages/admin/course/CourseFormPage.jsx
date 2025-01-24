@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate, useParams, useLocation, useOutletContext } from 'react-router-dom';
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 import { 
   Loader, 
   PromptMessage, 
@@ -12,7 +12,7 @@ import {
     useProgrammeManagement, 
     useUserManagement } from '../../../hooks/features';
 import { useMessageContext } from '../../../contexts/MessageContext';
-import { convertNumbersToDays, NUMBER_TO_DAY } from '../../../validations/schemas/courseValidation';
+import { NUMBER_TO_DAY } from '../../../constants/courseConstant';
 
 const CourseFormPage = () => {
   const { setPageTitle } = useOutletContext();

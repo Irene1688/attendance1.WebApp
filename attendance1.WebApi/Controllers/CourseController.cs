@@ -33,6 +33,20 @@ namespace attendance1.WebApi.Controllers
             return StatusCode((int)result.StatusCode, result);
         }
 
+        [HttpPost("getActiveCourseSelectionByLecturerId")]
+        public async Task<ActionResult<GetActiveCourseSelectionResponseDto>> GetActiveCourseSelectionByLecturerId([FromBody] DataIdRequestDto requestDto)
+        {
+            var result = await _courseService.GetActiveCourseSelectionByLecturerIdAsync(requestDto);
+            return StatusCode((int)result.StatusCode, result);
+        }
+
+        [HttpPost("getActiveCoursesByLecturerId")]
+        public async Task<ActionResult<List<GetLecturerClassRequestDto>>> GetCoursesByLecturerId([FromBody] DataIdRequestDto requestDto)
+        {
+            var classes = await _courseService.GetActiveClassesOfLecturerAsync(requestDto);
+            return StatusCode((int)classes.StatusCode, classes);
+        }
+        
         [HttpPost("editCourse")]
         public async Task<ActionResult<bool>> EditCourse([FromBody] EditCourseRequestDto requestDto)
         {

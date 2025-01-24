@@ -14,12 +14,7 @@
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        [HttpPost("getClasses")]
-        public async Task<ActionResult<List<GetLecturerClassRequestDto>>> GetCoursesByLecturerId([FromBody] DataIdRequestDto requestDto)
-        {
-            var classes = await _lectureService.GetClassesOfLecturerAsync(requestDto);
-            return StatusCode((int)classes.StatusCode, classes);
-        }
+        
 
         [HttpPost("getClassDetails")]
         public async Task<ActionResult<GetClassDetailsResponseDto>> GetClassDetails([FromBody] DataIdRequestDto requestDto)
@@ -119,12 +114,7 @@
             return StatusCode((int)result.StatusCode, result);
         }
 
-        [HttpPost("generateAttendanceCode")]
-        public async Task<ActionResult<GetAttendanceCodeResponseDto>> GenerateAttendanceCode([FromBody] CreateAttendanceCodeRequestDto requestDto)
-        {
-            var result = await _lectureService.GenerateAttendanceCodeAsync(requestDto);
-            return StatusCode((int)result.StatusCode, result);
-        }
+        
 
         [HttpPost("insertAbsentStudentAttendance")]
         public async Task<ActionResult<bool>> InsertAbsentStudentAttendance([FromBody] CreateAbsentStudentAttendanceRequestDto requestDto)
