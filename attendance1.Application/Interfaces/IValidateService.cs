@@ -13,6 +13,8 @@ namespace attendance1.Application.Interfaces
         bool HasStudentIdMatchEmail(string studentId, string email);
 
         Task<bool> ValidateCourseAsync(int courseId);
+        Task<bool> HasStudentInTheCourseAsync(int courseId, string studentId);
+        
         Task<bool> ValidateTutorialAsync(int tutorialId, int courseId);
 
         Task<bool> ValidateAttendanceCodeAsync(int attendanceCodeId);

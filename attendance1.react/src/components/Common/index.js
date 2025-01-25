@@ -8,4 +8,5 @@ export { default as SearchField } from './SearchField/SearchField';
 export { default as EmptyState } from './EmptyState/EmptyState';
 export { default as SortableTableHead } from './SortableTableHead/SortableTableHead';
 export { default as PaginatedTable } from './PaginatedTable/PaginatedTable';
+export { default as SortableTable } from './SortableTable/SortableTable';
 export { default as AvatarSection } from './AvatarSection/AvatarSection';

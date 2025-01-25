@@ -15,6 +15,7 @@ namespace attendance1.Domain.Interfaces
 
         #region attendance record
         Task<List<AttendanceRecord>> GetAttendanceRecordByCourseIdAsync(int courseId);
+        Task<List<AttendanceRecord>> GetCourseStudentAttendanceRecordsAsync(int courseId);
         #endregion
         
         #region lecturer: attendace CRUD

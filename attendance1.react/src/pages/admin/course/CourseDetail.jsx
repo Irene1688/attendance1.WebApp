@@ -19,10 +19,10 @@ import {
   EmptyState
 } from '../../../components/Common';
 import { 
-  CourseStudentTable, 
   AttendanceRecordTable,
   AddStudentForm
 } from '../../../components/Admin';
+import { CourseStudentTable } from '../../../components/Shared';
 import { usePagination, useSorting } from '../../../hooks/common';
 import { useMessageContext } from '../../../contexts/MessageContext';
 import { STATUS, isActive } from '../../../constants/status';

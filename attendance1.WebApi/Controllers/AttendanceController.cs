@@ -28,6 +28,18 @@ namespace attendance1.WebApi.Controllers
             return StatusCode((int)result.StatusCode, result);
         }
 
-        
+        [HttpPost("getCourseStudentAttendanceRecords")]
+        public async Task<ActionResult<GetStudentAttendanceDataByCourseIdResponseDto>> GetCourseStudentAttendanceRecords([FromBody] DataIdRequestDto requestDto)
+        {
+            var result = await _attendanceService.GetCourseStudentAttendanceRecordsAsync(requestDto);
+            return StatusCode((int)result.StatusCode, result);
+        }
+
+        [HttpPost("markAbsentForUnattended")]
+        public async Task<ActionResult<bool>> MarkAbsentForUnattended([FromBody] CreateAbsentStudentAttendanceRequestDto requestDto)
+        {
+            var result = await _attendanceService.InsertAbsentStudentAttendanceAsync(requestDto);
+            return StatusCode((int)result.StatusCode, result);
+        }
     }
 }

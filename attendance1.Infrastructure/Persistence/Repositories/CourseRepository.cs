@@ -145,6 +145,7 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                 .Where(c => c.CourseId == courseId && c.IsDeleted == false)
                 .Include(c => c.Programme)
                 .Include(c => c.Semester)
+                .Include(c => c.Tutorials)
                 .AsNoTracking()
                 .FirstOrDefaultAsync());
         }
@@ -414,6 +415,16 @@ namespace attendance1.Infrastructure.Persistence.Repositories
             }
         }
 
+        public async Task<int> GetProgrammeIdOfCourseAsync(int courseId)
+        {
+            return await _database.Courses
+                .Where(c => 
+                    c.CourseId == courseId && 
+                    c.IsDeleted == false)
+                .Select(c => c.ProgrammeId)
+                .FirstOrDefaultAsync();
+        }
+
         public async Task<Course> GetCourseDetailsWithStudentsAndTutorialsAsync(int courseId)
         {
             return await ExecuteGetAsync(async () => await _database.Courses
@@ -472,6 +483,18 @@ namespace attendance1.Infrastructure.Persistence.Repositories
         #endregion
         
         #region tutorial CRUD
+        public async Task<List<Tutorial>> GetCourseTutorialsAsync(int courseId)
+        {
+            return await ExecuteGetAsync(async () =>
+            {
+                return await _database.Tutorials
+                    .Where(t => t.CourseId == courseId && t.IsDeleted == false)
+                    .OrderBy(t => t.TutorialName)
+                    .AsNoTracking()
+                    .ToListAsync();
+            });
+        }
+
         public async Task<string> GetTutorialNameByTutorialIdAsync(int tutorialId)
         {
             return await ExecuteGetAsync(async () =>
@@ -601,6 +624,20 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                 .ToListAsync());
         }
 
+        public async Task<List<EnrolledStudent>> GetEnrolledStudentsAsync(int courseId)
+        {
+            return await ExecuteGetAsync(async () =>
+            {
+                return await _database.EnrolledStudents
+                    .Where(s => 
+                        s.CourseId == courseId && 
+                        s.IsDeleted == false)
+                    .Include(s => s.Tutorial)
+                    .AsNoTracking()
+                    .ToListAsync();
+            });
+        }
+
         public async Task<List<UserDetail>> GetAvailableStudentsAsync(int programmeId, int courseId)
         {
             return await ExecuteGetAsync(async () => 
@@ -649,6 +686,26 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                         IsDeleted = false
                     });
                 }
+                await _database.SaveChangesAsync();
+                return true;
+            });
+        }   
+
+        public async Task<bool> AddSingleStudentToCourseAsync(EnrolledStudent student)
+        {
+            return await ExecuteWithTransactionAsync(async () => 
+            {
+                await _database.EnrolledStudents.AddAsync(student);
+                await _database.SaveChangesAsync();
+                return true;
+            });
+        }
+
+        public async Task<bool> AddMultipleStudentsToCourseAsync(List<EnrolledStudent> students)
+        {
+            return await ExecuteWithTransactionAsync(async () =>
+            {
+                await _database.EnrolledStudents.AddRangeAsync(students);
                 await _database.SaveChangesAsync();
                 return true;
             });
@@ -718,5 +775,11 @@ namespace attendance1.Infrastructure.Persistence.Repositories
             });
         }
         #endregion
+
+        
+
+        
+
+        
     }
 }

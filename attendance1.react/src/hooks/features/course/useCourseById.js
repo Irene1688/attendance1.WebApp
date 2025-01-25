@@ -7,12 +7,15 @@ export const useCourseById = () => {
   // states
   const [courseMenuItems, setCourseMenuItems] = useState([]);
   const [activeCourses, setActiveCourses] = useState([]);
+  const [course, setCourse] = useState(null);
   const user = useSelector(state => state.auth.user);
 
   // hooks
   const { loading, handleApiCall } = useApiExecutor();
 
   // operations
+  // fetch active course of a lecturer 
+  // fetch name and id only
   const fetchActiveCoursesMenuItems = useCallback(async () => {
     if (!user?.campusId) return;
 
@@ -33,6 +36,8 @@ export const useCourseById = () => {
     );
   }, [handleApiCall, user?.campusId]);
 
+  // fetch active course of a lecturer 
+  // fetch basic info of the course
   const fetchActiveCourses = useCallback(async () => {
     if (!user?.campusId) return;
 
@@ -58,14 +63,33 @@ export const useCourseById = () => {
     );
   }, [handleApiCall, user?.campusId]);
 
+  // fetch all details of a course
+  const fetchCourseById = useCallback(async (id) => {
+    if (!id) return;
+
+    const requestDto = {
+      idInInteger: id
+    };
+
+    return await handleApiCall(
+      () => courseApi.getCourseDetailsById(requestDto),
+      (response) => {
+        setCourse(response);
+        return response;
+      }
+    );
+  }, [handleApiCall]);
+
   return {
     // states
     courseMenuItems,
     activeCourses,
+    course,
     loading,
 
     // operations
     fetchActiveCoursesMenuItems,
-    fetchActiveCourses
+    fetchActiveCourses,
+    fetchCourseById
   };
 }; 

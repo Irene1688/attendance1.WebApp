@@ -16,6 +16,7 @@ namespace attendance1.Domain.Interfaces
         Task<int> GetTotalCourseAsync(string searchTerm = "", Dictionary<string, object>? filters = null);
         Task<List<Course>> GetActiveCourseSelectionByLecturerIdAsync(string lecturerId);
         Task<Course> GetCourseDetailsAsync(int courseId);
+        Task<int> GetProgrammeIdOfCourseAsync(int courseId);
         Task<int> CreateNewCourseAsync(Course course, CourseSemester semester, List<Tutorial> tutorials, List<EnrolledStudent> students);
         Task<bool> EditCourseAsync(Course course, CourseSemester semester);
         Task<bool> EditCourseTutorialsAsync(int courseId, List<Tutorial> tutorials);
@@ -36,6 +37,7 @@ namespace attendance1.Domain.Interfaces
         #endregion
 
         #region tutorial CRUD
+        Task<List<Tutorial>> GetCourseTutorialsAsync(int courseId);
         Task<string> GetTutorialNameByTutorialIdAsync(int tutorialId);
         Task<bool> CreateNewTutorialAsync(Tutorial tutorial);
         Task<bool> EditTutorialAsync(Tutorial tutorial);
@@ -51,13 +53,19 @@ namespace attendance1.Domain.Interfaces
             string searchTerm = "", 
             string orderBy = "studentid", 
             bool isAscending = true);
+        Task<List<EnrolledStudent>> GetEnrolledStudentsAsync(int courseId);
         Task<List<UserDetail>> GetAvailableStudentsAsync(int programmeId, int courseId);
         Task<bool> AddStudentsToCourseByUserIdAsync(int courseId, int tutorialId, List<int> studentUserIds);
+        Task<bool> AddSingleStudentToCourseAsync(EnrolledStudent student);
+        Task<bool> AddMultipleStudentsToCourseAsync(List<EnrolledStudent> students);
         Task<bool> AddStudentToClassAsync(int courseId, List<EnrolledStudent> students);
         Task<bool> AddStudentToTutorialAsync(int tutorialId, int courseId, List<string> studentIdList);
         Task<bool> RemoveStudentFromClassAsync(int courseId, List<string> studentIdList);
         Task<bool> RemoveStudentFromTutorialAsync(int tutorialId, int courseId, List<string> studentIdList);
         #endregion
        
+        
+        
+        
     }
 }

@@ -12,25 +12,47 @@ namespace attendance1.Application.Services
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
 
-        public async Task<Result<bool>> CreateMultipleStudentAccountsAsync(List<CreateAccountRequestDto> requestDto)
+        public async Task<Result<bool>> CreateSingleStudentAccountsAsync(CreateAccountRequestDto requestDto)
         {
             return await ExecuteAsync(
                 async () =>
                 {
-                    var existedStudentIds = await _userRepository.GetAllExistedStudentIdAsync();
+                    var newStudentAccount = new UserDetail
+                    {
+                        StudentId = requestDto.CampusId,
+                        UserName = requestDto.Name,
+                        Email = requestDto.Email,
+                        UserPassword = BCrypt.Net.BCrypt.HashPassword(requestDto.Password),
+                        AccRole = AccRoleEnum.Student.ToString(),
+                        ProgrammeId = requestDto.ProgrammeId,
+                        IsDeleted = false
+                    };
+                    return await _userRepository.CreateUserAsync(newStudentAccount);
+                },
+                "Failed to create student account"
+            );
+        }
+        public async Task<Result<bool>> CreateMultipleStudentAccountsAsync(List<CreateAccountRequestDto> requestDto, int programmeId)
+        {
+            return await ExecuteAsync(
+                async () =>
+                {
+                    var existedStudentIds = await _userRepository.GetAllExistedStudentIdinProgrammeAsync(programmeId);
                     
                     var newStudents = requestDto.Where(student => !existedStudentIds.Contains(student.CampusId))
                         .ToList();
-                    var accountToCreate = newStudents.Select(student => new UserDetail
+                    var accountToBeCreate = newStudents.Select(student => new UserDetail
                     {
                         StudentId = student.CampusId,
                         UserName = student.Name,
                         Email = student.Email,
                         UserPassword = BCrypt.Net.BCrypt.HashPassword(student.Password),
-                        AccRole = AccRoleEnum.Student.ToString()
+                        AccRole = AccRoleEnum.Student.ToString(),
+                        ProgrammeId = programmeId,
+                        IsDeleted = false
                     }).ToList();
 
-                    return await _userRepository.CreateMultipleUserAsync(accountToCreate);
+                    return await _userRepository.CreateMultipleUserAsync(accountToBeCreate);
                 },
                 "Failed to create student account"
             );

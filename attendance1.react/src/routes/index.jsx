@@ -13,7 +13,7 @@ import {
   CourseDetail,
   CourseFormPage
 } from '../pages/admin';
-import { TakeAttendance, CodePage } from '../pages/lecturer';
+import { TakeAttendance, CodePage, LecturerCourseDetail } from '../pages/lecturer';
 import Profile from '../pages/Shared/Profile';
 
 export const router = createBrowserRouter([
@@ -94,6 +94,10 @@ export const router = createBrowserRouter([
       {
         path: 'take-attendance',
         element: <TakeAttendance />
+      },
+      {
+        path: 'classes/:id',
+        element: <LecturerCourseDetail />
       },
       {
         path: 'profile',

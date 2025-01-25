@@ -12,7 +12,8 @@ import {
   PromptMessage,
   Loader 
 } from '../../components/Common';
-import { AdminHeader, ProfileForm } from '../../components/Admin';
+import { AdminHeader } from '../../components/Admin';
+import { ProfileForm } from '../../components/Shared';
 import { useAuth } from '../../hooks/auth';
 import { useMessageContext } from '../../contexts/MessageContext';
 

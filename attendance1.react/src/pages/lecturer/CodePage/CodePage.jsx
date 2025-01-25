@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { 
   Box, 
   Typography, 
@@ -7,8 +7,10 @@ import {
   Divider,
   useTheme
 } from '@mui/material';
-import { TextButton } from '../../../components/Common';
+import { TextButton, Loader } from '../../../components/Common';
 import { styles } from './CodePage.styles';
+import { useAttendanceManagement } from '../../../hooks/features';
+import { useMessageContext } from '../../../contexts/MessageContext';
 
 const CodePage = () => {
   const theme = useTheme();
@@ -19,7 +21,10 @@ const CodePage = () => {
   const courseInfo = location.state.courseInfo;
   const [timeLeft, setTimeLeft] = useState(0);
   const [progress, setProgress] = useState(100);
-  
+  const { loading, markAbsentForUnattendedStudents } = useAttendanceManagement();
+  const { showSuccessMessage } = useMessageContext();
+  const [countdownStarted, setCountdownStarted] = useState(false);
+
   // calculate the total time and remaining time
   const calculateTimes = () => {
     if (!attendanceCode) return { totalTime: 0, remainingTime: 0 };
@@ -92,6 +97,22 @@ const CodePage = () => {
     const totalSeconds = Math.floor(duration / 1000);
     return `${totalSeconds} sec`;
   };
+
+  // 处理倒计时结束
+  const handleCountdownComplete = useCallback(async () => {
+    // mark absent for unattended students
+    const success = await markAbsentForUnattendedStudents( courseInfo.courseId, attendanceCode.codeId);
+    if (success) {
+      showSuccessMessage('Attendance session completed');
+    }
+  }, [attendanceCode.codeId, courseInfo.courseId, timeLeft]);
+
+  useEffect(() => {
+    if (timeLeft > 0) setCountdownStarted(true);
+    if (countdownStarted && timeLeft === 0) handleCountdownComplete();
+  }, [timeLeft, handleCountdownComplete, countdownStarted]);
+
+  if (loading) return <Loader message="Processing attendance session..." />;
 
   return (
     <Box

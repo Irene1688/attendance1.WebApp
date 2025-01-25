@@ -240,11 +240,13 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                 .ToListAsync());
         }
 
-        public async Task<List<string>> GetAllExistedStudentIdAsync()
+        public async Task<List<string>> GetAllExistedStudentIdinProgrammeAsync(int programmeId)
         {
             return await ExecuteGetAsync(async () => await _database.UserDetails
-                .Where(u => u.AccRole == AccRoleEnum.Student.ToString() 
-                    && u.IsDeleted == false)
+                .Where(u => 
+                    u.AccRole == AccRoleEnum.Student.ToString() && 
+                    u.IsDeleted == false &&
+                    u.ProgrammeId == programmeId)
                 .Select(u => u.StudentId ?? string.Empty)
                 .ToListAsync());
         }

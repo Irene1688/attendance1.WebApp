@@ -93,6 +93,20 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                 .AsNoTracking()
                 .ToListAsync());
         }
+
+        public async Task<List<AttendanceRecord>> GetCourseStudentAttendanceRecordsAsync(int courseId)
+        {
+            return await ExecuteGetAsync(async () =>
+            {
+                return await _database.AttendanceRecords
+                    .Where(r => r.CourseId == courseId)
+                    .Include(r => r.Tutorial)
+                    .OrderByDescending(r => r.Date)
+                    .ThenBy(r => r.StartTime)
+                    .AsNoTracking()
+                    .ToListAsync();
+            });
+        }
         #endregion
         
         #region lecturer: attendace CRUD
@@ -140,6 +154,7 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                         RecordId = attendanceCodeId,
                         StudentId = s.StudentId,
                         IsPresent = false,
+                        Device = null,
                         Remark = $"Absent for {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}"
                     })
                     .ToListAsync();

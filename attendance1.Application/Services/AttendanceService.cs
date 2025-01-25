@@ -3,13 +3,15 @@ namespace attendance1.Application.Services
     public class AttendanceService : BaseService, IAttendanceService
     {
         private readonly IAttendanceRepository _attendanceRepository;
+        private readonly ICourseRepository _courseRepository;
         private readonly IValidateService _validateService;
 
-        public AttendanceService(ILogger<AttendanceService> logger, IValidateService validateService, IAttendanceRepository attendanceRepository, LogContext logContext)
+        public AttendanceService(ILogger<AttendanceService> logger, IValidateService validateService, IAttendanceRepository attendanceRepository, ICourseRepository courseRepository, LogContext logContext)
             : base(logger, logContext)
         {
             _validateService = validateService ?? throw new ArgumentNullException(nameof(validateService));
             _attendanceRepository = attendanceRepository ?? throw new ArgumentNullException(nameof(attendanceRepository));
+            _courseRepository = courseRepository ?? throw new ArgumentNullException(nameof(courseRepository));
         }
 
         private string GenerateRandomAttendanceCode()
@@ -18,6 +20,7 @@ namespace attendance1.Application.Services
             return random.Next(100000, 999999).ToString();
         }
 
+        // admin's page: class details
         public async Task<Result<PaginatedResult<GetAttendanceRecordByCourseIdResponseDto>>> GetAttendanceRecordByCourseIdAsync(GetAttendanceRecordByCourseIdRequestDto requestDto)
         {
             return await ExecuteAsync(async () =>
@@ -146,7 +149,7 @@ namespace attendance1.Application.Services
                 );
 
                 return paginatedResult;
-            }, "Failed to get attendance record by course ID");
+            }, "Failed to get attendance record");
         }
 
         public async Task<Result<GetAttendanceCodeResponseDto>> GenerateAttendanceCodeAsync(CreateAttendanceCodeRequestDto requestDto)
@@ -176,12 +179,97 @@ namespace attendance1.Application.Services
 
                     return new GetAttendanceCodeResponseDto
                     {
+                        CodeId = code.RecordId,
                         AttendanceCode = code.AttendanceCode,
                         StartTime = code.StartTime ?? TimeOnly.MinValue,
                         EndTime = code.EndTime ?? TimeOnly.MinValue,
                     };
                 },
                 $"Error occurred while generating attendance code for the class"
+            );
+        }
+
+        // lecturer's page: class attendance management
+        public async Task<Result<GetStudentAttendanceDataByCourseIdResponseDto>> GetCourseStudentAttendanceRecordsAsync(DataIdRequestDto requestDto)
+        {
+            if (!await _validateService.ValidateCourseAsync(requestDto.IdInInteger ?? 0))
+                throw new KeyNotFoundException("This class does not exist.");
+
+            return await ExecuteAsync(async () =>
+            {
+                // 获取课程信息和考勤记录
+                var records = await _attendanceRepository.GetCourseStudentAttendanceRecordsAsync(requestDto.IdInInteger ?? 0);
+                if (records == null || !records.Any())
+                    records = new List<AttendanceRecord>();
+
+                var attendances = await _attendanceRepository.GetAttendanceDataByCourseIdAsync(requestDto.IdInInteger ?? 0);
+                if (attendances == null || !attendances.Any())
+                    attendances = new List<StudentAttendance>();
+
+                // 获取学生列表
+                var students = await _courseRepository.GetEnrolledStudentsAsync(requestDto.IdInInteger ?? 0);
+                if (students == null)
+                    students = new List<EnrolledStudent>();
+
+                // 获取教程组信息
+                var tutorials = await _courseRepository.GetCourseTutorialsAsync(requestDto.IdInInteger ?? 0);
+
+                // 构建响应
+                var response = new GetStudentAttendanceDataByCourseIdResponseDto
+                {
+                    Records = records.Select(r => new AttendanceRecordDto
+                    {
+                        RecordId = r.RecordId,
+                        Date = r.Date,
+                        StartTime = r.StartTime?.ToString("HH:mm:ss") ?? "00:00:00",
+                        EndTime = r.EndTime?.ToString("HH:mm:ss") ?? "00:00:00",
+                        IsLecture = r.IsLecture,
+                        TutorialId = r.TutorialId,
+                        TutorialName = r.Tutorial?.TutorialName ?? string.Empty,
+                        Attendances = attendances
+                            .Where(a => a.RecordId == r.RecordId)
+                            .Select(a => new StudentAttendanceStatusDto
+                            {
+                                StudentId = a.StudentId,
+                                IsPresent = a.IsPresent
+                            }).ToList()
+                    }).ToList(),
+
+                    Students = students.Select(s => new StudentAttendanceDto
+                    {
+                        StudentId = s.StudentId,
+                        StudentName = s.StudentName,
+                        TutorialId = s.TutorialId,
+                        TutorialName = s.Tutorial?.TutorialName ?? string.Empty
+                    }).ToList(),
+
+                    Tutorials = tutorials.Select(t => new TutorialDto
+                    {
+                        TutorialId = t.TutorialId,
+                        TutorialName = t.TutorialName ?? string.Empty
+                    }).ToList(),
+
+                    Total = students.Count
+                };
+
+                return response;
+            }, "Failed to get class attendance records");
+        }
+
+        public async Task<Result<bool>> InsertAbsentStudentAttendanceAsync(CreateAbsentStudentAttendanceRequestDto requestDto)
+        {
+            return await ExecuteAsync(
+                async () =>
+                {
+                    if (!await _validateService.ValidateCourseAsync(requestDto.CourseId))
+                        throw new KeyNotFoundException("This class does not exist.");
+
+                    if (!await _validateService.ValidateAttendanceCodeAsync(requestDto.AttendanceCodeId))
+                        throw new KeyNotFoundException("This attendance code does not exist.");
+
+                    return await _attendanceRepository.InsertAbsentStudentAttendanceAsync(requestDto.CourseId, requestDto.AttendanceCodeId);
+                },
+                $"Error occurred while inserting absent student attendance data"
             );
         }
     }

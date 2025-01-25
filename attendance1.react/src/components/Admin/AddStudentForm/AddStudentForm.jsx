@@ -120,31 +120,31 @@ const AddStudentForm = ({
     <>
       <DialogTitle>Add Students to Class</DialogTitle>
       <DialogContent sx={themedStyles.dialogContent}>
-        {message.show && message.severity === 'error' && (
-          <PromptMessage
-            open={true}
-            message={message.text}
-            severity={message.severity}
-            onClose={hideMessage}
+            {message.show && message.severity === 'error' && (
+                <PromptMessage
+                  open={true}
+                  message={message.text}
+                  severity={message.severity}
+                  onClose={hideMessage}
             sx={{ mb: 2 }}
             scrollToTop={false}
-          />
-        )}
-        
-        <TextField
+                />
+            )}
+            
+              <TextField
           select
-          fullWidth
-          label="Tutorial Session"
-          value={selectedTutorial}
-          onChange={(e) => setSelectedTutorial(e.target.value)}
+                fullWidth
+                label="Tutorial Session"
+                value={selectedTutorial}
+                onChange={(e) => setSelectedTutorial(e.target.value)}
           sx={themedStyles.tutorialSelect}
-        >
-          {tutorials.map((tutorial) => (
-            <MenuItem key={tutorial.tutorialId} value={tutorial.tutorialId}>
+              >
+                {tutorials.map((tutorial) => (
+                  <MenuItem key={tutorial.tutorialId} value={tutorial.tutorialId}>
               {tutorial.tutorialName}
-            </MenuItem>
-          ))}
-        </TextField>
+                  </MenuItem>
+                ))}
+              </TextField>
 
         <Grid container spacing={2}>
           {/* Search and Available Students List */}
@@ -212,24 +212,24 @@ const AddStudentForm = ({
             </Grid>
           )}
         </Grid>
-      </DialogContent>
+          </DialogContent>
       <DialogActions sx={themedStyles.dialogActions}>
-        <TextButton 
+            <TextButton 
           onClick={handleClose}
-          variant="text"
-          color="cancel"
-        >
-          Cancel
-        </TextButton>
-        <TextButton 
+              variant="text"
+              color="cancel"
+            >
+              Cancel
+            </TextButton>
+            <TextButton 
           onClick={handleSubmit}
-          variant="contained"
-          color="primary"
+              variant="contained"
+              color="primary"
           disabled={loading || loadingStudents || !selectedTutorial || selectedStudents.length === 0}
-        >
-          {loading ? 'Adding...' : 'Add Students'}
-        </TextButton>
-      </DialogActions>
+            >
+              {loading ? 'Adding...' : 'Add Students'}
+            </TextButton>
+          </DialogActions>
     </>
   );
 };

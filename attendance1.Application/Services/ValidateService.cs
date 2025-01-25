@@ -111,6 +111,20 @@ namespace attendance1.Application.Services
             return true;
         }
 
+        public async Task<bool> HasStudentInTheCourseAsync(int courseId, string studentId)
+        {
+            if (courseId <= 0)
+                throw new InvalidOperationException("The course ID is required");
+            if (string.IsNullOrEmpty(studentId))
+                throw new InvalidOperationException("The student ID is required");
+
+            var studentExists = await _courseRepository.HasStudentEnrolledInCourseAsync(studentId, courseId);
+            if (!studentExists)
+                return false;
+
+            return true;
+        }
+
         public async Task<bool> ValidateTutorialAsync(int tutorialId, int courseId)
         {
             if (tutorialId <= 0 || courseId <= 0)

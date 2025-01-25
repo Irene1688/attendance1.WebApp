@@ -50,6 +50,7 @@ export const useEnrolledStudentManagement = () => {
         );
     }, [handleApiCall]);
 
+    // by admin
     const addStudentToCourse = useCallback(async (id, values) => {
         const requestDto = {
             courseId: Number(id) || 0,
@@ -59,6 +60,29 @@ export const useEnrolledStudentManagement = () => {
         };
         return await handleApiCall(
             () => courseApi.addStudentToCourseAndTutorial(requestDto),
+            () => true
+        );
+    }, [handleApiCall]);
+
+    const addSingleStudentToCourse = useCallback(async (id, values) => {
+        const requestDto = {
+            courseId: Number(id),
+            studentId: values.data.studentId,
+            tutorialId: Number(values.data.tutorialId),
+            studentName: values.data.studentName
+        };
+        return await handleApiCall(
+            () => courseApi.addSingleStudentToCourse(requestDto),
+            () => true
+        );
+    }, [handleApiCall]);
+
+    const addStudentsToCourseByCSV = useCallback(async (id, formData) => {
+        if (!formData.has('CourseId')) {
+            formData.append('CourseId', id);
+        }
+        return await handleApiCall(
+            () => courseApi.addStudentsByCsvToCourse(formData),
             () => true
         );
     }, [handleApiCall]);
@@ -85,6 +109,8 @@ export const useEnrolledStudentManagement = () => {
     fetchEnrolledStudents,
     fetchAvailableStudents,
     addStudentToCourse,
+    addSingleStudentToCourse,
+    addStudentsToCourseByCSV,
     removeStudentFromCourse
   }
 }

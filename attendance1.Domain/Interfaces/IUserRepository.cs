@@ -36,7 +36,7 @@ namespace attendance1.Domain.Interfaces
             string orderBy = "studentname",
             bool isAscending = true
         );
-        Task<List<string>> GetAllExistedStudentIdAsync();
+        Task<List<string>> GetAllExistedStudentIdinProgrammeAsync(int programmeId);
         Task<UserDetail> GetUserByCampusIdAsync(string role, string campusId);
         Task<bool> CreateUserAsync(UserDetail userDetail);
         Task<bool> CreateMultipleUserAsync(List<UserDetail> userDetails);

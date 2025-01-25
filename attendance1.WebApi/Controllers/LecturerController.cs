@@ -16,12 +16,12 @@
 
         
 
-        [HttpPost("getClassDetails")]
-        public async Task<ActionResult<GetClassDetailsResponseDto>> GetClassDetails([FromBody] DataIdRequestDto requestDto)
-        {
-            var classDetails = await _lectureService.GetClassDetailsAsync(requestDto);
-            return StatusCode((int)classDetails.StatusCode, classDetails);
-        }
+        //[HttpPost("getClassDetails")]
+        //public async Task<ActionResult<GetClassDetailsResponseDto>> GetClassDetails([FromBody] DataIdRequestDto requestDto)
+        //{
+        //    var classDetails = await _lectureService.GetClassDetailsAsync(requestDto);
+        //    return StatusCode((int)classDetails.StatusCode, classDetails);
+        //}
 
         [HttpPost("getClassDetailsWithAttendanceData")]
         public async Task<ActionResult<GetClassDetailsWithAttendanceDataResponseDto>> GetClassDetailsWithAttendanceData([FromBody] DataIdRequestDto requestDto)
@@ -65,12 +65,12 @@
         //     return StatusCode((int)students.StatusCode, students);
         // }
 
-        [HttpPost("addStudentToClass")]
-        public async Task<ActionResult<bool>> AddStudentToClass([FromBody] AddStudentToClassRequestDto requestDto)
-        {
-            var result = await _lectureService.AddStudentToClassAsync(requestDto);
-            return StatusCode((int)result.StatusCode, result);
-        }
+        //[HttpPost("addStudentToClass")]
+        //public async Task<ActionResult<bool>> AddStudentToClass([FromBody] AddStudentToClassRequestDto requestDto)
+        //{
+        //    var result = await _lectureService.AddStudentToClassAsync(requestDto);
+        //    return StatusCode((int)result.StatusCode, result);
+        //}
 
         // [HttpPost("removeStudentFromClass")]
         // public async Task<ActionResult<bool>> RemoveStudentFromClass([FromBody] RemoveStudentFromClassRequestDto requestDto)
@@ -116,12 +116,12 @@
 
         
 
-        [HttpPost("insertAbsentStudentAttendance")]
-        public async Task<ActionResult<bool>> InsertAbsentStudentAttendance([FromBody] CreateAbsentStudentAttendanceRequestDto requestDto)
-        {
-            var result = await _lectureService.InsertAbsentStudentAttendanceAsync(requestDto);
-            return StatusCode((int)result.StatusCode, result);
-        }
+        //[HttpPost("insertAbsentStudentAttendance")]
+        //public async Task<ActionResult<bool>> InsertAbsentStudentAttendance([FromBody] CreateAbsentStudentAttendanceRequestDto requestDto)
+        //{
+        //    var result = await _lectureService.InsertAbsentStudentAttendanceAsync(requestDto);
+        //    return StatusCode((int)result.StatusCode, result);
+        //}
 
         [HttpPost("editAttendanceData")]
         public async Task<ActionResult<bool>> EditAttendanceData([FromBody] EditAttendanceDataRequestDto requestDto)

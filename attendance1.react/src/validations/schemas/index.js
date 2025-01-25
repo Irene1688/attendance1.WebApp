@@ -5,3 +5,4 @@ export { lecturerValidationSchema } from './lecturerValidation';
 export { studentValidationSchema } from './studentValidation';
 export { courseValidationSchema } from './courseValidation';
 export { profileValidationSchema } from './profileValidation';
+export { singleStudentSchema } from './addSingleStudentValidation';

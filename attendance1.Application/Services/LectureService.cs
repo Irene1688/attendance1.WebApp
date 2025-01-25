@@ -114,42 +114,42 @@
             return weeks;
         }
         #endregion
-        
+
 
         #region class CRUD
-        public async Task<Result<GetClassDetailsResponseDto>> GetClassDetailsAsync(DataIdRequestDto requestDto)
-        {
-            if (!await _validateService.ValidateCourseAsync(requestDto.IdInInteger ?? 0))
-                return Result<GetClassDetailsResponseDto>.FailureResult($"This class does not exist.", HttpStatusCode.NotFound);
+        // public async Task<Result<GetClassDetailsResponseDto>> GetClassDetailsAsync(DataIdRequestDto requestDto)
+        // {
+        //     if (!await _validateService.ValidateCourseAsync(requestDto.IdInInteger ?? 0))
+        //         return Result<GetClassDetailsResponseDto>.FailureResult($"This class does not exist.", HttpStatusCode.NotFound);
 
-            return await ExecuteAsync(
-                async () =>
-                {
-                    var classDetails = await _courseRepository.GetCourseDetailsAsync(requestDto.IdInInteger ?? 0);
-                    return new GetClassDetailsResponseDto 
-                    {
-                        CourseId = classDetails.CourseId,
-                        CourseCode = classDetails.CourseCode,
-                        CourseName = classDetails.CourseName,
-                        CourseSession = classDetails.CourseSession,
-                        ClassDay = classDetails.ClassDay ?? string.Empty,
-                        Programme = new ProgrammeDto
-                        {
-                            ProgrammeId = classDetails.Programme.ProgrammeId,
-                            ProgrammeName = classDetails.Programme.ProgrammeName
-                        },
-                        Semester = new SemesterDto
-                        {
-                            SemesterId = classDetails.Semester.SemesterId,
-                            StartDate = classDetails.Semester.StartWeek,
-                            EndDate = classDetails.Semester.EndWeek
-                        }
-                    };
-                },
-                $"Error occurred while getting the class details"
-            );
-        }
-        
+        //     return await ExecuteAsync(
+        //         async () =>
+        //         {
+        //             var classDetails = await _courseRepository.GetCourseDetailsAsync(requestDto.IdInInteger ?? 0);
+        //             return new GetClassDetailsResponseDto 
+        //             {
+        //                 CourseId = classDetails.CourseId,
+        //                 CourseCode = classDetails.CourseCode,
+        //                 CourseName = classDetails.CourseName,
+        //                 CourseSession = classDetails.CourseSession,
+        //                 ClassDay = classDetails.ClassDay ?? string.Empty,
+        //                 Programme = new ProgrammeDto
+        //                 {
+        //                     ProgrammeId = classDetails.Programme.ProgrammeId,
+        //                     ProgrammeName = classDetails.Programme.ProgrammeName
+        //                 },
+        //                 Semester = new SemesterDto
+        //                 {
+        //                     SemesterId = classDetails.Semester.SemesterId,
+        //                     StartDate = classDetails.Semester.StartWeek,
+        //                     EndDate = classDetails.Semester.EndWeek
+        //                 }
+        //             };
+        //         },
+        //         $"Error occurred while getting the class details"
+        //     );
+        // }
+
         public async Task<Result<DataIdResponseDto>> CreateNewClassAsync(CreateClassRequestDto requestDto)
         {
             if (!await _validateService.ValidateLecturerAsync(requestDto.LecturerId))
@@ -174,7 +174,7 @@
                     var semester = new CourseSemester
                     {
                         StartWeek = requestDto.Semester.StartDate,
-                        EndWeek = requestDto.Semester.EndDate   
+                        EndWeek = requestDto.Semester.EndDate
                     };
 
                     // process tutorial
@@ -201,26 +201,26 @@
                         Password = studentId.ToLower(),
                         Role = AccRoleEnum.Student
                     }).ToList();
-                    var createAccountTask = await _userService.CreateMultipleStudentAccountsAsync(studentAccounts);
+                    var createAccountTask = await _userService.CreateMultipleStudentAccountsAsync(studentAccounts, requestDto.ProgrammeId);
                     if (!createAccountTask.Success)
                         throw new Exception("Failed to create students' accounts.");
 
                     // process student: add students to course
-                    var students = studentIdList.Select(studentId => new EnrolledStudent 
-                    { 
+                    var students = studentIdList.Select(studentId => new EnrolledStudent
+                    {
                         StudentId = studentId,
                         StudentName = studentNameList[studentIdList.IndexOf(studentId)],
                         IsDeleted = false,
                     }).ToList();
-                    
+
                     var courseId = await _courseRepository.CreateNewCourseAsync(course, semester, tutorials, students);
                     if (courseId <= 0)
                     {
                         throw new Exception("Failed to create a new course.");
                     }
 
-                    return new DataIdResponseDto 
-                    {   
+                    return new DataIdResponseDto
+                    {
                         Id = courseId,
                         Name = course.CourseName
                     };
@@ -584,22 +584,22 @@
             );
         }
 
-        public async Task<Result<bool>> InsertAbsentStudentAttendanceAsync(CreateAbsentStudentAttendanceRequestDto requestDto)
-        {
-            if (!await _validateService.ValidateCourseAsync(requestDto.CourseId))
-                return Result<bool>.FailureResult($"This class does not exist.", HttpStatusCode.NotFound);
+        // public async Task<Result<bool>> InsertAbsentStudentAttendanceAsync(CreateAbsentStudentAttendanceRequestDto requestDto)
+        // {
+        //     if (!await _validateService.ValidateCourseAsync(requestDto.CourseId))
+        //         return Result<bool>.FailureResult($"This class does not exist.", HttpStatusCode.NotFound);
 
-            if (!await _validateService.ValidateAttendanceCodeAsync(requestDto.AttendanceCodeId))
-                return Result<bool>.FailureResult($"This attendance code does not exist.", HttpStatusCode.NotFound);
+        //     if (!await _validateService.ValidateAttendanceCodeAsync(requestDto.AttendanceCodeId))
+        //         return Result<bool>.FailureResult($"This attendance code does not exist.", HttpStatusCode.NotFound);
 
-            return await ExecuteAsync(
-                async () =>
-                {
-                    return await _attendanceRepository.InsertAbsentStudentAttendanceAsync(requestDto.CourseId, requestDto.AttendanceCodeId);
-                },
-                $"Error occurred while inserting absent student attendance data"
-            );
-        }
+        //     return await ExecuteAsync(
+        //         async () =>
+        //         {
+        //             return await _attendanceRepository.InsertAbsentStudentAttendanceAsync(requestDto.CourseId, requestDto.AttendanceCodeId);
+        //         },
+        //         $"Error occurred while inserting absent student attendance data"
+        //     );
+        // }
 
         public async Task<Result<bool>> ChangeAttendanceDataOfStudentAsync(EditAttendanceDataRequestDto requestDto)
         {

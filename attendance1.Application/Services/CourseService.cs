@@ -3,6 +3,7 @@ namespace attendance1.Application.Services
     public class CourseService : BaseService, ICourseService
     {
         private readonly IValidateService _validateService;
+        private readonly IUserService _userService;
         private readonly ICourseRepository _courseRepository;
         private readonly IUserRepository _userRepository;
         private readonly IAttendanceRepository _attendanceRepository;
@@ -10,6 +11,7 @@ namespace attendance1.Application.Services
         public CourseService(
             ILogger<CourseService> logger, 
             IValidateService validateService, 
+            IUserService userService,
             ICourseRepository courseRepository, 
             IUserRepository userRepository, 
             IAttendanceRepository attendanceRepository, 
@@ -19,8 +21,69 @@ namespace attendance1.Application.Services
             _validateService = validateService ?? throw new ArgumentNullException(nameof(validateService));
             _courseRepository = courseRepository ?? throw new ArgumentNullException(nameof(courseRepository));
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+            _userService = userService ?? throw new ArgumentNullException(nameof(userService));
             _attendanceRepository = attendanceRepository ?? throw new ArgumentNullException(nameof(attendanceRepository));
         }
+
+        private async Task<(List<string>, List<string>, List<string>)> ProcessStudentListCsvFile(IFormFile file)
+        {
+            var studentIdList = new List<string>();
+            var studentNameList = new List<string>();
+            var tutorialNameList = new List<string>();
+
+            using (var reader = new StreamReader(file.OpenReadStream()))
+            {
+                // 跳过标题行
+                var headerLine = await reader.ReadLineAsync();
+                if (headerLine == null)
+                    throw new InvalidOperationException("CSV file is empty");
+
+                // 验证标题行
+                var headers = headerLine.Split(',')
+                    .Select(h => h.Trim().ToLower())
+                    .ToList();
+                
+                if (!headers.Contains("studentid") || !headers.Contains("studentname") || !headers.Contains("tutorialname"))
+                    throw new InvalidOperationException("CSV file must contain columns: studentId, studentName, tutorialName");
+
+                // 读取数据行
+                string line;
+                int rowNumber = 2; // 从第2行开始计数
+                while ((line = await reader.ReadLineAsync()) != null)
+                {
+                    if (string.IsNullOrWhiteSpace(line)) continue;
+
+                    var values = line.Split(',')
+                        .Select(v => v.Trim())
+                        .ToList();
+
+                    if (values.Count != headers.Count)
+                        throw new InvalidOperationException($"Invalid data format at row {rowNumber}");
+
+                    // 获取列索引
+                    var studentIdIndex = headers.IndexOf("studentid");
+                    var studentNameIndex = headers.IndexOf("studentname");
+                    var tutorialNameIndex = headers.IndexOf("tutorialname");
+
+                    // 验证学生ID格式
+                    var studentId = values[studentIdIndex];
+                    if (!Regex.IsMatch(studentId, @"^[A-Z]{3}[0-9]{8}$"))
+                        throw new InvalidOperationException($"Invalid student ID format at row {rowNumber}: {studentId}");
+
+                    studentIdList.Add(studentId);
+                    studentNameList.Add(values[studentNameIndex]);
+                    tutorialNameList.Add(values[tutorialNameIndex]);
+                    rowNumber++;
+                }
+            }
+
+            if (!studentIdList.Any())
+                throw new InvalidOperationException("No valid student records found in CSV file");
+            
+            return (studentIdList, studentNameList, tutorialNameList);
+        }
+
+        
 
         #region Course CRUD
         public async Task<Result<bool>> CreateNewCourseAsync(CreateCourseRequestDto requestDto)
@@ -178,6 +241,46 @@ namespace attendance1.Application.Services
                     return response;
                 },
                 $"Error occurred while getting the classes of lecturer {requestDto.IdInString}"
+            );
+        }
+
+        public async Task<Result<GetCourseDetailsResponseDto>> GetCourseDetailsAsync(DataIdRequestDto requestDto)
+        {
+            return await ExecuteAsync(
+                async () =>
+                {
+                    if (!await _validateService.ValidateCourseAsync(requestDto.IdInInteger ?? 0))
+                        throw new KeyNotFoundException("Class not found");
+
+                    var classDetails = await _courseRepository.GetCourseDetailsAsync(requestDto.IdInInteger ?? 0);
+                    return new GetCourseDetailsResponseDto 
+                    {
+                        CourseId = classDetails.CourseId,
+                        CourseCode = classDetails.CourseCode,
+                        CourseName = classDetails.CourseName,
+                        CourseSession = classDetails.CourseSession,
+                        ClassDay = classDetails.ClassDay ?? string.Empty,
+                        Tutorials = classDetails.Tutorials
+                            .Where(t => t.IsDeleted == false)
+                            .Select(t => new TutorialDto
+                            {
+                                TutorialId = t.TutorialId,
+                                TutorialName = t.TutorialName ?? string.Empty
+                            }).ToList(),
+                        Programme = new ProgrammeDto
+                        {
+                            ProgrammeId = classDetails.Programme.ProgrammeId,
+                            ProgrammeName = classDetails.Programme.ProgrammeName
+                        },
+                        Semester = new SemesterDto
+                        {
+                            SemesterId = classDetails.Semester.SemesterId,
+                            StartDate = classDetails.Semester.StartWeek,
+                            EndDate = classDetails.Semester.EndWeek
+                        }
+                    };
+                },
+                $"Error occurred while getting the class details"
             );
         }
 
@@ -350,6 +453,96 @@ namespace attendance1.Application.Services
             }, $"Failed to add students to course");
         }
 
+        public async Task<Result<bool>> AddSingleStudentToCourseAsync(AddStudentToCourseWithoutUserIdRequestDto requestDto)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                if (!await _validateService.ValidateCourseAsync(requestDto.CourseId))
+                    throw new KeyNotFoundException("Class not found");
+                if (!await _validateService.ValidateTutorialAsync(requestDto.TutorialId, requestDto.CourseId))
+                    throw new KeyNotFoundException("Tutorial not found");
+                if (await _validateService.HasStudentInTheCourseAsync(requestDto.CourseId, requestDto.StudentId))
+                    throw new InvalidOperationException("Student already exists in the class");
+
+                if (!await _validateService.ValidateStudentAsync(requestDto.StudentId))
+                {
+                    var programmeId = await _courseRepository.GetProgrammeIdOfCourseAsync(requestDto.CourseId);
+                    var newStudentAccount = new CreateAccountRequestDto
+                    {
+                        CampusId = requestDto.StudentId,
+                        Name = requestDto.StudentName,
+                        ProgrammeId = programmeId,
+                        Email = $"{requestDto.StudentId.ToLower()}@student.uts.edu.my",
+                        Password = requestDto.StudentId.ToLower(),
+                        Role = AccRoleEnum.Student,
+                    };
+                    var createAccountTask = await _userService.CreateSingleStudentAccountsAsync(newStudentAccount);
+                    if (!createAccountTask.Success)
+                        throw new Exception("Failed to create student's account");
+                }
+
+                var newEnrollment = new EnrolledStudent
+                {
+                    CourseId = requestDto.CourseId,
+                    StudentId = requestDto.StudentId,
+                    StudentName = requestDto.StudentName,
+                    TutorialId = requestDto.TutorialId,
+                    IsDeleted = false,
+                };
+                return await _courseRepository.AddSingleStudentToCourseAsync(newEnrollment);
+            }, $"Failed to add student to class");
+        }
+
+        public async Task<Result<bool>> AddStudentsByCsvToCourseAsync(int courseId, IFormFile file)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                if (!await _validateService.ValidateCourseAsync(courseId))
+                    throw new KeyNotFoundException("Class not found");
+                if (file == null || file.Length == 0)
+                    throw new InvalidOperationException("File is empty");
+                    
+                var (studentIdList, studentNameList, tutorialNameList) = await ProcessStudentListCsvFile(file);
+                var programmeId = await _courseRepository.GetProgrammeIdOfCourseAsync(courseId);
+                
+                // process student: create student accounts
+                var studentAccounts = studentIdList.Select(studentId => new CreateAccountRequestDto
+                {
+                    CampusId = studentId,
+                    Name = studentNameList[studentIdList.IndexOf(studentId)],
+                    ProgrammeId = programmeId,
+                    Email = $"{studentId.ToLower()}@student.uts.edu.my",
+                    Password = studentId.ToLower(),
+                    Role = AccRoleEnum.Student
+                }).ToList();
+                var createAccountTask = await _userService.CreateMultipleStudentAccountsAsync(studentAccounts, programmeId);
+                if (!createAccountTask.Success)
+                    throw new Exception("Failed to create students' accounts.");
+
+                // process student: add students to course
+                foreach (var studentId in studentIdList)
+                {
+                    if (await _validateService.HasStudentInTheCourseAsync(courseId, studentId))
+                        throw new InvalidOperationException("Student(s) already exist in the class");
+                }
+
+                var courseTutorials = await _courseRepository.GetCourseTutorialsAsync(courseId);
+                var newEnrollments = studentIdList.Select(studentId => new EnrolledStudent 
+                { 
+                    CourseId = courseId,
+                    StudentId = studentId,
+                    StudentName = studentNameList[studentIdList.IndexOf(studentId)],
+                    TutorialId = courseTutorials
+                        .FirstOrDefault(t => 
+                            t.TutorialName?.Equals(tutorialNameList[studentIdList.IndexOf(studentId)], StringComparison.OrdinalIgnoreCase) == true
+                        )?.TutorialId ?? 0,
+                    IsDeleted = false,
+                }).ToList();
+                
+                return await _courseRepository.AddMultipleStudentsToCourseAsync(newEnrollments);
+            }, $"Failed to add students to class");
+        }
+
         public async Task<Result<bool>> RemoveStudentFromCourseAsync(RemoveStudentFromCourseRequestDto requestDto)
         {
             return await ExecuteAsync(
@@ -370,5 +563,7 @@ namespace attendance1.Application.Services
             );
         }
         #endregion
+
+        
     }
 }

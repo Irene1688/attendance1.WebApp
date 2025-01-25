@@ -46,6 +46,13 @@ namespace attendance1.WebApi.Controllers
             var classes = await _courseService.GetActiveClassesOfLecturerAsync(requestDto);
             return StatusCode((int)classes.StatusCode, classes);
         }
+
+        [HttpPost("getCourseDetailsById")]
+        public async Task<ActionResult<GetCourseDetailsResponseDto>> GetCourseDetails([FromBody] DataIdRequestDto requestDto)
+        {
+            var classDetails = await _courseService.GetCourseDetailsAsync(requestDto);
+            return StatusCode((int)classDetails.StatusCode, classDetails);
+        }
         
         [HttpPost("editCourse")]
         public async Task<ActionResult<bool>> EditCourse([FromBody] EditCourseRequestDto requestDto)
@@ -91,6 +98,20 @@ namespace attendance1.WebApi.Controllers
             return StatusCode((int)result.StatusCode, result);
         }
 
+        [HttpPost("addSingleStudentToCourse")]
+        public async Task<ActionResult<bool>> AddSingleStudentToCourse([FromBody] AddStudentToCourseWithoutUserIdRequestDto requestDto)
+        {
+            var result = await _courseService.AddSingleStudentToCourseAsync(requestDto);
+            return StatusCode((int)result.StatusCode, result);
+        }
+
+        [HttpPost("addStudentsByCsvToCourse")]
+        public async Task<ActionResult<bool>> AddStudentsByCsvToCourse([FromForm] int courseId, [FromForm] IFormFile file)
+        {
+            var result = await _courseService.AddStudentsByCsvToCourseAsync(courseId, file);
+            return StatusCode((int)result.StatusCode, result);
+        }
+
         [HttpPost("removeStudentFromCourse")]
         public async Task<ActionResult<bool>> RemoveStudentFromClass([FromBody] RemoveStudentFromCourseRequestDto requestDto)
         {
@@ -98,6 +119,8 @@ namespace attendance1.WebApi.Controllers
             return StatusCode((int)result.StatusCode, result);
         }
         #endregion
+
+        
 
     }
 }
