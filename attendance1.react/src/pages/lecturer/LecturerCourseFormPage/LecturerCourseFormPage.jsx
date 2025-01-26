@@ -7,28 +7,23 @@ import {
   TextButton 
 } from '../../../components/Common';
 import { CourseForm } from '../../../components/Shared';
-import { 
-    useCourseManagement, 
-    useProgrammeManagement, 
-    useUserManagement } from '../../../hooks/features';
+import { useCourseManagement, useCourseById } from '../../../hooks/features';
 import { useMessageContext } from '../../../contexts/MessageContext';
 import { NUMBER_TO_DAY } from '../../../constants/courseConstant';
 import { USER_ROLES } from '../../../constants/userRoles';
 
-const CourseFormPage = () => {
+const LecturerCourseFormPage = () => {
   const { setPageTitle } = useOutletContext();
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const { message, showSuccessMessage } = useMessageContext();
+  const { loading: sideMenuReloading, fetchActiveCoursesMenuItems } = useCourseById();
   const { 
-    loading, 
+    loading: courseLoading,
     createCourse,
     updateCourse,
   } = useCourseManagement();
-
-  const { programmeSelection, fetchProgrammeSelection } = useProgrammeManagement();
-  const { lecturerSelection, fetchLecturerSelection } = useUserManagement();
 
   // get selected course from state (for edit)
   const selectedCourse = location.state?.course;
@@ -45,43 +40,38 @@ const CourseFormPage = () => {
 
   // Initialize
   useEffect(() => {
-    setPageTitle('Class Form');
-  }, [setPageTitle]);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    fetchProgrammeSelection();
-    fetchLecturerSelection();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+    setPageTitle(id ? 'Edit Class' : 'Add New Class');
+  }, [setPageTitle, id]);
 
   const handleSubmit = async (values, { setSubmitting }) => {
-    const success = id 
-      ? await updateCourse(id, values, USER_ROLES.ADMIN)
-      : await createCourse(values, USER_ROLES.ADMIN);
-
-    if (success) {
-      showSuccessMessage(
-        id 
-        ? 'Class updated successfully. Auto redirecting to class list.' 
-        : 'Class created successfully. Auto redirecting to class list.'
-      );
-      setTimeout(() => {
-        navigate('/admin/courses');
-      }, 3000); 
+    if (id) {
+      const success = await updateCourse(id, values, USER_ROLES.LECTURER)
+      if (success) {
+        await fetchActiveCoursesMenuItems();
+        showSuccessMessage('Class updated successfully. Auto redirecting to class details.');
+        setTimeout(() => {
+          navigate(`/lecturer/classes/${id}`);
+        }, 3000); 
+      }
+    } else {
+      const newCourseId = await createCourse(values, USER_ROLES.LECTURER)
+      if (newCourseId) {
+        await fetchActiveCoursesMenuItems();
+        showSuccessMessage('Class created successfully. Auto redirecting to class details.');
+        setTimeout(() => {
+          navigate(`/lecturer/classes/${newCourseId}`);
+        }, 3000); 
+      }
     }
+
     setSubmitting(false);
   };
 
+  if (courseLoading || sideMenuReloading) return <Loader />;
+
   return (
-    <Box>
-      {loading && <Loader />}
-      
-    {message.show &&(
+    <Box>   
+      {message.show &&(
         <PromptMessage
           open={true}
           message={message.text}
@@ -108,15 +98,13 @@ const CourseFormPage = () => {
             classDay: NUMBER_TO_DAY[Number(t.classDay)]
           })) || []
         } : undefined}
-        userRole={USER_ROLES.ADMIN}
-        programmes={programmeSelection}
-        lecturers={lecturerSelection}
+        userRole={USER_ROLES.LECTURER}
         onSubmit={handleSubmit}
-        onCancel={() => navigate('/admin/courses')}
+        onCancel={() => window.history.back()}
         isEditing={!!id}
       />
     </Box>
   );
 };
 
-export default CourseFormPage; 
+export default LecturerCourseFormPage; 

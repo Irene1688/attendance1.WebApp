@@ -179,7 +179,7 @@ const CourseFilter = ({
                 onChange={handleChange('status')}
               >
                 <MenuItem value="">All Status</MenuItem>
-                {Object.entries(STATUS.toLowerCase()).map(([key, value]) => (
+                {Object.entries(STATUS).map(([key, value]) => (
                   <MenuItem key={key} value={key}>
                     {value}
                   </MenuItem>

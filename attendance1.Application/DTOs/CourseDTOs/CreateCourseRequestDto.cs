@@ -2,6 +2,7 @@ namespace attendance1.Application.DTOs.CourseDTOs
 {
     public class CreateCourseRequestDto
     {
+        public AccRoleEnum CreatedBy { get; set; }
         public string CourseCode { get; set; } = string.Empty;
         public string CourseName { get; set; } = string.Empty;
         public string CourseSession { get; set; } = string.Empty;

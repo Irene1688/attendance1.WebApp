@@ -4,15 +4,16 @@ namespace attendance1.Application.Services
     {
         private readonly JwtSettings _jwtSettings;
         private readonly IValidateService _validateService;
-
+        private readonly ICourseRepository _courseRepository;
         private readonly IUserRepository _userRepository;
 
-        public AuthService(ILogger<AuthService> logger, IOptions<JwtSettings> jwtSettings, IValidateService validateService, IUserRepository userRepository, LogContext logContext)
+        public AuthService(ILogger<AuthService> logger, IOptions<JwtSettings> jwtSettings, IValidateService validateService, ICourseRepository courseRepository, IUserRepository userRepository, LogContext logContext)
             : base(logger, logContext)
         {
             _jwtSettings = jwtSettings.Value ?? throw new ArgumentNullException(nameof(jwtSettings));
             _validateService = validateService ?? throw new ArgumentNullException(nameof(validateService));
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+            _courseRepository = courseRepository ?? throw new ArgumentNullException(nameof(courseRepository));
         }
 
         private string GenerateAccessToken(UserDetail user)
@@ -111,7 +112,7 @@ namespace attendance1.Application.Services
                 var loginUser = existedStaffs.FirstOrDefault(staff => BCrypt.Net.BCrypt.Verify(requestDto.Password, staff.UserPassword));
                 if (loginUser == null)
                     throw new InvalidOperationException("Incorrect password");
-
+                
                 var (accessToken, refreshToken) = await HandleTokenGeneration(loginUser);
                 
                 return new LoginResponseDto

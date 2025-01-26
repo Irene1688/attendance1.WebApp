@@ -48,10 +48,24 @@ import {
                       key={column.id}
                       sortDirection={orderBy === column.id ? order : false}
                       style={{ width: column.width }}
-                      align={column.align}
+                      align={column.align || 'left'}
                       colSpan={column.colSpan}
                       rowSpan={column.rowSpan}
                       className={column.className}
+                      sx={{
+                        ...(column.fixed === 'left' && {
+                          position: 'sticky',
+                          left: 0,
+                          zIndex: 4,
+                        }),
+                        ...(column.fixed === 'right' && {
+                          position: 'sticky',
+                          right: 0,
+                          zIndex: 4,
+                        }),
+                        width: column.width,
+                        minWidth: column.width,
+                      }}
                     >
                       {column.sortable ? (
                         <TableSortLabel

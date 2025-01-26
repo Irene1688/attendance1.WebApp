@@ -150,84 +150,84 @@
         //     );
         // }
 
-        public async Task<Result<DataIdResponseDto>> CreateNewClassAsync(CreateClassRequestDto requestDto)
-        {
-            if (!await _validateService.ValidateLecturerAsync(requestDto.LecturerId))
-                return Result<DataIdResponseDto>.FailureResult($"Lecturer with ID {requestDto.LecturerId} does not exist.", HttpStatusCode.NotFound);
+        //public async Task<Result<DataIdResponseDto>> CreateNewClassAsync(CreateClassRequestDto requestDto)
+        //{
+        //    if (!await _validateService.ValidateLecturerAsync(requestDto.LecturerId))
+        //        return Result<DataIdResponseDto>.FailureResult($"Lecturer with ID {requestDto.LecturerId} does not exist.", HttpStatusCode.NotFound);
 
-            return await ExecuteAsync(
-                async () =>
-                {
-                    // process course
-                    var course = new Course
-                    {
-                        LecturerId = requestDto.LecturerId,
-                        CourseCode = requestDto.ClassCode,
-                        CourseName = requestDto.ClassName,
-                        CourseSession = requestDto.ClassSession,
-                        ClassDay = requestDto.LectureClassDay,
-                        ProgrammeId = requestDto.ProgrammeId,
-                        IsDeleted = false
-                    };
+        //    return await ExecuteAsync(
+        //        async () =>
+        //        {
+        //            // process course
+        //            var course = new Course
+        //            {
+        //                LecturerId = requestDto.LecturerId,
+        //                CourseCode = requestDto.ClassCode,
+        //                CourseName = requestDto.ClassName,
+        //                CourseSession = requestDto.ClassSession,
+        //                ClassDay = requestDto.LectureClassDay,
+        //                ProgrammeId = requestDto.ProgrammeId,
+        //                IsDeleted = false
+        //            };
 
-                    // process semester
-                    var semester = new CourseSemester
-                    {
-                        StartWeek = requestDto.Semester.StartDate,
-                        EndWeek = requestDto.Semester.EndDate
-                    };
+        //            // process semester
+        //            var semester = new CourseSemester
+        //            {
+        //                StartWeek = requestDto.Semester.StartDate,
+        //                EndWeek = requestDto.Semester.EndDate
+        //            };
 
-                    // process tutorial
-                    var tutorials = new List<Tutorial>();
-                    foreach (var tutorial in requestDto.Tutorials)
-                    {
-                        tutorials.Add(new Tutorial
-                        {
-                            TutorialName = tutorial.TutorialName,
-                            TutorialClassDay = tutorial.TutorialClassDay,
-                            LectureId = requestDto.LecturerId,
-                            IsDeleted = false
-                        });
-                    }
+        //            // process tutorial
+        //            var tutorials = new List<Tutorial>();
+        //            foreach (var tutorial in requestDto.Tutorials)
+        //            {
+        //                tutorials.Add(new Tutorial
+        //                {
+        //                    TutorialName = tutorial.TutorialName,
+        //                    TutorialClassDay = tutorial.TutorialClassDay,
+        //                    LectureId = requestDto.LecturerId,
+        //                    IsDeleted = false
+        //                });
+        //            }
 
-                    // process studen: create student accounts
-                    var (studentIdList, studentNameList) = await HandleStudentListAsync(requestDto.StudentList);
-                    var studentAccounts = studentIdList.Select(studentId => new CreateAccountRequestDto
-                    {
-                        CampusId = studentId,
-                        Name = studentNameList[studentIdList.IndexOf(studentId)],
-                        ProgrammeId = requestDto.ProgrammeId,
-                        Email = $"{studentId}@student.uts.edu.my",
-                        Password = studentId.ToLower(),
-                        Role = AccRoleEnum.Student
-                    }).ToList();
-                    var createAccountTask = await _userService.CreateMultipleStudentAccountsAsync(studentAccounts, requestDto.ProgrammeId);
-                    if (!createAccountTask.Success)
-                        throw new Exception("Failed to create students' accounts.");
+        //            // process studen: create student accounts
+        //            var (studentIdList, studentNameList) = await HandleStudentListAsync(requestDto.StudentList);
+        //            var studentAccounts = studentIdList.Select(studentId => new CreateAccountRequestDto
+        //            {
+        //                CampusId = studentId,
+        //                Name = studentNameList[studentIdList.IndexOf(studentId)],
+        //                ProgrammeId = requestDto.ProgrammeId,
+        //                Email = $"{studentId}@student.uts.edu.my",
+        //                Password = studentId.ToLower(),
+        //                Role = AccRoleEnum.Student
+        //            }).ToList();
+        //            var createAccountTask = await _userService.CreateMultipleStudentAccountsAsync(studentAccounts, requestDto.ProgrammeId);
+        //            if (!createAccountTask.Success)
+        //                throw new Exception("Failed to create students' accounts.");
 
-                    // process student: add students to course
-                    var students = studentIdList.Select(studentId => new EnrolledStudent
-                    {
-                        StudentId = studentId,
-                        StudentName = studentNameList[studentIdList.IndexOf(studentId)],
-                        IsDeleted = false,
-                    }).ToList();
+        //            // process student: add students to course
+        //            var students = studentIdList.Select(studentId => new EnrolledStudent
+        //            {
+        //                StudentId = studentId,
+        //                StudentName = studentNameList[studentIdList.IndexOf(studentId)],
+        //                IsDeleted = false,
+        //            }).ToList();
 
-                    var courseId = await _courseRepository.CreateNewCourseAsync(course, semester, tutorials, students);
-                    if (courseId <= 0)
-                    {
-                        throw new Exception("Failed to create a new course.");
-                    }
+        //            var courseId = await _courseRepository.CreateNewCourseAsync(course, semester, tutorials, students);
+        //            if (courseId <= 0)
+        //            {
+        //                throw new Exception("Failed to create a new course.");
+        //            }
 
-                    return new DataIdResponseDto
-                    {
-                        Id = courseId,
-                        Name = course.CourseName
-                    };
-                },
-                $"Error occurred while creating a new class for lecturer {requestDto.LecturerId}"
-            );
-        }
+        //            return new DataIdResponseDto
+        //            {
+        //                Id = courseId,
+        //                Name = course.CourseName
+        //            };
+        //        },
+        //        $"Error occurred while creating a new class for lecturer {requestDto.LecturerId}"
+        //    );
+        //}
 
         public async Task<Result<bool>> EditClassAsync(EditClassRequestDto requestDto)
         {

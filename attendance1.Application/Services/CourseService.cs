@@ -7,6 +7,7 @@ namespace attendance1.Application.Services
         private readonly ICourseRepository _courseRepository;
         private readonly IUserRepository _userRepository;
         private readonly IAttendanceRepository _attendanceRepository;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public CourseService(
             ILogger<CourseService> logger, 
@@ -15,6 +16,7 @@ namespace attendance1.Application.Services
             ICourseRepository courseRepository, 
             IUserRepository userRepository, 
             IAttendanceRepository attendanceRepository, 
+            IHttpContextAccessor httpContextAccessor,
             LogContext logContext)
             : base(logger, logContext)
         {
@@ -23,8 +25,10 @@ namespace attendance1.Application.Services
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             _userService = userService ?? throw new ArgumentNullException(nameof(userService));
             _attendanceRepository = attendanceRepository ?? throw new ArgumentNullException(nameof(attendanceRepository));
+            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         }
 
+        #region private methods
         private async Task<(List<string>, List<string>, List<string>)> ProcessStudentListCsvFile(IFormFile file)
         {
             var studentIdList = new List<string>();
@@ -82,15 +86,35 @@ namespace attendance1.Application.Services
             
             return (studentIdList, studentNameList, tutorialNameList);
         }
-
+        #endregion
         
 
         #region Course CRUD
-        public async Task<Result<bool>> CreateNewCourseAsync(CreateCourseRequestDto requestDto)
+        public async Task<Result<int>> CreateNewCourseAsync(CreateCourseRequestDto requestDto)
         {
             return await ExecuteAsync(async () =>
             {
-                if (!await _validateService.ValidateUserAsync(requestDto.UserId))
+                var lecturerUserId = 0;
+                var programmeId = 0;
+
+                if (requestDto.CreatedBy == AccRoleEnum.Admin)
+                {
+                    lecturerUserId = requestDto.UserId;
+                    programmeId = requestDto.ProgrammeId;
+                }
+
+                if (requestDto.CreatedBy == AccRoleEnum.Lecturer)
+                {
+                    var userClaims = _httpContextAccessor.HttpContext?.User;
+                    if (userClaims == null)
+                        throw new InvalidOperationException("Invalid account status, please login again");
+                    lecturerUserId = int.Parse(userClaims.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+                    programmeId = await _userRepository.GetProgrammeIdByUserIdAsync(lecturerUserId);
+                }
+
+                if (!await _validateService.HasProgrammeAsync(programmeId))
+                    throw new InvalidOperationException("Programme not found");
+                if (!await _validateService.ValidateUserAsync(lecturerUserId))
                     throw new InvalidOperationException("Lecturer not found");
 
                 var course = new Course 
@@ -99,8 +123,8 @@ namespace attendance1.Application.Services
                     CourseName = requestDto.CourseName,
                     CourseSession = requestDto.CourseSession,
                     ClassDay = string.Join(",", requestDto.ClassDays),
-                    ProgrammeId = requestDto.ProgrammeId,
-                    UserId = requestDto.UserId,
+                    ProgrammeId = programmeId,
+                    UserId = lecturerUserId,
                     IsDeleted = false,
                 };
 
@@ -118,11 +142,10 @@ namespace attendance1.Application.Services
                     IsDeleted = false,
                 }).ToList();
 
-                var students = new List<EnrolledStudent>();
-                await _courseRepository.CreateNewCourseAsync(course, semester, tutorials, students);
-                return true;
+                var newCourseId = await _courseRepository.CreateNewCourseAsync(course, semester, tutorials);
+                return newCourseId;
             },
-            $"Failed to create new course: {requestDto.CourseName}");
+            $"Failed to create new class");
         }
 
         public async Task<Result<PaginatedResult<GetCourseResponseDto>>> GetAllCourseAsync(GetCourseRequestDto requestDto)
@@ -249,8 +272,8 @@ namespace attendance1.Application.Services
             return await ExecuteAsync(
                 async () =>
                 {
-                    if (!await _validateService.ValidateCourseAsync(requestDto.IdInInteger ?? 0))
-                        throw new KeyNotFoundException("Class not found");
+                    if (!await _validateService.HasPermissionToAccessCourseAsync(requestDto.IdInInteger ?? 0))
+                        throw new UnauthorizedAccessException("You are not permitted to access this class");
 
                     var classDetails = await _courseRepository.GetCourseDetailsAsync(requestDto.IdInInteger ?? 0);
                     return new GetCourseDetailsResponseDto 
@@ -265,7 +288,8 @@ namespace attendance1.Application.Services
                             .Select(t => new TutorialDto
                             {
                                 TutorialId = t.TutorialId,
-                                TutorialName = t.TutorialName ?? string.Empty
+                                TutorialName = t.TutorialName ?? string.Empty,
+                                ClassDay = t.TutorialClassDay ?? string.Empty
                             }).ToList(),
                         Programme = new ProgrammeDto
                         {
@@ -288,10 +312,32 @@ namespace attendance1.Application.Services
         {
             return await ExecuteAsync(async () =>
             {
-                if (!await _validateService.ValidateCourseAsync(requestDto.CourseId))
-                    throw new KeyNotFoundException("Course not found");
+                if (!await _validateService.HasPermissionToAccessCourseAsync(requestDto.CourseId))
+                    throw new UnauthorizedAccessException("You are not permitted to access this class");
 
-                var lecturerId = await _userRepository.GetLecturerIdByUserIdAsync(requestDto.LecturerUserId);
+                var programmeId = 0;
+                var lecturerUserId = 0;
+                if (requestDto.UpdatedBy == AccRoleEnum.Admin)
+                {
+                    programmeId = requestDto.ProgrammeId;
+                    lecturerUserId = requestDto.LecturerUserId;
+                }
+
+                if (requestDto.UpdatedBy == AccRoleEnum.Lecturer)
+                {
+                    var userClaims = _httpContextAccessor.HttpContext?.User;
+                    if (userClaims == null)
+                        throw new InvalidOperationException("Invalid account status, please login again");
+                    lecturerUserId = int.Parse(userClaims.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+                    programmeId = await _userRepository.GetProgrammeIdByUserIdAsync(lecturerUserId);
+                }
+
+                if (!await _validateService.HasProgrammeAsync(programmeId))
+                    throw new InvalidOperationException("Programme not found");
+                if (!await _validateService.ValidateUserAsync(lecturerUserId))
+                    throw new InvalidOperationException("Lecturer not found");
+
+                var lecturerId = await _userRepository.GetLecturerIdByUserIdAsync(lecturerUserId);
                 
                 var course = new Course 
                 {
@@ -300,8 +346,8 @@ namespace attendance1.Application.Services
                     CourseName = requestDto.CourseName,
                     CourseSession = requestDto.CourseSession,
                     ClassDay = string.Join(",", requestDto.ClassDays),
-                    ProgrammeId = requestDto.ProgrammeId,
-                    UserId = requestDto.LecturerUserId,
+                    ProgrammeId = programmeId,
+                    UserId = lecturerUserId,
                     LecturerId = lecturerId,
                     IsDeleted = false,
                 };
@@ -341,6 +387,9 @@ namespace attendance1.Application.Services
                 if (!await _validateService.ValidateCourseAsync(requestDto.Id))
                     throw new KeyNotFoundException("Course not found");
 
+                if (!await _validateService.HasPermissionToAccessCourseAsync(requestDto.Id))
+                    throw new UnauthorizedAccessException("You are not permitted to access this class");
+
                 await _courseRepository.DeleteCourseAsync(requestDto.Id);
                 return true;
             },
@@ -357,6 +406,12 @@ namespace attendance1.Application.Services
                     throw new InvalidOperationException("No course IDs provided");
                 if (courseIds.Any(id => id <= 0))
                     throw new InvalidOperationException("Invalid course ID found");
+
+                var permissionChecks = courseIds.Select(async id => await _validateService.HasPermissionToAccessCourseAsync(id));
+                var results = await Task.WhenAll(permissionChecks);
+
+                if (results.Any(hasPermission => !hasPermission))
+                    throw new UnauthorizedAccessException("You are not permitted to access this class");
                 
                 await _courseRepository.MultipleDeleteCourseAsync(courseIds);
                 return true;
@@ -377,8 +432,8 @@ namespace attendance1.Application.Services
             return await ExecuteAsync(
                 async () =>
                 {
-                    if (!await _validateService.ValidateCourseAsync(requestDto.CourseId))
-                        throw new KeyNotFoundException("Course not found.");
+                    if (!await _validateService.HasPermissionToAccessCourseAsync(requestDto.CourseId))
+                        throw new UnauthorizedAccessException("You are not permitted to access this class");
                     
                     var enrolledStudents = await _courseRepository.GetEnrolledStudentsAsync(requestDto.CourseId, pageNumber, pageSize, searchTerm, orderBy, isAscending);
                     
@@ -413,9 +468,9 @@ namespace attendance1.Application.Services
             return await ExecuteAsync(
                 async () =>
                 {
-                    if (!await _validateService.ValidateCourseAsync(requestDto.CourseId))
-                        throw new KeyNotFoundException("Course not found.");
-                    
+                    if (!await _validateService.HasPermissionToAccessCourseAsync(requestDto.CourseId))
+                        throw new UnauthorizedAccessException("You are not permitted to access this class");
+
                     if (!await _validateService.HasProgrammeAsync(requestDto.ProgrammeId))
                         throw new KeyNotFoundException("Programme not found.");
 
@@ -438,8 +493,8 @@ namespace attendance1.Application.Services
         {
             return await ExecuteAsync(async () =>
             {
-                if (!await _validateService.ValidateCourseAsync(requestDto.CourseId))
-                    throw new KeyNotFoundException("Course not found");
+                if (!await _validateService.HasPermissionToAccessCourseAsync(requestDto.CourseId))
+                    throw new UnauthorizedAccessException("You are not permitted to access this class");
                 if (!await _validateService.ValidateTutorialAsync(requestDto.TutorialId, requestDto.CourseId))
                     throw new KeyNotFoundException("Tutorial not found");
                 if (requestDto.StudentUserIds.Count == 0)
@@ -457,8 +512,8 @@ namespace attendance1.Application.Services
         {
             return await ExecuteAsync(async () =>
             {
-                if (!await _validateService.ValidateCourseAsync(requestDto.CourseId))
-                    throw new KeyNotFoundException("Class not found");
+                if (!await _validateService.HasPermissionToAccessCourseAsync(requestDto.CourseId))
+                    throw new UnauthorizedAccessException("You are not permitted to access this class");
                 if (!await _validateService.ValidateTutorialAsync(requestDto.TutorialId, requestDto.CourseId))
                     throw new KeyNotFoundException("Tutorial not found");
                 if (await _validateService.HasStudentInTheCourseAsync(requestDto.CourseId, requestDto.StudentId))
@@ -497,8 +552,8 @@ namespace attendance1.Application.Services
         {
             return await ExecuteAsync(async () =>
             {
-                if (!await _validateService.ValidateCourseAsync(courseId))
-                    throw new KeyNotFoundException("Class not found");
+                if (!await _validateService.HasPermissionToAccessCourseAsync(courseId))
+                    throw new UnauthorizedAccessException("You are not permitted to access this class");
                 if (file == null || file.Length == 0)
                     throw new InvalidOperationException("File is empty");
                     
@@ -548,8 +603,8 @@ namespace attendance1.Application.Services
             return await ExecuteAsync(
                 async () =>
                 {
-                    if (!await _validateService.ValidateCourseAsync(requestDto.CourseId))
-                        throw new KeyNotFoundException($"Class not found.");
+                    if (!await _validateService.HasPermissionToAccessCourseAsync(requestDto.CourseId))
+                        throw new UnauthorizedAccessException("You are not permitted to access this class");
 
                     if (requestDto.StudentIdList.Count == 0)
                         throw new InvalidOperationException("Student ID list is empty.");

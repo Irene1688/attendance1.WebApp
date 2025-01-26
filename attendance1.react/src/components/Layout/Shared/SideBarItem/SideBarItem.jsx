@@ -71,7 +71,13 @@ const SideBarItem = ({
             <Icon />
           </ListItemIcon>
         )}
-        {!collapsed && <ListItemText primary={title} />}
+        {!collapsed && <ListItemText primary={title} 
+        sx={{
+          wordWrap: 'break-word', // 单词超出宽度时换行
+          whiteSpace: 'normal',  // 默认情况下让文本自动换行
+          overflow: 'hidden',    // 防止溢出
+        }}
+         />}
         {hasChildren && !collapsed && (
           open ? <ExpandLessIcon sx={themedStyles.expandIcon} /> : <ExpandMoreIcon sx={themedStyles.expandIcon} />
         )}

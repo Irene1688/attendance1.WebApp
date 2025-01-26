@@ -20,7 +20,7 @@ namespace attendance1.WebApi.Controllers
 
         #region Course CRUD
         [HttpPost("createNewCourse")]
-        public async Task<ActionResult<bool>> CreateNewCourse([FromBody] CreateCourseRequestDto requestDto)
+        public async Task<ActionResult<int>> CreateNewCourse([FromBody] CreateCourseRequestDto requestDto)
         {
             var result = await _courseService.CreateNewCourseAsync(requestDto);
             return StatusCode((int)result.StatusCode, result);

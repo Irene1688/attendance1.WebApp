@@ -2,6 +2,8 @@ import { useState, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { courseApi } from '../../../api/course';
 import { useApiExecutor } from '../../common';
+import { useDispatch } from 'react-redux';
+import { setLecturerCoursesMenuItems } from '../../../store/slices/courseSlice';
 
 export const useCourseById = () => {
   // states
@@ -9,6 +11,7 @@ export const useCourseById = () => {
   const [activeCourses, setActiveCourses] = useState([]);
   const [course, setCourse] = useState(null);
   const user = useSelector(state => state.auth.user);
+  const dispatch = useDispatch();
 
   // hooks
   const { loading, handleApiCall } = useApiExecutor();
@@ -27,14 +30,15 @@ export const useCourseById = () => {
     return await handleApiCall(
       () => courseApi.getActiveCourseSelectionByLecturerId(requestDto),
       (response) => {
-        setCourseMenuItems(response.courses?.map(course => ({
+        if (!response) return;
+        const menuItems = response.courses?.map(course => ({
           id: course.id,
-          name: `${course.name}`
-        })) || []);
-        return response.courses;
+          name: course.name
+        }));  
+        dispatch(setLecturerCoursesMenuItems(menuItems));
       }
     );
-  }, [handleApiCall, user?.campusId]);
+  }, [handleApiCall, dispatch, user?.campusId]);
 
   // fetch active course of a lecturer 
   // fetch basic info of the course

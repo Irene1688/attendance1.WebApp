@@ -17,7 +17,16 @@ export const styles = (theme) => ({
   },
 
   tableContainer: {
-    marginTop: theme.spacing(2)
+    marginTop: theme.spacing(2),
+    overflow: 'auto',
+    position: 'relative',
+    '& .MuiTableContainer-root': {
+      overflow: 'auto',
+    },
+    '& .MuiTable-root': {
+      borderCollapse: 'separate',
+      borderSpacing: 0,
+    }
   },
 
   tableTitle: {
@@ -47,5 +56,12 @@ export const styles = (theme) => ({
         ? theme.palette.warning.main 
         : theme.palette.error.main,
     fontWeight: 500
-  })
+  }),
+
+  fixedCell: {
+    position: 'sticky',
+    backgroundColor: theme.palette.background.paper,
+    borderRight: `1px solid ${theme.palette.divider}`,
+    borderLeft: `1px solid ${theme.palette.divider}`,
+  },
 }); 

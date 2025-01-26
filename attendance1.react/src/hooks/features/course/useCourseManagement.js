@@ -43,8 +43,9 @@ export const useCourseManagement = () => {
     );
   }, [handleApiCall]);
 
-  const createCourse = useCallback(async (values) => {
+  const createCourse = useCallback(async (values, userRole) => {
     const requestDto = {
+      createdBy: userRole,
       courseCode: values.courseCode,
       courseName: values.courseName,
       courseSession: values.courseSession,
@@ -60,22 +61,23 @@ export const useCourseManagement = () => {
     };
     return await handleApiCall(
       () => courseApi.createCourse(requestDto),
-      () => true
+      (newCourseId) => newCourseId
     );
   }, [handleApiCall]);
 
-  const updateCourse = useCallback(async (id, values) => {
+  const updateCourse = useCallback(async (id, values, userRole) => {
     if (!id) {
       throw new Error('No course selected for update');
     }
 
     const requestDto = {
+      updatedBy: userRole,
       courseId: Number(id),
       courseCode: values.courseCode,
       courseName: values.courseName,
       courseSession: values.courseSession,
-      programmeId: Number(values.programmeId),
-      lecturerUserId: Number(values.userId),
+      programmeId: Number(values.programmeId) || 0,
+      lecturerUserId: Number(values.userId) || 0,
       classDays: values.classDays,
       courseStartFrom: values.startDate,
       courseEndTo: values.endDate,
@@ -85,7 +87,6 @@ export const useCourseManagement = () => {
         classDay: Number(tutorial.classDay)
       }))
     };
-    console.log('Request:', requestDto);
     return await handleApiCall(
       () => courseApi.updateCourse(requestDto),
       () => true

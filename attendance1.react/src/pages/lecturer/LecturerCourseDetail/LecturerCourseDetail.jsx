@@ -12,30 +12,32 @@ import {
   Tab,
   Dialog
 } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
 import { 
   Loader, 
   PromptMessage,
   TextButton,
   ConfirmDialog
-} from '../../components/Common';
-import { AttendanceRecordTable, AddStudentForm } from '../../components/Lecturer';
-import { CourseStudentTable } from '../../components/Shared';
-import { usePagination, useSorting } from '../../hooks/common';
-import { useMessageContext } from '../../contexts/MessageContext';
-import { useAttendanceManagement, useEnrolledStudentManagement, useCourseById } from '../../hooks/features';
+} from '../../../components/Common';
+import { AttendanceRecordTable, AddStudentForm } from '../../../components/Lecturer';
+import { CourseStudentTable } from '../../../components/Shared';
+import { usePagination, useSorting } from '../../../hooks/common';
+import { useMessageContext } from '../../../contexts/MessageContext';
+import { useAttendanceManagement, useEnrolledStudentManagement, useCourseById } from '../../../hooks/features';
 import { styles } from './LecturerCourseDetail.styles';
-import { NUMBER_TO_DAY } from '../../constants/courseConstant';
+import { NUMBER_TO_DAY } from '../../../constants/courseConstant';
 
 
 const LecturerCourseDetail = () => {
   // Hooks
   const { id } = useParams();
   const { setPageTitle } = useOutletContext();
+  const navigate = useNavigate();
   const theme = useTheme();
   const themedStyles = styles(theme);
   const { message, showSuccessMessage, hideMessage } = useMessageContext();
 
-  const { course, fetchCourseById } = useCourseById();
+  const { loading: courseLoading, course, fetchCourseById } = useCourseById();
   const {  
     loading: recordsLoading, 
     studentAttendanceRecords, 
@@ -86,9 +88,10 @@ const LecturerCourseDetail = () => {
 
   // load attendance records
   const loadAttendanceRecords = useCallback(async () => {
+    if (!course) return;
     if (tabValue !== 0) return;
     await fetchStudentAttendanceRecords(id);
-  }, [id, tabValue]);
+  }, [id, tabValue, course]);
 
   useEffect(() => {
     loadAttendanceRecords();
@@ -97,6 +100,7 @@ const LecturerCourseDetail = () => {
   // load enrolled students
   const loadEnrolledStudents = useCallback(async () => {
     if (tabValue !== 1) return;
+    if (!course) return;
 
     const requestDto = {
       courseId: id,
@@ -108,7 +112,7 @@ const LecturerCourseDetail = () => {
     };
     const paginatedResult = await fetchEnrolledStudents(requestDto);
     setTotal(paginatedResult.totalCount); 
-  }, [id, tabValue, getPaginationParams, getSortParams, searchTerm]);
+  }, [id, tabValue, getPaginationParams, getSortParams, searchTerm, course]);
  
   useEffect(() => {
     loadEnrolledStudents();
@@ -124,6 +128,22 @@ const LecturerCourseDetail = () => {
   // Handlers
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
+  };
+
+  const handleEditClass = () => {
+    navigate(`/lecturer/classes/${id}/edit`, 
+      { state: { course: {
+          ...course,
+          startDate: course.semester.startDate,
+          endDate: course.semester.endDate,
+          classDay: course.classDay,
+          tutorials: course.tutorials?.map(t => ({
+          ...t,
+            classDay: t.classDay.toString()
+          }))
+        } 
+      }
+    });
   };
 
   const handleAddStudents = async (values) => {
@@ -160,8 +180,25 @@ const LecturerCourseDetail = () => {
     }
   };
 
-  if (!course || studentsLoading || recordsLoading) {
+  if (courseLoading || studentsLoading || recordsLoading) {
     return <Loader />;
+  }
+
+  if (!course) {
+    return (
+      <>
+        {message.show && message.severity === 'error' && (
+          <PromptMessage
+            open={true}
+            message={message.text}
+            severity={message.severity}
+            fullWidth
+            onClose={hideMessage}
+            sx={{ mb: 2 }}
+          />
+        )}
+      </>
+    );
   }
 
   return (
@@ -184,13 +221,14 @@ const LecturerCourseDetail = () => {
             <Typography variant="h6" sx={themedStyles.sectionTitle}>
               Course Information
             </Typography>
-            {/* <TextButton
-              onClick={handleTakeAttendance}
+            <TextButton
+              onClick={handleEditClass}
               variant="contained"
+              startIcon={<EditIcon />}
               color="primary"
             >
-              Take Attendance
-            </TextButton> */}
+              Edit Class
+            </TextButton>
           </Box>
           
           {/* column 1 */}
@@ -225,9 +263,11 @@ const LecturerCourseDetail = () => {
                 <Typography variant="subtitle2" color="textSecondary">
                   Tutorial Groups
                 </Typography>
-                <Typography variant="body1">
-                  {course.tutorials?.map(t => t.tutorialName).join(', ') || 'No tutorials'}
-                </Typography>
+                {course.tutorials?.map(t => 
+                  <Typography variant="body1" key={t.tutorialId}>
+                    {t.tutorialName} - {NUMBER_TO_DAY[Number(t.classDay)]}
+                  </Typography>
+                )}
               </Box>
             </Grid>
 

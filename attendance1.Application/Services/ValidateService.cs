@@ -1,13 +1,3 @@
-using attendance1.Application.Common.Logging;
-using attendance1.Application.Common.Response;
-using attendance1.Application.DTOs.CommonDTOs;
-using attendance1.Application.Interfaces;
-using attendance1.Domain.Entities;
-using attendance1.Domain.Interfaces;
-using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Logging;
-using System.Net;
-
 namespace attendance1.Application.Services
 {
     public class ValidateService : BaseService, IValidateService
@@ -16,14 +6,59 @@ namespace attendance1.Application.Services
         private readonly IUserRepository _userRepository;
         private readonly ICourseRepository _courseRepository;
         private readonly IAttendanceRepository _attendanceRepository;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public ValidateService(ILogger<ValidateService> logger, IProgrammeRepository programmeRepository, IUserRepository userRepository, ICourseRepository courseRepository, IAttendanceRepository attendanceRepository, LogContext logContext) 
+        public ValidateService(ILogger<ValidateService> logger, IProgrammeRepository programmeRepository, IUserRepository userRepository, ICourseRepository courseRepository, IAttendanceRepository attendanceRepository, LogContext logContext, IHttpContextAccessor httpContextAccessor) 
             : base(logger, logContext)
         {
             _programmeRepository = programmeRepository ?? throw new ArgumentNullException(nameof(programmeRepository));
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             _courseRepository = courseRepository ?? throw new ArgumentNullException(nameof(courseRepository));
             _attendanceRepository = attendanceRepository ?? throw new ArgumentNullException(nameof(attendanceRepository));
+            _httpContextAccessor = httpContextAccessor;
+        }
+
+        public async Task<bool> HasPermissionToAccessCourseAsync(int courseId)
+        {
+            if (courseId <= 0)
+                throw new InvalidOperationException("The class ID is required");
+
+            var courseExists = await _courseRepository.HasCourseExistedAsync(courseId);
+            if (!courseExists)
+                throw new KeyNotFoundException("Class not found");
+
+            ClaimsPrincipal userClaims = _httpContextAccessor.HttpContext.User;
+            var userRole = userClaims.FindFirst(ClaimTypes.Role)?.Value;
+            if (userRole == null)
+                throw new UnauthorizedAccessException("Not found user role");
+            
+            if (userRole == AccRoleEnum.Admin.ToString())
+                return true;
+            
+            if (userRole == AccRoleEnum.Lecturer.ToString())
+            {
+                var userId = userClaims.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var lecturerId = userClaims.Claims
+                    .Where(c => c.Type == ClaimTypes.NameIdentifier)
+                    .Skip(1)
+                    .Select(c => c.Value)
+                    .FirstOrDefault();
+
+                if (lecturerId == null || userId == null)
+                    throw new KeyNotFoundException("Not found lecturer ID or user ID");
+
+                var lecturerExists = await _userRepository.HasLecturerExistedAsync(lecturerId);
+                if (!lecturerExists)
+                    throw new KeyNotFoundException("Not found lecturer");
+                
+                var isPermitted = await _courseRepository.HasLecturerPermittedToAccessCourseAsync(lecturerId, int.Parse(userId), courseId);
+                if (!isPermitted)
+                    return false;
+
+                return true;
+            }
+
+            return false;
         }
 
         public async Task<bool> ValidateEmailAsync(string email)

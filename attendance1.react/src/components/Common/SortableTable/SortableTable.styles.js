@@ -34,6 +34,20 @@ export const styles = (theme) => ({
       },
       '& .base-column': {
         borderRight: `2px solid ${theme.palette.divider}`,
+      },
+      '& .left-fixed-column': {
+        backgroundColor: theme.palette.background.paper,
+        borderRight: `2px solid ${theme.palette.divider}`,
+        position: 'sticky',
+        left: 0,
+        zIndex: 4,
+      },
+      '& .right-fixed-column': {
+        backgroundColor: theme.palette.background.paper,
+        borderLeft: `2px solid ${theme.palette.divider}`,
+        position: 'sticky',
+        right: 0,
+        zIndex: 4,
       }
     },
   

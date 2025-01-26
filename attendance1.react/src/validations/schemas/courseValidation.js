@@ -1,4 +1,5 @@
 import * as Yup from 'yup';
+import { isAdmin } from '../../constants/userRoles';
 
 // export const MONTHS = [
 //   { value: 'Sep', label: 'September' },
@@ -14,16 +15,20 @@ import * as Yup from 'yup';
 //   ];
 // };
 
-export const courseValidationSchema = Yup.object().shape({
-  programmeId: Yup.number()
-    .required('Programme is required')
-    .positive('Invalid programme ID')
-    .integer('Invalid programme ID'),
+export const courseValidationSchema = (userRole) => Yup.object().shape({
+  programmeId: isAdmin(userRole) 
+    ? Yup.number()
+      .required('Programme is required')
+      .positive('Invalid programme ID')
+      .integer('Invalid programme ID') 
+    : Yup.number().nullable(),
   
-  userId: Yup.number()
-    .required('Lecturer is required')
-    .positive('Invalid lecturer ID')
-    .integer('Invalid lecturer ID'),
+  userId: isAdmin(userRole) 
+    ? Yup.number()
+      .required('Lecturer is required')
+      .positive('Invalid lecturer ID')
+      .integer('Invalid lecturer ID') 
+    : Yup.number().nullable(),
   
   courseCode: Yup.string()
     .required('Course code is required')
@@ -70,10 +75,7 @@ export const courseValidationSchema = Yup.object().shape({
       id: Yup.number().nullable(),
       name: Yup.string()
         .required('Tutorial name is required')
-        .matches(
-          /^T[0-9]{2}$/,
-          'Tutorial name must be in format: T01'
-        ),
+        .min(3, 'Tutorial name must be at least 3 characters'),
       
       classDay: Yup.string()
         .required('Tutorial day is required')

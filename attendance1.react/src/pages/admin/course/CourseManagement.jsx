@@ -177,7 +177,7 @@ const CourseManagement = () => {
           Icon={<AddIcon />}
           color="primary"
         >
-          Add New Course
+          Add New Class
         </TextButton>
       </Box>
 

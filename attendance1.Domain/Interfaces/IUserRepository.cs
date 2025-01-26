@@ -50,6 +50,7 @@ namespace attendance1.Domain.Interfaces
 
         #region get one property
         Task<string> GetLecturerIdByUserIdAsync(int userId);
+        Task<int> GetProgrammeIdByUserIdAsync(int userId);
         Task<string> GetLecturerNameByLecturerIdAsync(string lecturerId);
         Task<string> GetStudentNameByStudentIdAsync(string studentId);
         Task<string> GetUserPasswordByUserIdAsync(int userId);

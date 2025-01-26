@@ -30,12 +30,12 @@
             return StatusCode((int)classDetails.StatusCode, classDetails);
         }
 
-        [HttpPost("createNewClass")]
-        public async Task<ActionResult<DataIdResponseDto>> CreateNewClass([FromBody] CreateClassRequestDto requestDto)
-        {
-            var newClassId = await _lectureService.CreateNewClassAsync(requestDto);
-            return StatusCode((int)newClassId.StatusCode, newClassId);
-        }
+        //[HttpPost("createNewClass")]
+        //public async Task<ActionResult<DataIdResponseDto>> CreateNewClass([FromBody] CreateClassRequestDto requestDto)
+        //{
+        //    var newClassId = await _lectureService.CreateNewClassAsync(requestDto);
+        //    return StatusCode((int)newClassId.StatusCode, newClassId);
+        //}
 
         [HttpPost("editClassDetails")]
         public async Task<ActionResult<bool>> EditClassDetails([FromBody] EditClassRequestDto requestDto)

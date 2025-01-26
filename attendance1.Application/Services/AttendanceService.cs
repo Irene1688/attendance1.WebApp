@@ -20,11 +20,14 @@ namespace attendance1.Application.Services
             return random.Next(100000, 999999).ToString();
         }
 
-        // admin's page: class details
+        // used in admin's page: class details
         public async Task<Result<PaginatedResult<GetAttendanceRecordByCourseIdResponseDto>>> GetAttendanceRecordByCourseIdAsync(GetAttendanceRecordByCourseIdRequestDto requestDto)
         {
             return await ExecuteAsync(async () =>
             {
+                if (!await _validateService.HasPermissionToAccessCourseAsync(requestDto.CourseId))
+                    throw new UnauthorizedAccessException("You are not permitted to access this class");
+
                 var pageNumber = requestDto.PaginatedRequest.PageNumber;
                 var pageSize = requestDto.PaginatedRequest.PageSize;
                 var orderBy = requestDto.PaginatedRequest.OrderBy;
@@ -192,8 +195,8 @@ namespace attendance1.Application.Services
         // lecturer's page: class attendance management
         public async Task<Result<GetStudentAttendanceDataByCourseIdResponseDto>> GetCourseStudentAttendanceRecordsAsync(DataIdRequestDto requestDto)
         {
-            if (!await _validateService.ValidateCourseAsync(requestDto.IdInInteger ?? 0))
-                throw new KeyNotFoundException("This class does not exist.");
+            if (!await _validateService.HasPermissionToAccessCourseAsync(requestDto.IdInInteger ?? 0))
+                throw new UnauthorizedAccessException("You are not permitted to access this class");
 
             return await ExecuteAsync(async () =>
             {
@@ -261,8 +264,8 @@ namespace attendance1.Application.Services
             return await ExecuteAsync(
                 async () =>
                 {
-                    if (!await _validateService.ValidateCourseAsync(requestDto.CourseId))
-                        throw new KeyNotFoundException("This class does not exist.");
+                    if (!await _validateService.HasPermissionToAccessCourseAsync(requestDto.CourseId))
+                        throw new UnauthorizedAccessException("You are not permitted to access this class");
 
                     if (!await _validateService.ValidateAttendanceCodeAsync(requestDto.AttendanceCodeId))
                         throw new KeyNotFoundException("This attendance code does not exist.");

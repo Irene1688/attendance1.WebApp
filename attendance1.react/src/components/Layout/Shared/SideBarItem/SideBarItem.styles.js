@@ -20,6 +20,9 @@ export const styles = (theme) => ({
     pl: 4,
     color: isActive ? theme.palette.common.white : alpha(theme.palette.common.white, 0.7),
     backgroundColor: isActive ? alpha(theme.palette.common.white, 0.15) : 'transparent',
+    wordWrap: 'break-word',
+    whiteSpace: 'normal', 
+    overflow: 'hidden',    
     '& .MuiListItemText-primary': {
       ...theme.components.MuiListItemText.styleOverrides.secondary
     }

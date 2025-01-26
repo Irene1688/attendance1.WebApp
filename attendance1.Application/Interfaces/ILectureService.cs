@@ -6,7 +6,7 @@
         //Task<Result<List<GetLecturerClassRequestDto>>> GetClassesOfLecturerAsync(DataIdRequestDto requestDto);
         Task<Result<bool>> EditClassAsync(EditClassRequestDto requestDto);
         Task<Result<bool>> DeleteClassAsync(DeleteRequestDto requestDto);
-        Task<Result<DataIdResponseDto>> CreateNewClassAsync(CreateClassRequestDto requestDto);
+        //Task<Result<DataIdResponseDto>> CreateNewClassAsync(CreateClassRequestDto requestDto);
         //Task<Result<GetClassDetailsResponseDto>> GetClassDetailsAsync(DataIdRequestDto requestDto);
         Task<Result<GetClassDetailsWithAttendanceDataResponseDto>> GetClassDetailsWithAttendanceDataAsync(DataIdRequestDto requestDto);
         #endregion

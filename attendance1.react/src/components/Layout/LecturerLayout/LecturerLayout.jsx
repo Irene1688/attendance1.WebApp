@@ -6,12 +6,14 @@ import { StaffSideBar, TopBar } from '../Shared';
 import { formatPageTitle } from '../../../utils/helpers';
 import { generateLecturerClassMenuItems, lecturerBaseMenuItems } from './menuItem';
 import { useCourseById } from '../../../hooks/features';
+import { useSelector } from 'react-redux';
 
 const LecturerLayout = () => {
   const [sideBarOpen, setSideBarOpen] = useState(true);
   const [pageTitle, setPageTitle] = useState('');
   const { courseMenuItems, loading, fetchActiveCoursesMenuItems } = useCourseById();
   const [menuItems, setMenuItems] = useState(lecturerBaseMenuItems);
+  const lecturerCoursesMenuItems = useSelector(state => state.course?.lecturerCoursesMenuItems) || [];
 
   // fetch active courses menu items
   useEffect(() => {
@@ -29,6 +31,11 @@ const LecturerLayout = () => {
       setMenuItems(newMenuItems);
     }
   }, [courseMenuItems]);
+
+  useEffect(() => {
+    const updatedMenuItems = generateLecturerClassMenuItems(lecturerCoursesMenuItems);
+    setMenuItems(updatedMenuItems);
+  }, [lecturerCoursesMenuItems]);
 
   const handleSideBarToggle = () => {
     setSideBarOpen(!sideBarOpen);

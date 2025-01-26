@@ -104,7 +104,7 @@ const AttendanceRecordTable = ({
         sortable: true,
         width: 120,
         rowSpan: 2,
-        className: 'base-column'
+        className: 'left-fixed-column',
       },
       {
         id: 'studentName',
@@ -139,7 +139,8 @@ const AttendanceRecordTable = ({
       label: 'Attendance Rate',
       sortable: true,
       width: 120,
-      rowSpan: 2
+      rowSpan: 2,
+      className: 'right-fixed-column'
     };
 
     return {
@@ -183,7 +184,7 @@ const AttendanceRecordTable = ({
 
     return (
       <TableRow key={student.studentId}>
-        <TableCell className="base-column">{student.studentId}</TableCell>
+        <TableCell className="left-fixed-column">{student.studentId}</TableCell>
         <TableCell className="base-column">{student.studentName}</TableCell>
         {generateColumns(dateRecords).columns
           .filter(col => col.id.startsWith('attendance_'))
@@ -196,7 +197,7 @@ const AttendanceRecordTable = ({
               {renderAttendanceStatus(attendanceMap[col.id])}
             </TableCell>
           ))}
-        <TableCell>
+        <TableCell className="right-fixed-column">
           <span style={themedStyles.attendanceRate(attendanceRate)}>
             {attendanceRate.toFixed(1)}%
           </span>

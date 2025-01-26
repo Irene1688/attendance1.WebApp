@@ -64,6 +64,17 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                     && s.IsDeleted == false);
             return isStudentEnrolled;
         }
+
+        public async Task<bool> HasLecturerPermittedToAccessCourseAsync(string lecturerId, int userId, int courseId)
+        {
+            var isPermitted = await _database.Courses
+                .AnyAsync(c => 
+                    c.UserId == userId && 
+                    c.LecturerId == lecturerId && 
+                    c.CourseId == courseId && 
+                    c.IsDeleted == false);
+            return isPermitted;
+        }
         #endregion
 
         #region course CRUD
@@ -150,7 +161,7 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                 .FirstOrDefaultAsync());
         }
 
-        public async Task<int> CreateNewCourseAsync(Course course, CourseSemester semester, List<Tutorial> tutorials, List<EnrolledStudent> students)
+        public async Task<int> CreateNewCourseAsync(Course course, CourseSemester semester, List<Tutorial> tutorials)
         {
             return await ExecuteWithTransactionAsync(async () =>
             {
@@ -176,13 +187,6 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                 tutorials.ForEach(t => t.CourseId = course.CourseId);
                 await _database.Tutorials.AddRangeAsync(tutorials);
                 await _database.SaveChangesAsync();
-
-                if (students.Count > 0)
-                {
-                    students.ForEach(s => s.CourseId = course.CourseId);
-                    await _database.EnrolledStudents.AddRangeAsync(students);
-                    await _database.SaveChangesAsync();
-                }
 
                 return course.CourseId;
             });
