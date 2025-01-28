@@ -155,8 +155,10 @@ namespace attendance1.Infrastructure.Persistence.Repositories
             return await ExecuteGetAsync(async () => await _database.Courses
                 .Where(c => c.CourseId == courseId && c.IsDeleted == false)
                 .Include(c => c.Programme)
+                .Include(c => c.User)
                 .Include(c => c.Semester)
                 .Include(c => c.Tutorials)
+                .Include(c => c.EnrolledStudents)
                 .AsNoTracking()
                 .FirstOrDefaultAsync());
         }

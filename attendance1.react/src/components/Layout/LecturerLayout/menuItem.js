@@ -18,6 +18,11 @@ export const lecturerBaseMenuItems = [
     path: '/lecturer/classes',
     icon: ClassIcon,
     children: [] 
+  },
+  {
+    title: 'All Classes',
+    path: '/lecturer/all-classes',
+    icon: ClassIcon,
   }
 ];
 

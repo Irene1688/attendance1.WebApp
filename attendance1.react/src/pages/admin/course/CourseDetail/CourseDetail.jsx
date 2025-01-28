@@ -7,7 +7,9 @@ import {
   Paper,
   Tabs,
   Tab,
-  Dialog
+  Dialog,
+  Container,
+  useTheme
 } from '@mui/material';
 import { 
   Loader, 
@@ -17,24 +19,28 @@ import {
   IconButton, 
   SearchField,
   EmptyState
-} from '../../../components/Common';
+} from '../../../../components/Common';
 import { 
   AttendanceRecordTable,
   AddStudentForm
-} from '../../../components/Admin';
-import { CourseStudentTable } from '../../../components/Shared';
-import { usePagination, useSorting } from '../../../hooks/common';
-import { useMessageContext } from '../../../contexts/MessageContext';
-import { STATUS, isActive } from '../../../constants/status';
-import { NUMBER_TO_DAY } from '../../../constants/courseConstant';
+} from '../../../../components/Admin';
+import { CourseStudentTable } from '../../../../components/Shared';
+import { usePagination, useSorting } from '../../../../hooks/common';
+import { useMessageContext } from '../../../../contexts/MessageContext';
+import { STATUS, isActive } from '../../../../constants/status';
+import { NUMBER_TO_DAY } from '../../../../constants/courseConstant';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AddIcon from '@mui/icons-material/Add';
-import { useEnrolledStudentManagement, useAttendanceManagement } from '../../../hooks/features';
+import { 
+  useEnrolledStudentManagement, 
+  useAttendanceManagement, 
+  useCourseById 
+} from '../../../../hooks/features';
 
 const CourseDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
+  //const location = useLocation();
   const { setPageTitle } = useOutletContext();
   const [tabValue, setTabValue] = useState(0);
   
@@ -55,6 +61,8 @@ const CourseDetail = () => {
     attendanceRecords,
     fetchAttendanceRecords
   } = useAttendanceManagement();
+
+  const { loading: courseLoading, course, fetchCourseById } = useCourseById();
 
   const { message, showSuccessMessage, hideMessage } = useMessageContext();
   
@@ -97,13 +105,25 @@ const CourseDetail = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
   // initialize
-  const course = location.state.course;
+  //const course = location.state.course;
+
+  const loadCourse = useCallback(async () => {
+    if (!id) return;
+    await fetchCourseById(id);
+  }, [id]);
 
   useEffect(() => {
-    setPageTitle(course.courseName);
-  }, [setPageTitle, course]);
+    loadCourse();
+  }, [loadCourse]);
+
+  useEffect(() => {
+    if (course) {
+      setPageTitle(course.courseName);
+    }
+  }, [course, setPageTitle]);
 
   const loadEnrolledStudents = useCallback(async () => {
+    if (tabValue !== 1) return;
     const requestDto = {
       courseId: id,
       paginatedRequest: {
@@ -115,13 +135,14 @@ const CourseDetail = () => {
     
     const paginatedResult = await fetchEnrolledStudents(requestDto);
     setTotal(paginatedResult.totalCount);
-  }, [id, getPaginationParams, getSortParams, searchTerm]);
+  }, [id, getPaginationParams, getSortParams, searchTerm, tabValue]);
 
   useEffect(() => {
     loadEnrolledStudents();
   }, [loadEnrolledStudents]);
 
   const loadAttendanceRecords = useCallback(async () => {
+    if (tabValue !== 2) return;
     const requestDto = {
       courseId: id,
       paginatedRequest: {
@@ -131,7 +152,7 @@ const CourseDetail = () => {
     };
     const paginatedResult = await fetchAttendanceRecords(requestDto);
     setRecordsTotal(paginatedResult.totalCount);
-  }, [id, getRecordsPaginationParams, getRecordsSortParams]);
+  }, [id, getRecordsPaginationParams, getRecordsSortParams, tabValue]);
 
   useEffect(() => {
       loadAttendanceRecords();
@@ -180,7 +201,7 @@ const CourseDetail = () => {
   };
   
 
-  if (enrolledStudentsLoading || attendanceLoading || !course) {
+  if (!course || enrolledStudentsLoading || attendanceLoading || courseLoading) {
     return <Loader />;
   }
 
@@ -230,7 +251,7 @@ const CourseDetail = () => {
               Programme
             </Typography>
             <Typography variant="body1">
-              {course.programmeName}
+              {course.programme.programmeName}
             </Typography>
           </Grid>
           <Grid item xs={12} md={6}>
@@ -238,7 +259,7 @@ const CourseDetail = () => {
               Lecturer
             </Typography>
             <Typography variant="body1">
-              {course.lecturerName}
+              {course.lecturer.userName}
             </Typography>
           </Grid>
           <Grid item xs={12} md={6}>
@@ -280,7 +301,7 @@ const CourseDetail = () => {
               Duration
             </Typography>
             <Typography variant="body1">
-              {course.startDate} to {course.endDate}
+              {course.semester.startDate} to {course.semester.endDate}
             </Typography>
           </Grid>
         </Grid>

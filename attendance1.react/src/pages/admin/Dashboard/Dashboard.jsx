@@ -4,10 +4,10 @@ import { Grid, Box } from '@mui/material';
 import ClassIcon from '@mui/icons-material/Class';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
-import { StatCard, PromptMessage, Loader } from '../../components/Common';
-import { adminApi } from '../../api/admin';
-import { useApiExecutor } from '../../hooks/common';
-import { useMessageContext } from '../../contexts/MessageContext';
+import { StatCard, PromptMessage, Loader } from '../../../components/Common';
+import { adminApi } from '../../../api/admin';
+import { useApiExecutor } from '../../../hooks/common';
+import { useMessageContext } from '../../../contexts/MessageContext';
 
 const AdminDashboard = () => {
   const { setPageTitle } = useOutletContext();

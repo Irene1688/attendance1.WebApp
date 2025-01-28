@@ -26,8 +26,8 @@ export const useApiExecutor = () => {
       } catch (error) {
         if (error.response) {
           // get error message from server
-          const messageFromServer = error.response.data?.errorMessage;
-          const messageFromClientServer = error.message;
+          const messageFromServer = error.response.data?.errorMessage || '';
+          const messageFromClientServer = `${error.name}: ${error.message}`;
           
           if (messageFromServer.includes("Failed to refresh token")) {
             dispatch(logout());

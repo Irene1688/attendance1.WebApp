@@ -8,6 +8,6 @@ namespace attendance1.Application.DTOs.Models
         public string CourseCode { get; set; } = string.Empty;
         public string OnClassDay { get; set; } = string.Empty;
 
-        public List<DataIdResponseDto> Tutorials { get; set; } = [];
+        public List<TutorialDto> Tutorials { get; set; } = [];
     }
 }

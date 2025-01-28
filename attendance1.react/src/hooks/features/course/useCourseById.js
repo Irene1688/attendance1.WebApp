@@ -72,7 +72,7 @@ export const useCourseById = () => {
     if (!id) return;
 
     const requestDto = {
-      idInInteger: id
+      idInInteger: Number(id)
     };
 
     return await handleApiCall(

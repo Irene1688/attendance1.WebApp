@@ -8,11 +8,11 @@ import {
   TextButton, 
   ConfirmDialog,
   SearchField,
-} from '../../components/Common';
-import { AdminHeader, ProgrammeForm, ProgrammeTable } from '../../components/Admin';
-import { useProgrammeManagement } from '../../hooks/features'
-import { usePagination, useSorting } from '../../hooks/common';
-import { useMessageContext } from '../../contexts/MessageContext';
+} from '../../../components/Common';
+import { AdminHeader, ProgrammeForm, ProgrammeTable } from '../../../components/Admin';
+import { useProgrammeManagement } from '../../../hooks/features'
+import { usePagination, useSorting } from '../../../hooks/common';
+import { useMessageContext } from '../../../contexts/MessageContext';
 
 const ProgrammeManagement = () => {
   const { setPageTitle } = useOutletContext();

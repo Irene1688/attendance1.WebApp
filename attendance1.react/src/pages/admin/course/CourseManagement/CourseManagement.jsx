@@ -8,13 +8,14 @@ import {
   TextButton, 
   ConfirmDialog,
   SearchField,
-} from '../../../components/Common';
-import { CourseTable, CourseFilter } from '../../../components/Admin';
-import { useCourseManagement } from '../../../hooks/features';
-import { usePagination, useSorting } from '../../../hooks/common';
-import { useMessageContext } from '../../../contexts/MessageContext';
-import { useProgrammeManagement } from '../../../hooks/features/programme/useProgrammeManagement';
-import { useUserManagement } from '../../../hooks/features/user/useUserManagement';
+} from '../../../../components/Common';
+import { CourseTable, CourseFilter } from '../../../../components/Admin';
+import { useCourseManagement } from '../../../../hooks/features';
+import { usePagination, useSorting } from '../../../../hooks/common';
+import { useMessageContext } from '../../../../contexts/MessageContext';
+import { USER_ROLES } from '../../../../constants/userRoles';
+import { useProgrammeManagement } from '../../../../hooks/features/programme/useProgrammeManagement';
+import { useUserManagement } from '../../../../hooks/features/user/useUserManagement';
 
 const CourseManagement = () => {
   const { setPageTitle } = useOutletContext();
@@ -99,7 +100,7 @@ const CourseManagement = () => {
           : ''
       }
     };
-    const paginatedResult = await fetchCourses(requestDto);
+    const paginatedResult = await fetchCourses(requestDto, USER_ROLES.ADMIN);
     setTotal(paginatedResult.totalCount);
   }, [getPaginationParams, getSortParams, searchTerm, filters]);
   
@@ -183,7 +184,7 @@ const CourseManagement = () => {
 
       <Box sx={{ mb: 2 }}>
         <SearchField
-          placeholder="Search courses..."
+          placeholder="Search classes..."
           onSearch={handleSearch}
           debounceTime={1000}
         />
@@ -208,24 +209,19 @@ const CourseManagement = () => {
         onPageChange={handlePageChange}
         onRowsPerPageChange={handleRowsPerPageChange}
         onSort={handleSort}
-        onView={(course) => navigate(`/admin/courses/${course.courseId}`, {
-          state: {
-            course
-          }
-        })}
-        onEdit={(course) => navigate(`/admin/courses/${course.courseId}/edit`, { 
-          state: { 
-            course: {
-              ...course,
-              classDay: course.classDay,
-              userId: course.LecturerUserId,
-              tutorials: course.tutorials?.map(t => ({
-                ...t,
-                classDay: t.classDay.toString()
-              }))
-            } 
-          } 
-        })}
+        onView={(courseId) => navigate(`/admin/courses/${courseId}`)}
+        onEdit={(courseId) => navigate(`/admin/courses/${courseId}/edit`)}
+          // state: { 
+          //   course: {
+          //     ...course,
+          //     classDay: course.classDay,
+          //     userId: course.LecturerUserId,
+          //     tutorials: course.tutorials?.map(t => ({
+          //       ...t,
+          //       classDay: t.classDay.toString()
+          //     }))
+          //   } 
+          // } 
         onDelete={(course) => {
           setConfirmDeleteDialog({
             open: true,

@@ -7,13 +7,13 @@ import {
 } from '@mui/material';
 import MoodIcon from '@mui/icons-material/Mood';
 import { useOutletContext } from 'react-router-dom';
-import { Loader, EmptyState } from '../../components/Common';
-import { CourseCard } from '../../components/Lecturer';
-import { useCourseById } from '../../hooks/features';
-import { useAttendanceManagement } from '../../hooks/features';
-import { isTodayOnClass } from '../../constants/courseConstant';
-import PromptMessage from '../../components/Common/PromptMessage/PromptMessage';
-import { useMessageContext } from '../../contexts/MessageContext';
+import { Loader, EmptyState } from '../../../components/Common';
+import { CourseCard } from '../../../components/Lecturer';
+import { useCourseById } from '../../../hooks/features';
+import { useAttendanceManagement } from '../../../hooks/features';
+import { isTodayOnClass } from '../../../constants/courseConstant';
+import PromptMessage from '../../../components/Common/PromptMessage/PromptMessage';
+import { useMessageContext } from '../../../contexts/MessageContext';
 
 
 const TakeAttendance = () => {
@@ -30,8 +30,20 @@ const TakeAttendance = () => {
 
   // categorize courses
   const { todayClasses, otherClasses } = activeCourses?.reduce((acc, course) => {
-    if (course && isTodayOnClass(course.onClassDay)) {
-      acc.todayClasses.push(course);
+    console.log(course)
+    const isMainClassToday = isTodayOnClass(course.onClassDay);
+    const hasTutorialToday = course.tutorials?.some(tutorial => 
+      isTodayOnClass(tutorial.classDay)  
+    );
+
+    if (course && (isMainClassToday || hasTutorialToday)) {
+      acc.todayClasses.push({
+        ...course,
+        isMainClassToday,
+        tutorialsToday: course.tutorials?.filter(tutorial => 
+          isTodayOnClass(tutorial.classDay)
+        ) || []
+      });
     } else if (course) {
       acc.otherClasses.push(course);
     }

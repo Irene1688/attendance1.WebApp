@@ -49,18 +49,23 @@ const ProgrammeTable = ({
       <TableCell>
         <Box sx={themedStyles.actionButton}>
           <Tooltip title="Edit">
-            <IconButton 
-              Icon={<EditIcon />} 
-              onClick={() => onEdit(programme)} 
-              color="primary" 
-            />
+            <Box component="span">
+              <IconButton 
+                Icon={<EditIcon />} 
+                onClick={() => onEdit(programme)} 
+                color="primary" 
+              />
+            </Box>
+            
           </Tooltip>
           <Tooltip title="Delete">
-            <IconButton 
-              Icon={<DeleteIcon />} 
-              onClick={() => onDelete(programme)} 
-              color="delete" 
-            />
+            <Box component="span">
+              <IconButton 
+                Icon={<DeleteIcon />} 
+                onClick={() => onDelete(programme)} 
+                color="delete" 
+              />
+            </Box>
           </Tooltip>
         </Box>
       </TableCell>

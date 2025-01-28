@@ -1,19 +1,19 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useNavigate, useParams, useLocation, useOutletContext } from 'react-router-dom';
 import { Box } from '@mui/material';
 import { 
   Loader, 
   PromptMessage, 
-  TextButton 
-} from '../../../components/Common';
-import { CourseForm } from '../../../components/Shared';
+} from '../../../../components/Common';
+import { CourseForm } from '../../../../components/Shared';
 import { 
     useCourseManagement, 
+    useCourseById,
     useProgrammeManagement, 
-    useUserManagement } from '../../../hooks/features';
-import { useMessageContext } from '../../../contexts/MessageContext';
-import { NUMBER_TO_DAY } from '../../../constants/courseConstant';
-import { USER_ROLES } from '../../../constants/userRoles';
+    useUserManagement } from '../../../../hooks/features';
+import { useMessageContext } from '../../../../contexts/MessageContext';
+import { NUMBER_TO_DAY } from '../../../../constants/courseConstant';
+import { USER_ROLES } from '../../../../constants/userRoles';
 
 const CourseFormPage = () => {
   const { setPageTitle } = useOutletContext();
@@ -22,16 +22,24 @@ const CourseFormPage = () => {
   const location = useLocation();
   const { message, showSuccessMessage } = useMessageContext();
   const { 
-    loading, 
+    loading: submitFormLoading, 
     createCourse,
     updateCourse,
   } = useCourseManagement();
+  const { loading: initialCourseLoading, fetchCourseById, course } = useCourseById();
 
   const { programmeSelection, fetchProgrammeSelection } = useProgrammeManagement();
   const { lecturerSelection, fetchLecturerSelection } = useUserManagement();
 
   // get selected course from state (for edit)
-  const selectedCourse = location.state?.course;
+  //const selectedCourse = location.state?.course;
+  const loadSelectedCourse = useCallback(async () => {
+    await fetchCourseById(id);
+  }, [id]);
+
+  useEffect(() => {
+    loadSelectedCourse();
+  }, [loadSelectedCourse]);
 
   // seperate session from passed state (for edit)
   const parseSession = (courseSession) => {
@@ -77,10 +85,11 @@ const CourseFormPage = () => {
     setSubmitting(false);
   };
 
+  if (initialCourseLoading || submitFormLoading) 
+    return <Loader />;
+
   return (
-    <Box>
-      {loading && <Loader />}
-      
+    <Box>      
     {message.show &&(
         <PromptMessage
           open={true}
@@ -93,16 +102,16 @@ const CourseFormPage = () => {
 
       <CourseForm
         initialValues={id ? {
-          courseCode: selectedCourse?.courseCode,
-          courseName: selectedCourse?.courseName,
-          sessionMonth: parseSession(selectedCourse?.courseSession).month,
-          sessionYear: parseSession(selectedCourse?.courseSession).year,
-          programmeId: selectedCourse?.programmeId,
-          userId: selectedCourse?.lecturerUserId,
-          classDays: selectedCourse?.classDay?.split(',').map(Number).map(num => NUMBER_TO_DAY[num]) || [],
-          startDate: selectedCourse?.startDate,
-          endDate: selectedCourse?.endDate,
-          tutorials: selectedCourse?.tutorials?.map(t => ({
+          courseCode: course?.courseCode,
+          courseName: course?.courseName,
+          sessionMonth: parseSession(course?.courseSession).month,
+          sessionYear: parseSession(course?.courseSession).year,
+          programmeId: course?.programme.programmeId,
+          userId: course?.lecturer.userId,
+          classDays: course?.classDay?.split(',').map(Number).map(num => NUMBER_TO_DAY[num]) || [],
+          startDate: course?.semester.startDate,
+          endDate: course?.semester.endDate,
+          tutorials: course?.tutorials?.map(t => ({
             id: t.tutorialId,
             name: t.tutorialName,
             classDay: NUMBER_TO_DAY[Number(t.classDay)]

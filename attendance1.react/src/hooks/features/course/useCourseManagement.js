@@ -1,6 +1,8 @@
 import { useState, useCallback } from 'react';
+import { useSelector } from 'react-redux';
 import { courseApi } from '../../../api/course';
 import { useApiExecutor } from '../../common';
+import { isAdmin } from '../../../constants/userRoles';
 
 export const useCourseManagement = () => {
   // states
@@ -13,12 +15,17 @@ export const useCourseManagement = () => {
     open: false,
     courseIds: []
   });
+  const { user } = useSelector(state => state.auth);
 
   // hooks
   const { loading, handleApiCall } = useApiExecutor();
 
   // CRUD operations
-  const fetchCourses = useCallback(async (params) => {
+  const fetchCourses = useCallback(async (params, userRole) => {
+    const lecturerUserId = isAdmin(userRole) 
+      ? params.filters?.lecturerUserId 
+      : user.userId;
+
     const requestDto = {
       paginatedRequest: {
         pageNumber: params.paginatedRequest.pageNumber,
@@ -29,7 +36,7 @@ export const useCourseManagement = () => {
       searchTerm: params.searchTerm || '',
       filters: {
         programmeId: params.filters?.programmeId || 0,
-        lecturerUserId: params.filters?.lecturerUserId || 0,
+        lecturerUserId: lecturerUserId || 0,
         status: params.filters?.status || null,
         session: params.filters?.session || null
       }

@@ -126,25 +126,31 @@ const StudentTable = ({
       <TableCell>
         <Box sx={themedStyles.actionButton}>
           <Tooltip title="Edit">
-            <IconButton 
-              Icon={<EditIcon />} 
-              onClick={() => onEdit(student)} 
-              color="primary" 
-            />
+            <Box component="span">
+              <IconButton 
+                Icon={<EditIcon />} 
+                onClick={() => onEdit(student)} 
+                color="primary" 
+              />
+            </Box>
           </Tooltip>
           <Tooltip title="Reset Password">
-            <IconButton 
+            <Box component="span">
+              <IconButton 
               Icon={<LockResetIcon />} 
               onClick={() => onResetPassword(student)} 
               color="primary" 
-            />
+              />
+            </Box>
           </Tooltip>
           <Tooltip title="Delete">
-            <IconButton 
-              Icon={<DeleteIcon />} 
+            <Box component="span">
+              <IconButton 
+                Icon={<DeleteIcon />} 
               onClick={() => onDelete(student)} 
-              color="delete" 
-            />
+                color="delete" 
+              />
+            </Box>
           </Tooltip>
         </Box>
       </TableCell>

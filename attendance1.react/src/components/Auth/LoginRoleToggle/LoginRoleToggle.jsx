@@ -1,16 +1,23 @@
-import { StyledLoginRoleToggle } from './LoginRoleToggle.styles';
+import { useTheme, Link } from '@mui/material';
+import { styles } from './LoginRoleToggle.styles';
 
 const LoginRoleToggle = ({ isStaff, onClick, children, error, helperTextCount, ...props }) => {
+  const theme = useTheme();
+  const themedStyles = styles(theme);
+
   return (
-    <StyledLoginRoleToggle 
-      onClick={onClick}
-      isStaff={isStaff}
-      error={error}
-      helperTextCount={helperTextCount}
-      {...props}
-    >
+    <Link onClick={onClick} sx={themedStyles.loginRoleToggle(isStaff, helperTextCount, error)}>
       {children}
-    </StyledLoginRoleToggle>
+    </Link>
+    // <StyledLoginRoleToggle 
+    //   onClick={onClick}
+    //   isStaff={isStaff}
+    //   error={error}
+    //   helperTextCount={helperTextCount}
+    //   {...props}
+    // >
+    //   {children}
+    // </StyledLoginRoleToggle>
   );
 };
 

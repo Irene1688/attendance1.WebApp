@@ -129,10 +129,10 @@ const CourseCard = ({ course, onTakeAttendance }) => {
           />
         {course.tutorials.map((tutorial) => (
           <FormControlLabel
-            key={tutorial.id}
-            value={tutorial.id.toString()}
+            key={tutorial.tutorialId}
+            value={tutorial.tutorialId.toString()}
             control={<Radio />}
-            label={tutorial.name}
+            label={tutorial.tutorialName}
             sx={themedStyles.radioLabel}
           />
         ))}

@@ -1,16 +1,15 @@
-import { useEffect } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useParams, useLocation, useOutletContext } from 'react-router-dom';
 import { Box } from '@mui/material';
 import { 
   Loader, 
   PromptMessage, 
-  TextButton 
-} from '../../../components/Common';
-import { CourseForm } from '../../../components/Shared';
-import { useCourseManagement, useCourseById } from '../../../hooks/features';
-import { useMessageContext } from '../../../contexts/MessageContext';
-import { NUMBER_TO_DAY } from '../../../constants/courseConstant';
-import { USER_ROLES } from '../../../constants/userRoles';
+} from '../../../../components/Common';
+import { CourseForm } from '../../../../components/Shared';
+import { useCourseManagement, useCourseById } from '../../../../hooks/features';
+import { useMessageContext } from '../../../../contexts/MessageContext';
+import { NUMBER_TO_DAY } from '../../../../constants/courseConstant';
+import { USER_ROLES } from '../../../../constants/userRoles';
 
 const LecturerCourseFormPage = () => {
   const { setPageTitle } = useOutletContext();
@@ -18,15 +17,19 @@ const LecturerCourseFormPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { message, showSuccessMessage } = useMessageContext();
-  const { loading: sideMenuReloading, fetchActiveCoursesMenuItems } = useCourseById();
+  const { loading: sideMenuReloading, course, fetchActiveCoursesMenuItems, fetchCourseById } = useCourseById();
   const { 
     loading: courseLoading,
     createCourse,
     updateCourse,
   } = useCourseManagement();
 
+  const [selectedCourse, setSelectedCourse] = useState(null);
+
   // get selected course from state (for edit)
-  const selectedCourse = location.state?.course;
+  useEffect(() => {
+    setSelectedCourse(location.state?.course);
+  }, [location.state?.course]);
 
   // seperate session from passed state (for edit)
   const parseSession = (courseSession) => {
@@ -39,6 +42,15 @@ const LecturerCourseFormPage = () => {
   };
 
   // Initialize
+  const loadCourse = useCallback(async () => {
+    if (!id || selectedCourse) return;
+    setSelectedCourse(await fetchCourseById(id));
+  }, [id, selectedCourse]);
+
+  useEffect(() => {
+    loadCourse();
+  }, [loadCourse]);
+
   useEffect(() => {
     setPageTitle(id ? 'Edit Class' : 'Add New Class');
   }, [setPageTitle, id]);
@@ -90,8 +102,8 @@ const LecturerCourseFormPage = () => {
           programmeId: selectedCourse?.programmeId,
           userId: selectedCourse?.lecturerUserId,
           classDays: selectedCourse?.classDay?.split(',').map(Number).map(num => NUMBER_TO_DAY[num]) || [],
-          startDate: selectedCourse?.startDate,
-          endDate: selectedCourse?.endDate,
+          startDate: selectedCourse?.startDate || selectedCourse?.semester?.startDate,
+          endDate: selectedCourse?.endDate || selectedCourse?.semester?.endDate,
           tutorials: selectedCourse?.tutorials?.map(t => ({
             id: t.tutorialId,
             name: t.tutorialName,

@@ -173,29 +173,29 @@ namespace attendance1.Application.Services
                     CourseCode = course.CourseCode,
                     CourseName = course.CourseName,
                     CourseSession = course.CourseSession,
-                    ProgrammeId = course.ProgrammeId,
+                    //ProgrammeId = course.ProgrammeId,
                     ProgrammeName = course.Programme.ProgrammeName, 
-                    LecturerUserId = course.UserId ?? 0,
+                    //LecturerUserId = course.UserId ?? 0,
                     LecturerName = course.User != null 
                         ? course.User.UserName ?? string.Empty 
                         : string.Empty,
-                    ClassDay = course.ClassDay ?? string.Empty,
-                    StartDate = course.Semester.StartWeek,
-                    EndDate = course.Semester.EndWeek,
+                    //ClassDay = course.ClassDay ?? string.Empty,
+                    //StartDate = course.Semester.StartWeek,
+                    //EndDate = course.Semester.EndWeek,
                     Status = course.Semester.EndWeek <= DateOnly.FromDateTime(DateTime.Now) ? "ARCHIVED" : "ACTIVE",
-                    Tutorials = course.Tutorials
-                        .Where(t => t.IsDeleted == false)
-                        .Select(t => new GetTutorialResponseDto
-                        {
-                            TutorialId = t.TutorialId,
-                            TutorialName = t.TutorialName ?? string.Empty,
-                            ClassDay = t.TutorialClassDay ?? string.Empty,
-                            StudentCount = course.EnrolledStudents
-                                .Where(s => 
-                                    s.TutorialId == t.TutorialId &&
-                                    s.IsDeleted == false
-                                ).Count(),
-                        }).ToList(),
+                    // Tutorials = course.Tutorials
+                    //     .Where(t => t.IsDeleted == false)
+                    //     .Select(t => new GetTutorialResponseDto
+                    //     {
+                    //         TutorialId = t.TutorialId,
+                    //         TutorialName = t.TutorialName ?? string.Empty,
+                    //         ClassDay = t.TutorialClassDay ?? string.Empty,
+                    //         StudentCount = course.EnrolledStudents
+                    //             .Where(s => 
+                    //                 s.TutorialId == t.TutorialId &&
+                    //                 s.IsDeleted == false
+                    //             ).Count(),
+                    //     }).ToList(),
                 }).ToList();
 
                 //var response = await Task.WhenAll(processCoursesTask);
@@ -254,10 +254,11 @@ namespace attendance1.Application.Services
                             OnClassDay = c.ClassDay ?? string.Empty,
                             Tutorials = c.Tutorials
                                 .Where(t => t.IsDeleted == false)
-                                .Select(t => new DataIdResponseDto
+                                .Select(t => new TutorialDto
                                 {
-                                    Id = t.TutorialId,
-                                    Name = t.TutorialName ?? string.Empty
+                                    TutorialId = t.TutorialId,
+                                    TutorialName = t.TutorialName ?? string.Empty,
+                                    ClassDay = t.TutorialClassDay ?? string.Empty,
                                 }).ToList()
                         }).ToList()
                     };
@@ -279,6 +280,12 @@ namespace attendance1.Application.Services
                     return new GetCourseDetailsResponseDto 
                     {
                         CourseId = classDetails.CourseId,
+                        Lecturer = new UserDto 
+                        {
+                            UserId = classDetails.UserId ?? 0,
+                            UserName = classDetails.User?.UserName ?? string.Empty,
+                            CampusId = classDetails.LecturerId ?? string.Empty,
+                        },
                         CourseCode = classDetails.CourseCode,
                         CourseName = classDetails.CourseName,
                         CourseSession = classDetails.CourseSession,
@@ -289,7 +296,12 @@ namespace attendance1.Application.Services
                             {
                                 TutorialId = t.TutorialId,
                                 TutorialName = t.TutorialName ?? string.Empty,
-                                ClassDay = t.TutorialClassDay ?? string.Empty
+                                ClassDay = t.TutorialClassDay ?? string.Empty,
+                                StudentCount = classDetails.EnrolledStudents
+                                    .Where(s => 
+                                        s.TutorialId == t.TutorialId && 
+                                        s.IsDeleted == false)
+                                    .Count()
                             }).ToList(),
                         Programme = new ProgrammeDto
                         {
@@ -301,7 +313,8 @@ namespace attendance1.Application.Services
                             SemesterId = classDetails.Semester.SemesterId,
                             StartDate = classDetails.Semester.StartWeek,
                             EndDate = classDetails.Semester.EndWeek
-                        }
+                        },
+                        Status = classDetails.Semester.EndWeek <= DateOnly.FromDateTime(DateTime.Now) ? "ARCHIVED" : "ACTIVE",
                     };
                 },
                 $"Error occurred while getting the class details"

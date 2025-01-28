@@ -6,7 +6,6 @@ import {
   Typography, 
   Paper,
   Grid,
-  Divider,
   useTheme,
   Tabs,
   Tab,
@@ -18,14 +17,14 @@ import {
   PromptMessage,
   TextButton,
   ConfirmDialog
-} from '../../../components/Common';
-import { AttendanceRecordTable, AddStudentForm } from '../../../components/Lecturer';
-import { CourseStudentTable } from '../../../components/Shared';
-import { usePagination, useSorting } from '../../../hooks/common';
-import { useMessageContext } from '../../../contexts/MessageContext';
-import { useAttendanceManagement, useEnrolledStudentManagement, useCourseById } from '../../../hooks/features';
+} from '../../../../components/Common';
+import { AttendanceRecordTable, AddStudentForm } from '../../../../components/Lecturer';
+import { CourseStudentTable } from '../../../../components/Shared';
+import { usePagination, useSorting } from '../../../../hooks/common';
+import { useMessageContext } from '../../../../contexts/MessageContext';
+import { useAttendanceManagement, useEnrolledStudentManagement, useCourseById } from '../../../../hooks/features';
 import { styles } from './LecturerCourseDetail.styles';
-import { NUMBER_TO_DAY } from '../../../constants/courseConstant';
+import { NUMBER_TO_DAY } from '../../../../constants/courseConstant';
 
 
 const LecturerCourseDetail = () => {

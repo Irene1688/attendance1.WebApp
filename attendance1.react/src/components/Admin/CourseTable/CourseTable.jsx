@@ -132,13 +132,31 @@ const CourseTable = ({
       <TableCell>
         <Box sx={themedStyles.actionButton}>
           <Tooltip title="View Details">
-            <IconButton Icon={<VisibilityIcon />} onClick={() => onView(course)} color="primary" />
+            <Box component="span">
+              <IconButton
+                Icon={<VisibilityIcon />}
+                onClick={() => onView(course.courseId)}
+                color="primary"
+              />
+            </Box>
           </Tooltip>
           <Tooltip title="Edit">
-            <IconButton Icon={<EditIcon />} onClick={() => onEdit(course)} color="primary" />
+            <Box component="span">
+              <IconButton
+                Icon={<EditIcon />}
+                onClick={() => onEdit(course.courseId)}
+                color="primary"
+              />
+            </Box>
           </Tooltip>
           <Tooltip title="Delete">
-            <IconButton Icon={<DeleteIcon />} onClick={() => onDelete(course)} color="delete" />
+            <Box component="span">
+              <IconButton
+                Icon={<DeleteIcon />}
+                onClick={() => onDelete(course)}
+                color="delete"
+              />
+            </Box>
           </Tooltip>
         </Box>
       </TableCell>

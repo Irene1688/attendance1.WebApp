@@ -8,12 +8,12 @@ import {
   TextButton, 
   ConfirmDialog,
   SearchField,
-} from '../../components/Common';
-import { AdminHeader, UserForm, StudentTable } from '../../components/Admin';
-import { useUserManagement, useProgrammeManagement } from '../../hooks/features';
-import { usePagination, useSorting } from '../../hooks/common';
-import { useMessageContext } from '../../contexts/MessageContext';
-import { USER_ROLES } from '../../constants/userRoles';
+} from '../../../components/Common';
+import { AdminHeader, UserForm, StudentTable } from '../../../components/Admin';
+import { useUserManagement, useProgrammeManagement } from '../../../hooks/features';
+import { usePagination, useSorting } from '../../../hooks/common';
+import { useMessageContext } from '../../../contexts/MessageContext';
+import { USER_ROLES } from '../../../constants/userRoles';
 
 const StudentManagement = () => {
   const { setPageTitle } = useOutletContext();
