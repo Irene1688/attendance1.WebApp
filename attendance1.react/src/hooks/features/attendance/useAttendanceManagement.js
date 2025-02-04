@@ -7,6 +7,7 @@ export const useAttendanceManagement = () => {
     const [attendanceRecords, setAttendanceRecords] = useState([]);
     const [attendanceCode, setAttendanceCode] = useState(null);
     const [studentAttendanceRecords, setStudentAttendanceRecords] = useState([]);
+    const [openGenerateNewAttendanceSessionDialog, setOpenGenerateNewAttendanceSessionDialog] = useState(false);
 
     // hooks
     const { loading, handleApiCall } = useApiExecutor();
@@ -62,26 +63,60 @@ export const useAttendanceManagement = () => {
       );
       }, [handleApiCall]);
 
-    const markAbsentForUnattendedStudents = useCallback(async (courseId, attendanceCodeId) => {
+    const markAbsentForUnattendedStudents = useCallback(async (courseId, attendanceCodeId, tutorialId) => {
       var requestDto = {
         courseId: Number(courseId),
-        attendanceCodeId: Number(attendanceCodeId)
+        attendanceCodeId: Number(attendanceCodeId),
+        tutorialId: Number(tutorialId)
       }
-        return await handleApiCall(
-            () => attendanceApi.markAbsentForUnattended(requestDto),
-            () => true
-        );
+      return await handleApiCall(
+          () => attendanceApi.markAbsentForUnattended(requestDto),
+          () => true
+      );
+    }, [handleApiCall]);
+
+    const generateNewAttendanceSession = useCallback(async (params) => {
+      const requestDto = {
+        courseId: Number(params.courseId),
+        AttendanceDate: params.AttendanceDate,
+        StartTime: params.StartTime,
+        IsLecture: params.IsLecture,
+        TutorialId: params.TutorialId
+      }
+      return await handleApiCall(
+        () => attendanceApi.generateNewAttendanceSession(requestDto),
+        () => true
+      );
+
+    }, [handleApiCall]);
+
+    const updateStudentAttendanceStatus = useCallback(async (params) => {
+      const requestDto = {
+        courseId: Number(params.courseId),
+        attendanceCodeId: Number(params.attendanceCodeId),
+        studentId: params.studentId,
+        isPresent: params.isPresent
+      };
+      
+      return await handleApiCall(
+        () => attendanceApi.updateStudentAttendanceStatus(requestDto),
+        () => true
+      );
     }, [handleApiCall]);
 
     return {
         loading,
+        openGenerateNewAttendanceSessionDialog,
         attendanceRecords,
         attendanceCode,
         studentAttendanceRecords,
+        setOpenGenerateNewAttendanceSessionDialog,
         fetchAttendanceRecords,
         generateAttendanceCode,
         fetchStudentAttendanceRecords,
-        markAbsentForUnattendedStudents
+        markAbsentForUnattendedStudents,
+        generateNewAttendanceSession,
+        updateStudentAttendanceStatus
     }
     
 }

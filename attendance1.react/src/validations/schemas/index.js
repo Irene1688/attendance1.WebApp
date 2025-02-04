@@ -6,3 +6,4 @@ export { studentValidationSchema } from './studentValidation';
 export { courseValidationSchema } from './courseValidation';
 export { profileValidationSchema } from './profileValidation';
 export { singleStudentSchema } from './addSingleStudentValidation';
+export { attendanceSessionValidationSchema } from './attendanceSessionValidation';

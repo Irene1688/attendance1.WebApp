@@ -64,4 +64,23 @@ export const styles = (theme) => ({
     borderRight: `1px solid ${theme.palette.divider}`,
     borderLeft: `1px solid ${theme.palette.divider}`,
   },
+
+  statusButton: (isPresent) => ({
+    padding: theme.spacing(0.5),
+    color: isPresent ? theme.palette.success.main : theme.palette.error.main,
+    '&:hover': {
+      backgroundColor: 'transparent',
+      opacity: 0.8
+    },
+  }),
+
+  presentIcon: {
+    color: theme.palette.success.main,
+    fontSize: '1.5rem'
+  },
+
+  absentIcon: {
+    color: theme.palette.error.main,
+    fontSize: '1.5rem'
+  }
 }); 

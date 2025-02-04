@@ -41,5 +41,24 @@ namespace attendance1.WebApi.Controllers
             var result = await _attendanceService.InsertAbsentStudentAttendanceAsync(requestDto);
             return StatusCode((int)result.StatusCode, result);
         }
+
+        [HttpPost("generateAttendanceRecords")]
+        public async Task<ActionResult<bool>> GenerateAttendanceRecords([FromBody] CreateAttendanceRecordsRequestDto requestDto)
+        {
+            var result = await _attendanceService.GenerateAttendanceRecordsAsync(requestDto);
+            return StatusCode((int)result.StatusCode, result);
+        }
+
+        [HttpPost("updateStudentAttendanceStatus")]
+        public async Task<ActionResult<bool>> UpdateStudentAttendanceStatus([FromBody] UpdateStudentAttendanceStatusRequestDto requestDto)
+        {
+            var result = await _attendanceService.UpdateStudentAttendanceStatusAsync(requestDto);
+            return StatusCode((int)result.StatusCode, result);
+        }
+
+
+
+
+
     }
 }

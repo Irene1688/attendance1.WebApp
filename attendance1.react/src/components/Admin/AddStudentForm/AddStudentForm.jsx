@@ -120,31 +120,31 @@ const AddStudentForm = ({
     <>
       <DialogTitle>Add Students to Class</DialogTitle>
       <DialogContent sx={themedStyles.dialogContent}>
-            {message.show && message.severity === 'error' && (
-                <PromptMessage
-                  open={true}
-                  message={message.text}
-                  severity={message.severity}
-                  onClose={hideMessage}
+        {message.show && message.severity === 'error' && (
+          <PromptMessage
+            open={true}
+            message={message.text}
+            severity={message.severity}
+            onClose={hideMessage}
             sx={{ mb: 2 }}
             scrollToTop={false}
-                />
-            )}
+          />
+        )}
             
-              <TextField
+        <TextField
           select
-                fullWidth
-                label="Tutorial Session"
-                value={selectedTutorial}
-                onChange={(e) => setSelectedTutorial(e.target.value)}
+          fullWidth
+          label="Tutorial Session"
+          value={selectedTutorial}
+          onChange={(e) => setSelectedTutorial(e.target.value)}
           sx={themedStyles.tutorialSelect}
-              >
-                {tutorials.map((tutorial) => (
-                  <MenuItem key={tutorial.tutorialId} value={tutorial.tutorialId}>
+        >
+          {tutorials.map((tutorial) => (
+            <MenuItem key={tutorial.tutorialId} value={tutorial.tutorialId}>
               {tutorial.tutorialName}
-                  </MenuItem>
-                ))}
-              </TextField>
+            </MenuItem>
+          ))}
+        </TextField>
 
         <Grid container spacing={2}>
           {/* Search and Available Students List */}

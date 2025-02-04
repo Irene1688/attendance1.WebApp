@@ -101,11 +101,11 @@ const CodePage = () => {
   // 处理倒计时结束
   const handleCountdownComplete = useCallback(async () => {
     // mark absent for unattended students
-    const success = await markAbsentForUnattendedStudents( courseInfo.courseId, attendanceCode.codeId);
+    const success = await markAbsentForUnattendedStudents(courseInfo.courseId, attendanceCode.codeId, attendanceCode.tutorialId);
     if (success) {
       showSuccessMessage('Attendance session completed');
     }
-  }, [attendanceCode.codeId, courseInfo.courseId, timeLeft]);
+  }, [attendanceCode.codeId, courseInfo.courseId, attendanceCode.tutorialId, timeLeft]);
 
   useEffect(() => {
     if (timeLeft > 0) setCountdownStarted(true);

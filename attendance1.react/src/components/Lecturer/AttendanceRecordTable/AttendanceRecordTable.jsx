@@ -7,16 +7,20 @@ import {
   Tabs,
   Tab,
   Chip,
-  useTheme 
+  IconButton,
+  useTheme,
 } from '@mui/material';
 import { SortableTable } from '../../Common';
 import { styles } from './AttendanceRecordTable.styles';
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 
 const AttendanceRecordTable = ({
   courseStartDate,
   records = [],
   students = [],
   tutorials = [],
+  onUpdateStatus,
 }) => {
   const theme = useTheme();
   const themedStyles = styles(theme);
@@ -194,7 +198,14 @@ const AttendanceRecordTable = ({
               align="center"
               className={col.className}
             >
-              {renderAttendanceStatus(attendanceMap[col.id])}
+              {/* {renderAttendanceStatus(attendanceMap[col.id])} */}
+              <IconButton
+                onClick={() => handleStatusChange(col.id.split('_')[1], student.studentId, attendanceMap[col.id])}
+                sx={themedStyles.statusButton(attendanceMap[col.id])}
+                title='Click to change the attendance status'
+              >
+                {attendanceMap[col.id] ? <CheckCircleOutlineIcon /> : <HighlightOffIcon />}
+              </IconButton>
             </TableCell>
           ))}
         <TableCell className="right-fixed-column">
@@ -244,6 +255,14 @@ const AttendanceRecordTable = ({
       }
 
       return order === 'asc' ? compareResult : -compareResult;
+    });
+  };
+
+  const handleStatusChange = async (recordId, studentId, currentStatus) => {
+    await onUpdateStatus({
+      attendanceCodeId: recordId,
+      studentId: studentId,
+      isPresent: !currentStatus
     });
   };
 

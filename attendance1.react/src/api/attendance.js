@@ -5,4 +5,6 @@ export const attendanceApi = {
   generateAttendanceCode: (data) => api.post('Attendance/generateAttendanceCode', data),
   getCourseStudentAttendanceRecords: (data) => api.post('Attendance/getCourseStudentAttendanceRecords', data),
   markAbsentForUnattended: (data) => api.post('Attendance/markAbsentForUnattended', data),
+  generateNewAttendanceSession: (data) => api.post('Attendance/generateAttendanceRecords', data),
+  updateStudentAttendanceStatus: (data) => api.post('Attendance/updateStudentAttendanceStatus', data),
 }

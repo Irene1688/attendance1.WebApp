@@ -27,7 +27,10 @@ namespace attendance1.Application.Services
             if (!courseExists)
                 throw new KeyNotFoundException("Class not found");
 
+            if (_httpContextAccessor.HttpContext == null)
+                throw new UnauthorizedAccessException("Not found user context");
             ClaimsPrincipal userClaims = _httpContextAccessor.HttpContext.User;
+            
             var userRole = userClaims.FindFirst(ClaimTypes.Role)?.Value;
             if (userRole == null)
                 throw new UnauthorizedAccessException("Not found user role");

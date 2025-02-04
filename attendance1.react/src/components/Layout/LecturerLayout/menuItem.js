@@ -1,6 +1,7 @@
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import ClassIcon from '@mui/icons-material/Class';
 import AddIcon from '@mui/icons-material/Add';
+import CollectionsBookmarkIcon from '@mui/icons-material/CollectionsBookmark';
 
 export const lecturerBaseMenuItems = [
   {
@@ -22,7 +23,7 @@ export const lecturerBaseMenuItems = [
   {
     title: 'All Classes',
     path: '/lecturer/all-classes',
-    icon: ClassIcon,
+    icon: CollectionsBookmarkIcon,
   }
 ];
 
@@ -32,6 +33,7 @@ export const generateLecturerClassMenuItems = (courses = []) => {
   // find 'active classes' menu item
   const activeClassesItem = baseItems.find(item => item.title === 'Active Classes');
   if (activeClassesItem && courses?.length > 0) {
+    activeClassesItem.title = `Active Classes (${courses.length})`;
     activeClassesItem.children = courses.map(course => ({
       title: `${course.name}`,
       path: `/lecturer/classes/${course.id}`,

@@ -6,5 +6,6 @@ namespace attendance1.Application.DTOs.AttendanceDTOs
         public string AttendanceCode { get; set; } = string.Empty;
         public TimeOnly StartTime { get; set; }
         public TimeOnly EndTime { get; set; }
+        public int TutorialId { get; set; }
     }
 }

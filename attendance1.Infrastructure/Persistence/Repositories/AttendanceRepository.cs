@@ -136,12 +136,15 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                 .ToListAsync());
         }
         
-        public async Task<bool> InsertAbsentStudentAttendanceAsync(int courseId, int attendanceCodeId)
+        public async Task<bool> InsertStudentAttendanceAsync(int courseId, int attendanceCodeId, int tutorialId, bool isPresent)
         {
             return await ExecuteWithTransactionAsync(async () =>    
             {
-                var absentStudents = await _database.EnrolledStudents
-                    .Where(s => s.CourseId == courseId 
+                var noAttendanceStudents = await _database.EnrolledStudents
+                    .Where(s => s.CourseId == courseId
+                        && (tutorialId > 0 
+                            ? s.TutorialId == tutorialId 
+                            : true) 
                         && s.IsDeleted == false
                         && !_database.StudentAttendances.Any(a => a.CourseId == courseId 
                             && a.RecordId == attendanceCodeId 
@@ -153,15 +156,16 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                         CourseId = courseId,
                         RecordId = attendanceCodeId,
                         StudentId = s.StudentId,
-                        IsPresent = false,
+                        IsPresent = isPresent,
                         Device = null,
-                        Remark = $"Absent for {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}"
+                        Remark = $"{(isPresent ? "Present" : "Absent")} for {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}"
+
                     })
                     .ToListAsync();
 
-                if (absentStudents.Any())
+                if (noAttendanceStudents.Any())
                 {
-                    await _database.StudentAttendances.AddRangeAsync(absentStudents);
+                    await _database.StudentAttendances.AddRangeAsync(noAttendanceStudents);
                     await _database.SaveChangesAsync();
                 }
 
@@ -230,5 +234,38 @@ namespace attendance1.Infrastructure.Persistence.Repositories
             });
         }
         #endregion
+
+        public async Task<bool> UpdateStudentAttendanceStatusAsync(int courseId, int attendanceCodeId, string studentId, bool isPresent)
+        {
+            return await ExecuteWithTransactionAsync(async () =>
+            {
+                var attendance = await _database.StudentAttendances
+                    .FirstOrDefaultAsync(a => 
+                        a.CourseId == courseId && 
+                        a.RecordId == attendanceCodeId && 
+                        a.StudentId == studentId);
+
+                if (attendance == null)
+                {
+                    attendance = new StudentAttendance
+                    {
+                        DateAndTime = DateTime.UtcNow,
+                        CourseId = courseId,
+                        RecordId = attendanceCodeId,
+                        StudentId = studentId,
+                        IsPresent = isPresent,
+                        Device = null,
+                        Remark = $"{(isPresent ? "Present" : "Absent")} for {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}"
+                    };
+                    await _database.StudentAttendances.AddAsync(attendance);
+                }
+
+                attendance.IsPresent = isPresent;
+                _database.StudentAttendances.Update(attendance);
+
+                await _database.SaveChangesAsync();
+                return true;
+            });
+        }
     }
 }

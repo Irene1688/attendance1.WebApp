@@ -4,5 +4,6 @@ namespace attendance1.Application.DTOs.Lecturer
     {
         public int CourseId { get; set; }
         public int AttendanceCodeId { get; set; }
+        public int? TutorialId { get; set; }
     }
 }

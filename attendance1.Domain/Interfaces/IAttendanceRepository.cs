@@ -22,7 +22,8 @@ namespace attendance1.Domain.Interfaces
         Task<bool> CreateAttendanceCodeAsync(AttendanceRecord attendanceRecord);
         Task<List<StudentAttendance>> GetAttendanceDataByCourseIdAsync(int courseId);
         Task<List<StudentAttendance>> GetAttendanceDataByAttendanceCodeIdAsync(int attendanceRecordId);
-        Task<bool> InsertAbsentStudentAttendanceAsync(int courseId, int attendanceCodeId);
+        Task<bool> InsertStudentAttendanceAsync(int courseId, int attendanceCodeId, int tutorialId, bool isPresent);
+        Task<bool> UpdateStudentAttendanceStatusAsync(int courseId, int attendanceCodeId, string studentId, bool isPresent);
         Task<bool> ChangeAttendanceDataAsync(IEnumerable<StudentAttendance> newAttendanceData);
         #endregion
         

@@ -18,7 +18,7 @@ import {
   TextButton,
   ConfirmDialog
 } from '../../../../components/Common';
-import { AttendanceRecordTable, AddStudentForm } from '../../../../components/Lecturer';
+import { AttendanceRecordTable, AddStudentForm, GenerateNewAttendanceSessionForm } from '../../../../components/Lecturer';
 import { CourseStudentTable } from '../../../../components/Shared';
 import { usePagination, useSorting } from '../../../../hooks/common';
 import { useMessageContext } from '../../../../contexts/MessageContext';
@@ -39,9 +39,14 @@ const LecturerCourseDetail = () => {
   const { loading: courseLoading, course, fetchCourseById } = useCourseById();
   const {  
     loading: recordsLoading, 
+    openGenerateNewAttendanceSessionDialog,
+    setOpenGenerateNewAttendanceSessionDialog,
     studentAttendanceRecords, 
-    fetchStudentAttendanceRecords 
+    fetchStudentAttendanceRecords,
+    generateNewAttendanceSession,
+    updateStudentAttendanceStatus
   } = useAttendanceManagement();
+
   const { 
     loading: studentsLoading,
     enrolledStudents, 
@@ -179,9 +184,40 @@ const LecturerCourseDetail = () => {
     }
   };
 
+  const handleGenerateNewAttendanceSession = async (values) => {
+    const requestDto = {
+      courseId: id,
+      AttendanceDate: values.AttendanceDate,
+      StartTime: values.StartTime,
+      IsLecture: values.IsLecture,
+      TutorialId: values.TutorialId
+    }
+    const success = await generateNewAttendanceSession(requestDto);
+    if (success) {
+      setOpenGenerateNewAttendanceSessionDialog(false);
+      await loadAttendanceRecords();
+      showSuccessMessage('New attendance session generated successfully');
+    }
+  };
+
+  const handleUpdateStudentAttendanceStatus = async (values) => {
+    const requestDto = {
+      courseId: id,
+      attendanceCodeId: values.attendanceCodeId,
+      studentId: values.studentId,
+      isPresent: values.isPresent
+    };
+    var success = await updateStudentAttendanceStatus(requestDto);
+    if (success) {
+      await loadAttendanceRecords();
+      showSuccessMessage('Student attendance status updated successfully');
+    }
+  };
+
   if (courseLoading || studentsLoading || recordsLoading) {
     return <Loader />;
   }
+
 
   if (!course) {
     return (
@@ -317,14 +353,30 @@ const LecturerCourseDetail = () => {
       {/* Attendance Records Tab */}
       {tabValue === 0 && (
         <Paper sx={themedStyles.section}>
-          <Typography variant="h6" sx={themedStyles.sectionTitle}>
-            Attendance Records
-          </Typography>
+          <Box sx={themedStyles.header}>
+            <Box>
+            <Typography variant="h6" sx={{ ...themedStyles.sectionTitle, mb: 0.2 }}>
+              Attendance Records
+            </Typography>
+              <Typography variant="body1" sx={themedStyles.promptMessage}>
+                * You can click the attendance status icon to change the attendance of the student.
+              </Typography>
+            </Box>
+            <TextButton
+              onClick={() => setOpenGenerateNewAttendanceSessionDialog(true)}
+              variant="contained"
+              color="primary"
+            >
+              Generate New Attendance Session
+            </TextButton>
+          </Box>
+
           <AttendanceRecordTable
             records={studentAttendanceRecords?.records || []}
             students={studentAttendanceRecords?.students || []}
             tutorials={course?.tutorials || []}
             courseStartDate={course?.semester?.startDate}
+            onUpdateStatus={handleUpdateStudentAttendanceStatus}
           />
         </Paper>
       )}
@@ -400,6 +452,25 @@ const LecturerCourseDetail = () => {
         cancelText="Cancel"
         type="delete"
       />
+
+      {/* Generate New Attendance Session Dialog */}
+      <Dialog
+        open={openGenerateNewAttendanceSessionDialog}
+        onClose={() => setOpenGenerateNewAttendanceSessionDialog(false)}
+        maxWidth="sm"
+        fullWidth
+        disablePortal={false}
+        keepMounted
+        aria-labelledby="generate-new-attendance-session-dialog-title"
+      >
+        <GenerateNewAttendanceSessionForm
+          courseId={id}
+          tutorials={course?.tutorials || []}
+          onSubmit={handleGenerateNewAttendanceSession}
+          onClose={() => setOpenGenerateNewAttendanceSessionDialog(false)}
+          loading={recordsLoading}
+        />
+      </Dialog>
     </Box>
   );
 };

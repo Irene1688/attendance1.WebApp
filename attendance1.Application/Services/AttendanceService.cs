@@ -160,8 +160,8 @@ namespace attendance1.Application.Services
             return await ExecuteAsync(
                 async () =>
                 {
-                    if (!await _validateService.ValidateCourseAsync(requestDto.CourseId))
-                        throw new KeyNotFoundException("This class does not exist.");
+                    if (!await _validateService.HasPermissionToAccessCourseAsync(requestDto.CourseId))
+                        throw new UnauthorizedAccessException("You are not permitted to access this class");
 
                     if (requestDto.TutorialId < 0 && !await _validateService.ValidateTutorialAsync(requestDto.TutorialId ?? 0, requestDto.CourseId))
                         throw new KeyNotFoundException("This tutorial does not exist.");
@@ -186,6 +186,7 @@ namespace attendance1.Application.Services
                         AttendanceCode = code.AttendanceCode,
                         StartTime = code.StartTime ?? TimeOnly.MinValue,
                         EndTime = code.EndTime ?? TimeOnly.MinValue,
+                        TutorialId = code.TutorialId ?? 0
                     };
                 },
                 $"Error occurred while generating attendance code for the class"
@@ -270,9 +271,63 @@ namespace attendance1.Application.Services
                     if (!await _validateService.ValidateAttendanceCodeAsync(requestDto.AttendanceCodeId))
                         throw new KeyNotFoundException("This attendance code does not exist.");
 
-                    return await _attendanceRepository.InsertAbsentStudentAttendanceAsync(requestDto.CourseId, requestDto.AttendanceCodeId);
+                    return await _attendanceRepository.InsertStudentAttendanceAsync(requestDto.CourseId, requestDto.AttendanceCodeId, requestDto.TutorialId ?? 0, false);
                 },
                 $"Error occurred while inserting absent student attendance data"
+            );
+        }
+
+        public async Task<Result<bool>> GenerateAttendanceRecordsAsync(CreateAttendanceRecordsRequestDto requestDto)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                if (!await _validateService.HasPermissionToAccessCourseAsync(requestDto.CourseId))
+                    throw new UnauthorizedAccessException("You are not permitted to access this class");
+
+                if (requestDto.TutorialId > 0 || !requestDto.IsLecture)
+                {
+                    if (!await _validateService.ValidateTutorialAsync(requestDto.TutorialId ?? 0, requestDto.CourseId))
+                        throw new KeyNotFoundException("This tutorial does not exist.");
+                }
+
+                var code = new AttendanceRecord
+                {
+                    AttendanceCode = GenerateRandomAttendanceCode(),
+                    Date = requestDto.AttendanceDate,
+                    StartTime = requestDto.StartTime,
+                    EndTime = requestDto.StartTime.AddMinutes(1),
+                    CourseId = requestDto.CourseId,
+                    IsLecture = requestDto.IsLecture,
+                    TutorialId = requestDto.IsLecture ? null : requestDto.TutorialId
+                };
+                var saveSuccess = await _attendanceRepository.CreateAttendanceCodeAsync(code);
+                if (!saveSuccess)
+                    throw new Exception("Failed to save the attendance code.");
+                return await _attendanceRepository.InsertStudentAttendanceAsync(requestDto.CourseId, code.RecordId, requestDto.TutorialId ?? 0, true);
+
+            }, "Failed to generate attendance records");
+
+        }
+
+        public async Task<Result<bool>> UpdateStudentAttendanceStatusAsync(UpdateStudentAttendanceStatusRequestDto requestDto)
+        {
+            return await ExecuteAsync(
+                async () =>
+                {
+                    if (!await _validateService.HasPermissionToAccessCourseAsync(requestDto.CourseId))
+                        throw new UnauthorizedAccessException("You are not permitted to access this class");
+
+                    if (!await _validateService.ValidateAttendanceCodeAsync(requestDto.AttendanceCodeId))
+                        throw new KeyNotFoundException("This attendance code does not exist.");
+
+                    return await _attendanceRepository.UpdateStudentAttendanceStatusAsync(
+                        requestDto.CourseId,
+                        requestDto.AttendanceCodeId,
+                        requestDto.StudentId,
+                        requestDto.IsPresent
+                    );
+                },
+                "Failed to update student attendance status"
             );
         }
     }

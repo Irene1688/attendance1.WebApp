@@ -28,5 +28,10 @@ export const styles = (theme) => ({
     '&:last-child': {
       marginBottom: 0
     }
+  },
+
+  promptMessage: {
+    color: theme.palette.text.info,
+    fontStyle: 'italic',
   }
 }); 
