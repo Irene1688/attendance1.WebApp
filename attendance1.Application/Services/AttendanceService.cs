@@ -4,14 +4,16 @@ namespace attendance1.Application.Services
     {
         private readonly IAttendanceRepository _attendanceRepository;
         private readonly ICourseRepository _courseRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IValidateService _validateService;
 
-        public AttendanceService(ILogger<AttendanceService> logger, IValidateService validateService, IAttendanceRepository attendanceRepository, ICourseRepository courseRepository, LogContext logContext)
+        public AttendanceService(ILogger<AttendanceService> logger, IValidateService validateService, IAttendanceRepository attendanceRepository, ICourseRepository courseRepository, IUserRepository userRepository, LogContext logContext)
             : base(logger, logContext)
         {
             _validateService = validateService ?? throw new ArgumentNullException(nameof(validateService));
             _attendanceRepository = attendanceRepository ?? throw new ArgumentNullException(nameof(attendanceRepository));
             _courseRepository = courseRepository ?? throw new ArgumentNullException(nameof(courseRepository));
+            _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
 
         private string GenerateRandomAttendanceCode()
@@ -329,6 +331,45 @@ namespace attendance1.Application.Services
                 },
                 "Failed to update student attendance status"
             );
+        }
+
+        public async Task<Result<List<GetAttendanceRecordByStudentIdResponseDto>>> GetAttendanceOfStudentInCurrentWeekAsync(DataIdRequestDto requestDto)
+        {
+           var studentId = requestDto.IdInString ?? string.Empty;
+
+            return await ExecuteAsync(async () =>
+            {
+                if (!await _validateService.ValidateStudentAsync(studentId))
+                    throw new KeyNotFoundException("Student not found");
+
+                var today = DateTime.UtcNow;
+                var currentWeekStart = today.Date.AddDays(-(int)today.DayOfWeek + 1); // Monday
+                var currentWeekEnd = currentWeekStart.AddDays(6); // Sunday
+
+                var attendanceRecords = await _attendanceRepository.GetAttendanceDataByStudentIdAsync(studentId);
+                var filteredRecords = attendanceRecords
+                    .Where(a => a.DateAndTime.Date >= currentWeekStart && a.DateAndTime.Date <= currentWeekEnd)
+                    .ToList();
+
+                var attendanceRecord = filteredRecords
+                    .Select( a => new GetAttendanceRecordByStudentIdResponseDto
+                    {
+                        IsPresent = a.IsPresent,
+                        Date = DateOnly.FromDateTime(a.DateAndTime),
+                        AttendanceTime = a.DateAndTime,
+                        CourseCode = a.Course?.CourseCode ?? string.Empty,
+                        CourseName = a.Course?.CourseName ?? string.Empty,
+                        LectureName = a.Course?.User.UserName ?? string.Empty,
+                        SessionName = a.Record?.IsLecture == true 
+                            ? "Lecture" 
+                            : a.Course?.Tutorials
+                                .Where(t => t.TutorialId == a.Record?.TutorialId)
+                                .FirstOrDefault()?.TutorialName ?? string.Empty
+                    }).ToList();
+
+                return attendanceRecord;
+            },
+            $"Failed to get attendance records of student ID {studentId}");
         }
     }
 }

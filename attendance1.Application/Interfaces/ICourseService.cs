@@ -22,6 +22,13 @@ namespace attendance1.Application.Interfaces
         Task<Result<bool>> RemoveStudentFromCourseAsync(RemoveStudentFromCourseRequestDto requestDto);
         #endregion
 
+        #region Student fetch Course
+        /// <summary>
+        /// Get active courses by student id
+        /// </summary>
+        Task<Result<List<GetStudentActiveCourseResponseDto>>> GetActiveCoursesByStudentIdAsync(DataIdRequestDto requestDto);
+        #endregion
+
         
     }
 }

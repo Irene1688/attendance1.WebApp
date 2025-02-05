@@ -2,7 +2,7 @@ namespace attendance1.WebApi.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize(Policy = "AdminAndLecturer")]
+    [Authorize(Policy = "AllLoginedUser")]
     public class AttendanceController : ControllerBase
     {
         private readonly IAttendanceService _attendanceService;
@@ -53,6 +53,13 @@ namespace attendance1.WebApi.Controllers
         public async Task<ActionResult<bool>> UpdateStudentAttendanceStatus([FromBody] UpdateStudentAttendanceStatusRequestDto requestDto)
         {
             var result = await _attendanceService.UpdateStudentAttendanceStatusAsync(requestDto);
+            return StatusCode((int)result.StatusCode, result);
+        }
+
+        [HttpPost("getAttendanceOfStudent")]
+        public async Task<ActionResult<List<GetAttendanceRecordByStudentIdResponseDto>>> GetAttendanceOfStudent([FromBody] DataIdRequestDto requestDto)
+        {
+            var result = await _attendanceService.GetAttendanceOfStudentInCurrentWeekAsync(requestDto);
             return StatusCode((int)result.StatusCode, result);
         }
 

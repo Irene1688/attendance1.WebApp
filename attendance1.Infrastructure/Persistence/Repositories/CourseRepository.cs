@@ -471,6 +471,10 @@ namespace attendance1.Infrastructure.Persistence.Repositories
             return await ExecuteGetAsync(async () => await _database.EnrolledStudents
                 .Where(s => s.StudentId == studentId 
                     && s.IsDeleted == false)
+                .Include(s => s.Course)
+                .Include(s => s.Course.Semester)
+                .Include(s => s.Course.User)
+                .Include(s => s.Course.Tutorials)
                 .Select(s => s.Course)
                 .AsNoTracking()
                 .ToListAsync());
@@ -783,10 +787,19 @@ namespace attendance1.Infrastructure.Persistence.Repositories
         }
         #endregion
 
-        
-
-        
-
-        
+        #region student fetch tutorial
+        public async Task<List<Tutorial>> GetTutorialsByStudentIdAsync(string studentId)
+        {
+            return await ExecuteGetAsync(async () => 
+                await _database.EnrolledStudents
+                    .Where(s => 
+                        s.StudentId == studentId && 
+                        s.IsDeleted == false)
+                    .Include(s => s.Tutorial)
+                    .Select(s => s.Tutorial)
+                    .AsNoTracking()
+                    .ToListAsync());
+        }
+        #endregion
     }
 }

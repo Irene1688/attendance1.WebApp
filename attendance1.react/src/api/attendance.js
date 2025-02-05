@@ -7,4 +7,5 @@ export const attendanceApi = {
   markAbsentForUnattended: (data) => api.post('Attendance/markAbsentForUnattended', data),
   generateNewAttendanceSession: (data) => api.post('Attendance/generateAttendanceRecords', data),
   updateStudentAttendanceStatus: (data) => api.post('Attendance/updateStudentAttendanceStatus', data),
+  getAttendanceOfStudent: (data) => api.post('Attendance/getAttendanceOfStudent', data),
 }

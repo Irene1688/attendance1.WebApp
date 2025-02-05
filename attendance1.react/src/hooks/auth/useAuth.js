@@ -42,7 +42,7 @@ export const useAuth = () => {
           if (isStaff) {
             redirectPath = role === 'Admin' ? '/admin/dashboard' : '/lecturer/take-attendance';
           } else {
-            redirectPath = '/student/dashboard';
+            redirectPath = '/student/home';
           }
 
           localStorage.removeItem('returnPath');

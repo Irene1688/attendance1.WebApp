@@ -235,16 +235,13 @@ namespace attendance1.Application.Services
             return await ExecuteAsync(
                 async () =>
                 {
-                    if (string.IsNullOrEmpty(requestDto.IdInString))
-                        throw new InvalidOperationException("Lecturer ID is required");
-
-                    if (!await _validateService.ValidateLecturerAsync(requestDto.IdInString))
+                    if (!await _validateService.ValidateLecturerAsync(requestDto.IdInString ?? string.Empty))
                         throw new KeyNotFoundException($"Lecturer with ID {requestDto.IdInString} does not exist");
 
-                    var courses = await _courseRepository.GetCoursesByLecturerIdAsync(requestDto.IdInString);
+                    var courses = await _courseRepository.GetCoursesByLecturerIdAsync(requestDto.IdInString ?? string.Empty);
                     var response = new GetLecturerClassRequestDto
                     {
-                        LecturerId = requestDto.IdInString,
+                        LecturerId = requestDto.IdInString ?? string.Empty,
                         Courses = courses
                             .Where(c => c.Semester.EndWeek >= DateOnly.FromDateTime(DateTime.Now))
                             .Select(c => new CourseDto
@@ -634,6 +631,40 @@ namespace attendance1.Application.Services
         }
         #endregion
 
-        
+        #region Student fetch Course
+        public async Task<Result<List<GetStudentActiveCourseResponseDto>>> GetActiveCoursesByStudentIdAsync(DataIdRequestDto requestDto)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                if (!await _validateService.ValidateStudentAsync(requestDto.IdInString ?? string.Empty))
+                    throw new KeyNotFoundException("Student not found");
+
+                var courses = await _courseRepository.GetEnrollmentCoursesByStudentIdAsync(requestDto.IdInString ?? string.Empty);
+                var studentTutorials = await _courseRepository.GetTutorialsByStudentIdAsync(requestDto.IdInString ?? string.Empty);
+                return courses
+                    .Where(c => 
+                        c.Semester.EndWeek >= DateOnly.FromDateTime(DateTime.Now) &&
+                        c.IsDeleted == false)
+                    .Select(c => new GetStudentActiveCourseResponseDto
+                    {
+                        CourseId = c.CourseId,
+                        CourseCode = c.CourseCode,
+                        CourseName = c.CourseName,
+                        ClassDay = c.ClassDay ?? string.Empty,
+                        LecturerName = c.User?.UserName ?? string.Empty,
+                        Tutorials = c.Tutorials
+                        .Where(t => 
+                            t.IsDeleted == false &&
+                            studentTutorials.Any(st => st.TutorialId == t.TutorialId))
+                        .Select(t => new TutorialDto
+                        {
+                            TutorialId = t.TutorialId,
+                            TutorialName = t.TutorialName ?? string.Empty,
+                            ClassDay = t.TutorialClassDay ?? string.Empty,
+                        }).ToList()
+                    }).ToList();
+            }, $"Error occurred while getting the active courses");
+        }
+        #endregion
     }
 }

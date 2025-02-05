@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { attendanceApi } from '../../../api/attendance';
 import { useApiExecutor } from '../../common';
+import { id } from 'date-fns/locale';
 
 export const useAttendanceManagement = () => {
     // states
@@ -104,6 +105,20 @@ export const useAttendanceManagement = () => {
       );
     }, [handleApiCall]);
 
+    // fetch attendance of a student
+    const fetchAttendanceOfStudent = useCallback(async (studentId) => {
+      const requestDto = {
+        idInString: studentId
+      }
+      return await handleApiCall(
+        () => attendanceApi.getAttendanceOfStudent(requestDto),
+        (response) => {
+          setStudentAttendanceRecords(response);
+          return response;
+        }
+      );
+    }, [handleApiCall]);
+
     return {
         loading,
         openGenerateNewAttendanceSessionDialog,
@@ -116,7 +131,8 @@ export const useAttendanceManagement = () => {
         fetchStudentAttendanceRecords,
         markAbsentForUnattendedStudents,
         generateNewAttendanceSession,
-        updateStudentAttendanceStatus
+        updateStudentAttendanceStatus,
+        fetchAttendanceOfStudent
     }
     
 }

@@ -19,18 +19,17 @@ import { useMessageContext } from '../../../contexts/MessageContext';
 const TakeAttendance = () => {
   const { setPageTitle } = useOutletContext();
   const navigate = useNavigate();
-  const { activeCourses, loading, fetchActiveCourses } = useCourseById();
+  const { activeCourses, loading, fetchActiveCoursesByLecturerId } = useCourseById();
   const { generateAttendanceCode } = useAttendanceManagement();
   const { message, hideMessage } = useMessageContext();
 
   useEffect(() => {
     setPageTitle('Take Attendance');
-    fetchActiveCourses();
+    fetchActiveCoursesByLecturerId();
   }, [setPageTitle]);
 
   // categorize courses
   const { todayClasses, otherClasses } = activeCourses?.reduce((acc, course) => {
-    console.log(course)
     const isMainClassToday = isTodayOnClass(course.onClassDay);
     const hasTutorialToday = course.tutorials?.some(tutorial => 
       isTodayOnClass(tutorial.classDay)  

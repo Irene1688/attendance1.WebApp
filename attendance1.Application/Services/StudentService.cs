@@ -17,46 +17,46 @@ namespace attendance1.Application.Services
         }
 
 
-        public async Task<Result<List<GetAttendanceRecordResponseDto>>> GetAttendanceInCurrentWeekAsync(DataIdRequestDto requestDto)
-        {
-            var studentId = requestDto.IdInString ?? string.Empty;
-            if (!await _validateService.ValidateStudentAsync(studentId))
-                return Result<List<GetAttendanceRecordResponseDto>>.FailureResult("Student not found", HttpStatusCode.NotFound);
+        // public async Task<Result<List<GetAttendanceRecordResponseDto>>> GetAttendanceInCurrentWeekAsync(DataIdRequestDto requestDto)
+        // {
+        //     var studentId = requestDto.IdInString ?? string.Empty;
+        //     if (!await _validateService.ValidateStudentAsync(studentId))
+        //         return Result<List<GetAttendanceRecordResponseDto>>.FailureResult("Student not found", HttpStatusCode.NotFound);
 
-            return await ExecuteAsync(async () =>
-            {
-                var today = DateTime.UtcNow;
-                var currentWeekStart = today.Date.AddDays(-(int)today.DayOfWeek + 1); // Monday
-                var currentWeekEnd = currentWeekStart.AddDays(6); // Sunday
+        //     return await ExecuteAsync(async () =>
+        //     {
+        //         var today = DateTime.UtcNow;
+        //         var currentWeekStart = today.Date.AddDays(-(int)today.DayOfWeek + 1); // Monday
+        //         var currentWeekEnd = currentWeekStart.AddDays(6); // Sunday
 
-                var attendanceRecords = await _attendanceRepository.GetAttendanceDataByStudentIdAsync(studentId);
-                var filteredRecords = attendanceRecords
-                    .Where(a => a.DateAndTime.Date >= currentWeekStart && a.DateAndTime.Date <= currentWeekEnd)
-                    .ToList();
+        //         var attendanceRecords = await _attendanceRepository.GetAttendanceDataByStudentIdAsync(studentId);
+        //         var filteredRecords = attendanceRecords
+        //             .Where(a => a.DateAndTime.Date >= currentWeekStart && a.DateAndTime.Date <= currentWeekEnd)
+        //             .ToList();
 
-                var attendanceRecordTasks = filteredRecords.Select(async a =>
-                {
-                    var lecturerName = await _userRepository.GetLecturerNameByLecturerIdAsync(a.Course?.LecturerId ?? string.Empty);
-                    var tutorialName = await _courseRepository.GetTutorialNameByTutorialIdAsync(a.Record?.TutorialId ?? 0);
-                    return new GetAttendanceRecordResponseDto
-                    {
-                        IsPresent = a.IsPresent,
-                        Date = DateOnly.FromDateTime(a.DateAndTime),
-                        AttendanceTime = a.DateAndTime,
-                        ClassCode = a.Course?.CourseCode ?? string.Empty,
-                        ClassName = a.Course?.CourseName ?? string.Empty,
-                        LectureName = lecturerName,
-                        SessionName = a.Record?.IsLecture == true 
-                            ? "Lecture" 
-                            : tutorialName
-                    };
-                }).ToList();
+        //         var attendanceRecordTasks = filteredRecords.Select(async a =>
+        //         {
+        //             var lecturerName = await _userRepository.GetLecturerNameByLecturerIdAsync(a.Course?.LecturerId ?? string.Empty);
+        //             var tutorialName = await _courseRepository.GetTutorialNameByTutorialIdAsync(a.Record?.TutorialId ?? 0);
+        //             return new GetAttendanceRecordResponseDto
+        //             {
+        //                 IsPresent = a.IsPresent,
+        //                 Date = DateOnly.FromDateTime(a.DateAndTime),
+        //                 AttendanceTime = a.DateAndTime,
+        //                 ClassCode = a.Course?.CourseCode ?? string.Empty,
+        //                 ClassName = a.Course?.CourseName ?? string.Empty,
+        //                 LectureName = lecturerName,
+        //                 SessionName = a.Record?.IsLecture == true 
+        //                     ? "Lecture" 
+        //                     : tutorialName
+        //             };
+        //         }).ToList();
 
-                var attendanceDataInCurrentWeek = await Task.WhenAll(attendanceRecordTasks);
-                return attendanceDataInCurrentWeek.ToList();
-            },
-            $"Failed to get attendance records of student ID {studentId}");
-        }
+        //         var attendanceDataInCurrentWeek = await Task.WhenAll(attendanceRecordTasks);
+        //         return attendanceDataInCurrentWeek.ToList();
+        //     },
+        //     $"Failed to get attendance records of student ID {studentId}");
+        // }
 
         public async Task<Result<bool>> SubmitAttendanceAsync(CreateAttendanceRecordRequestDto requestDto)
         {
@@ -176,11 +176,11 @@ namespace attendance1.Application.Services
             $"Failed to get class details with attendance of student ID {studentId} and course ID {courseId}");
         }
 
-        public async Task<Result<List<GetAttendanceRecordResponseDto>>> GetAllAttendanceByStudentIdAsync(DataIdRequestDto requestDto)
+        public async Task<Result<List<GetAttendanceRecordByStudentIdResponseDto>>> GetAllAttendanceByStudentIdAsync(DataIdRequestDto requestDto)
         {
             var studentId = requestDto.IdInString ?? string.Empty;
             if (!await _validateService.ValidateStudentAsync(studentId))
-                return Result<List<GetAttendanceRecordResponseDto>>.FailureResult("Student not found", HttpStatusCode.NotFound);
+                return Result<List<GetAttendanceRecordByStudentIdResponseDto>>.FailureResult("Student not found", HttpStatusCode.NotFound);
 
             return await ExecuteAsync(async () =>
             {
@@ -190,13 +190,13 @@ namespace attendance1.Application.Services
                 {
                     var lecturerName = await _userRepository.GetLecturerNameByLecturerIdAsync(a.Course?.LecturerId ?? string.Empty);
                     var tutorialName = await _courseRepository.GetTutorialNameByTutorialIdAsync(a.Record?.TutorialId ?? 0);
-                    return new GetAttendanceRecordResponseDto
+                    return new GetAttendanceRecordByStudentIdResponseDto
                     {
                         IsPresent = a.IsPresent,
                         Date = DateOnly.FromDateTime(a.DateAndTime),
                         AttendanceTime = a.DateAndTime,
-                        ClassCode = a.Course?.CourseCode ?? string.Empty,
-                        ClassName = a.Course?.CourseName ?? string.Empty,
+                        CourseCode = a.Course?.CourseCode ?? string.Empty,
+                        CourseName = a.Course?.CourseName ?? string.Empty,
                         LectureName = lecturerName,
                         SessionName = a.Record?.IsLecture == true 
                             ? "Lecture" 

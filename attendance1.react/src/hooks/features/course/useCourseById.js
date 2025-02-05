@@ -42,7 +42,7 @@ export const useCourseById = () => {
 
   // fetch active course of a lecturer 
   // fetch basic info of the course
-  const fetchActiveCourses = useCallback(async () => {
+  const fetchActiveCoursesByLecturerId = useCallback(async () => {
     if (!user?.campusId) return;
 
     const requestDto = {
@@ -66,6 +66,23 @@ export const useCourseById = () => {
       }
     );
   }, [handleApiCall, user?.campusId]);
+
+  const fetchActiveCoursesByStudentId = useCallback(async () => {
+    if (!user?.campusId) return;
+
+    const requestDto = {
+      idInString: user.campusId,
+      idInInteger: user.userId
+    };
+    return await handleApiCall(
+      () => courseApi.getActiveCoursesByStudentId(requestDto),
+      (response) => {
+        setActiveCourses(response || []);
+        return response;
+      }
+    );
+  }, [handleApiCall, user?.campusId]);
+
 
   // fetch all details of a course
   const fetchCourseById = useCallback(async (id) => {
@@ -93,7 +110,8 @@ export const useCourseById = () => {
 
     // operations
     fetchActiveCoursesMenuItems,
-    fetchActiveCourses,
+    fetchActiveCoursesByLecturerId,
+    fetchActiveCoursesByStudentId,
     fetchCourseById
   };
 }; 

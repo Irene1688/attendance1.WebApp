@@ -1,0 +1,1 @@
+export { default as StudentHome } from './Home/Home';

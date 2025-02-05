@@ -140,11 +140,13 @@ namespace attendance1.Infrastructure.Persistence.Repositories
         {
             return await ExecuteWithTransactionAsync(async () =>    
             {
+                var attendanceCode = await _database.AttendanceRecords.FindAsync(attendanceCodeId);
+                if (attendanceCode == null)
+                    throw new Exception("Attendance code not found");
+
                 var noAttendanceStudents = await _database.EnrolledStudents
                     .Where(s => s.CourseId == courseId
-                        && (tutorialId > 0 
-                            ? s.TutorialId == tutorialId 
-                            : true) 
+                        && (tutorialId <= 0 || s.TutorialId == tutorialId) 
                         && s.IsDeleted == false
                         && !_database.StudentAttendances.Any(a => a.CourseId == courseId 
                             && a.RecordId == attendanceCodeId 
@@ -152,13 +154,13 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                             && a.IsPresent == true))
                     .Select(s => new StudentAttendance
                     {
-                        DateAndTime = DateTime.UtcNow,
+                        DateAndTime = attendanceCode.Date.ToDateTime(attendanceCode.StartTime.Value),
                         CourseId = courseId,
                         RecordId = attendanceCodeId,
                         StudentId = s.StudentId,
                         IsPresent = isPresent,
                         Device = null,
-                        Remark = $"{(isPresent ? "Present" : "Absent")} for {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}"
+                        Remark = $"{(isPresent ? "Present" : "Absent")} for {attendanceCode.Date.ToDateTime(attendanceCode.StartTime.Value):yyyy-MM-dd HH:mm:ss}"
 
                     })
                     .ToListAsync();
@@ -210,6 +212,9 @@ namespace attendance1.Infrastructure.Persistence.Repositories
             return await ExecuteGetAsync(async () => await _database.StudentAttendances
                 .Where(a => a.StudentId == studentId)
                 .Include(a => a.Course)
+                    .ThenInclude(c => c.User)
+                .Include(a => a.Course)
+                    .ThenInclude(c => c.Tutorials)
                 .Include(a => a.Record)
                 .AsNoTracking()
                 .ToListAsync());
@@ -239,6 +244,10 @@ namespace attendance1.Infrastructure.Persistence.Repositories
         {
             return await ExecuteWithTransactionAsync(async () =>
             {
+                var attendanceCode = await _database.AttendanceRecords.FindAsync(attendanceCodeId);
+                if (attendanceCode == null)
+                    throw new Exception("Attendance code not found");
+
                 var attendance = await _database.StudentAttendances
                     .FirstOrDefaultAsync(a => 
                         a.CourseId == courseId && 
@@ -249,13 +258,13 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                 {
                     attendance = new StudentAttendance
                     {
-                        DateAndTime = DateTime.UtcNow,
+                        DateAndTime = attendanceCode.Date.ToDateTime(attendanceCode.StartTime.Value),
                         CourseId = courseId,
                         RecordId = attendanceCodeId,
                         StudentId = studentId,
                         IsPresent = isPresent,
                         Device = null,
-                        Remark = $"{(isPresent ? "Present" : "Absent")} for {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}"
+                        Remark = $"{(isPresent ? "Present" : "Absent")} for {attendanceCode.Date.ToDateTime(attendanceCode.StartTime.Value):yyyy-MM-dd HH:mm:ss}"
                     };
                     await _database.StudentAttendances.AddAsync(attendance);
                 }

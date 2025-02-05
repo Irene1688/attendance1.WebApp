@@ -25,4 +25,7 @@ export const courseApi = {
   getActiveCourseSelectionByLecturerId: (data) => api.post('Course/getActiveCourseSelectionByLecturerId', data),
   getActiveCoursesByLecturerId: (data) => api.post('Course/getActiveCoursesByLecturerId', data),
 
+  // student module
+  getActiveCoursesByStudentId: (data) => api.post('Course/getActiveCoursesByStudentId', data),
+
 }; 

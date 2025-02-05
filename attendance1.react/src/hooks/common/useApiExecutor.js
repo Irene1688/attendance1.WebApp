@@ -26,6 +26,11 @@ export const useApiExecutor = () => {
       } catch (error) {
         if (error.response) {
           // get error message from server
+          if (error.response.status === 403) {
+            showErrorMessage('You are not authorized to access this page.');
+            return;
+          }
+
           const messageFromServer = error.response.data?.errorMessage || '';
           const messageFromClientServer = `${error.name}: ${error.message}`;
           

@@ -2,7 +2,8 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import PrivateRoute from './PrivateRoute';
 import PublicRoute from './PublicRoute';
 import RootRedirect from './RootRedirect';
-import { AdminLayout, LecturerLayout } from '../components/Layout';
+import { USER_ROLES } from '../constants/userRoles';
+import { AdminLayout, LecturerLayout, StudentLayout } from '../components/Layout';
 import Login from '../pages/auth/Login';
 import { 
   AdminDashboard, 
@@ -20,7 +21,13 @@ import {
   LecturerCourseFormPage, 
   LecturerCourseList 
 } from '../pages/lecturer';
+import {
+  StudentHome
+} from '../pages/student';
 import Profile from '../pages/Shared/Profile';
+// import StudentClasses from '../pages/student/Classes/Classes';
+// import StudentCheckIn from '../pages/student/CheckIn/CheckIn';
+// import StudentProfile from '../pages/student/Profile/Profile';
 
 export const router = createBrowserRouter([
   {
@@ -38,7 +45,7 @@ export const router = createBrowserRouter([
   {
     path: '/admin',
     element: (
-      <PrivateRoute role="Admin">
+      <PrivateRoute role={[USER_ROLES.ADMIN]}>
         <AdminLayout />
       </PrivateRoute>
     ),
@@ -88,7 +95,7 @@ export const router = createBrowserRouter([
   {
     path: '/lecturer',
     element: (
-      <PrivateRoute role="Lecturer">
+      <PrivateRoute role={[USER_ROLES.LECTURER]}>
         <LecturerLayout />
       </PrivateRoute>
     ),
@@ -126,10 +133,36 @@ export const router = createBrowserRouter([
   {
     path: '/lecturer/codePage',
     element: (
-      <PrivateRoute role="Lecturer">
+      <PrivateRoute role={[USER_ROLES.LECTURER]}>
         <CodePage />
       </PrivateRoute>
     )
+  },
+  {
+    path: '/student',
+    element: (
+      <PrivateRoute role={[USER_ROLES.STUDENT]}>
+        <StudentLayout />
+      </PrivateRoute>
+    ),
+    children: [
+      {
+        path: 'home',
+        element: <StudentHome />
+      },
+      // {
+      //   path: 'classes',
+      //   element: <StudentClasses />
+      // },
+      // {
+      //   path: 'check-in',
+      //   element: <StudentCheckIn />
+      // },
+      // {
+      //   path: 'profile',
+      //   element: <StudentProfile />
+      // }
+    ]
   },
   {
     path: '*',

@@ -14,12 +14,12 @@ namespace attendance1.WebApi.Controllers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        [HttpPost("viewAttendanceInCurrentWeek")]
-        public async Task<ActionResult<List<GetAttendanceRecordResponseDto>>> ViewAttendanceInCurrentWeek([FromBody] DataIdRequestDto requestDto)
-        {
-            var result = await _studentService.GetAttendanceInCurrentWeekAsync(requestDto);
-            return StatusCode((int)result.StatusCode, result);
-        }
+        //[HttpPost("viewAttendanceInCurrentWeek")]
+        //public async Task<ActionResult<List<GetAttendanceRecordResponseDto>>> ViewAttendanceInCurrentWeek([FromBody] DataIdRequestDto requestDto)
+        //{
+        //    var result = await _studentService.GetAttendanceInCurrentWeekAsync(requestDto);
+        //    return StatusCode((int)result.StatusCode, result);
+        //}
 
         [HttpPost("submitAttendance")]
         public async Task<ActionResult<bool>> SubmitAttendance([FromBody] CreateAttendanceRecordRequestDto requestDto)
@@ -29,7 +29,7 @@ namespace attendance1.WebApi.Controllers
         }
 
         [HttpPost("getEnrollmentClasses")]
-        public async Task<ActionResult<List<GetAttendanceRecordResponseDto>>> GetEnrollmentClasses([FromBody] DataIdRequestDto requestDto)
+        public async Task<ActionResult<List<DataIdResponseDto>>> GetEnrollmentClasses([FromBody] DataIdRequestDto requestDto)
         {
             var result = await _studentService.GetEnrollmentClassesAsync(requestDto);
             return StatusCode((int)result.StatusCode, result);
@@ -43,11 +43,10 @@ namespace attendance1.WebApi.Controllers
         }
 
         [HttpPost("getAllAttendance")]
-        public async Task<ActionResult<List<GetAttendanceRecordResponseDto>>> GetAllAttendance([FromBody] DataIdRequestDto requestDto)
+        public async Task<ActionResult<List<GetAttendanceRecordByStudentIdResponseDto>>> GetAllAttendance([FromBody] DataIdRequestDto requestDto)
         {
             var result = await _studentService.GetAllAttendanceByStudentIdAsync(requestDto);
             return StatusCode((int)result.StatusCode, result);
         }
-
     }
 }

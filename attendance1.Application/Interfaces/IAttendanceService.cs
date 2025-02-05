@@ -17,5 +17,10 @@ namespace attendance1.Application.Interfaces
         /// Update the attendance status of a student for a given attendance code id
         /// </summary>
         Task<Result<bool>> UpdateStudentAttendanceStatusAsync(UpdateStudentAttendanceStatusRequestDto requestDto);  
+
+        /// <summary>
+        /// Get the attendance of a student for a given course id
+        /// </summary>
+        Task<Result<List<GetAttendanceRecordByStudentIdResponseDto>>> GetAttendanceOfStudentInCurrentWeekAsync(DataIdRequestDto requestDto);
     }
 }

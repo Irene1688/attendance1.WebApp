@@ -1,11 +1,21 @@
 import { Navigate } from 'react-router-dom';
-import { useAuthRedirect } from '../hooks/auth/useAuthRedirect';
+import { useSelector } from 'react-redux';
 
 const PublicRoute = ({ children }) => {
-  const { isAuthenticated, user, getRedirectPath } = useAuthRedirect();
+  const { user } = useSelector((state) => state.auth);
 
-  if (isAuthenticated && user) {
-    return <Navigate to={getRedirectPath()} replace />;
+  if (user) {
+    // 根据用户角色重定向到相应的页面
+    switch (user.role) {
+      case 'Admin':
+        return <Navigate to="/admin/dashboard" replace />;
+      case 'Lecturer':
+        return <Navigate to="/lecturer/take-attendance" replace />;
+      case 'Student':
+        return <Navigate to="/student/home" replace />;
+      default:
+        return <Navigate to="/login" replace />;
+    }
   }
 
   return children;

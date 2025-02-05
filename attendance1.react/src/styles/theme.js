@@ -28,7 +28,7 @@ const colors = {
   },
   blue: {
     main: '#007bff',
-    light: '#007bff',
+    light: '#03b6fc',
     dark: '#0056b3',
   },
   orange: {
@@ -69,6 +69,11 @@ const theme = createTheme({
     background: {
         default: colors.white.off,
         paper: colors.white.main,
+    },
+    info: {
+        main: colors.blue.main,
+        light: colors.blue.light,
+        dark: colors.blue.dark,
     },
     warning: {
         main: colors.orange.main,

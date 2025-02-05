@@ -2,7 +2,7 @@ namespace attendance1.WebApi.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize(Policy = "AdminAndLecturer")]
+    [Authorize(Policy = "AllLoginedUser")]
     public class CourseController : ControllerBase
     {
         private readonly IAdminService _adminService;
@@ -117,6 +117,15 @@ namespace attendance1.WebApi.Controllers
         {
             var result = await _courseService.RemoveStudentFromCourseAsync(requestDto);
             return StatusCode((int)result.StatusCode, result);
+        }
+        #endregion
+
+        #region Student fetch Course
+        [HttpPost("getActiveCoursesByStudentId")]
+        public async Task<ActionResult<List<GetStudentActiveCourseResponseDto>>> GetActiveCoursesByStudentId([FromBody] DataIdRequestDto requestDto)
+        {
+            var courses = await _courseService.GetActiveCoursesByStudentIdAsync(requestDto);
+            return StatusCode((int)courses.StatusCode, courses);
         }
         #endregion
 

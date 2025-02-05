@@ -64,9 +64,9 @@ namespace attendance1.Domain.Interfaces
         Task<bool> RemoveStudentFromClassAsync(int courseId, List<string> studentIdList);
         Task<bool> RemoveStudentFromTutorialAsync(int tutorialId, int courseId, List<string> studentIdList);
         #endregion
-       
-        
-        
-        
+
+        #region student fetch tutorial
+        Task<List<Tutorial>> GetTutorialsByStudentIdAsync(string studentId);
+        #endregion
     }
 }

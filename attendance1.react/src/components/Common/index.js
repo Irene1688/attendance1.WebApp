@@ -10,3 +10,4 @@ export { default as SortableTableHead } from './SortableTableHead/SortableTableH
 export { default as PaginatedTable } from './PaginatedTable/PaginatedTable';
 export { default as SortableTable } from './SortableTable/SortableTable';
 export { default as AvatarSection } from './AvatarSection/AvatarSection';
+export { default as ListCard } from './ListCard/ListCard';
