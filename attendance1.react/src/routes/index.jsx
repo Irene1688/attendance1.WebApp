@@ -102,7 +102,7 @@ export const router = createBrowserRouter([
         element: <TakeAttendance />
       },
       {
-        path: 'classes/add',
+        path: 'add-class',
         element: <LecturerCourseFormPage />
       },
       {

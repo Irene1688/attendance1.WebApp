@@ -1,29 +1,29 @@
 import { alpha } from '@mui/material/styles';
 
-export const styles = {
+export const styles = (theme) => ({
   base: {
     borderRadius: 1
   },
   primary: {
-    backgroundColor: (theme) => theme.palette.primary.main,
-    color: (theme) => theme.palette.white.off,
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.white.off,
     '&:hover': {
-      color: (theme) =>alpha(theme.palette.common.white, 0.7),
-      backgroundColor: (theme) => alpha(theme.palette.primary.main, 0.8)
+      color: alpha(theme.palette.common.white, 0.7),
+      backgroundColor: alpha(theme.palette.primary.main, 0.8)
     }
   },
   cancel: {
-    color: (theme) => theme.palette.grey[500],
+    color: theme.palette.grey[500],
     '&:hover': {
-      backgroundColor: (theme) => alpha(theme.palette.grey[500], 0.08)
+      backgroundColor: alpha(theme.palette.grey[500], 0.08)
     }
   },
   delete: {
-    backgroundColor: (theme) => theme.palette.error.main,
-    color: (theme) => theme.palette.white.off,
+    backgroundColor: theme.palette.error.main,
+    color: theme.palette.white.off,
     '&:hover': {
-      color: (theme) =>alpha(theme.palette.common.white, 0.7),
-      backgroundColor: (theme) => alpha(theme.palette.error.main, 0.8)
+      color: alpha(theme.palette.common.white, 0.7),
+      backgroundColor: alpha(theme.palette.error.main, 0.8)
     }
   },
   withIcon: {
@@ -31,4 +31,4 @@ export const styles = {
     alignItems: 'center',
     gap: 1
   }
-}; 
+}); 

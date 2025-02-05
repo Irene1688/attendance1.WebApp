@@ -30,6 +30,11 @@ const colors = {
     main: '#007bff',
     light: '#007bff',
     dark: '#0056b3',
+  },
+  orange: {
+    main: '#ff8c00',
+    light: '#ff8c00',
+    dark: '#b26500',
   }
 };
 
@@ -64,6 +69,11 @@ const theme = createTheme({
     background: {
         default: colors.white.off,
         paper: colors.white.main,
+    },
+    warning: {
+        main: colors.orange.main,
+        light: colors.orange.light,
+        dark: colors.orange.dark,
     },
     error: {
         main: colors.red.main,

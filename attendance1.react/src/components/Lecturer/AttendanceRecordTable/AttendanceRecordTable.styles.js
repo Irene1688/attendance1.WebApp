@@ -30,8 +30,7 @@ export const styles = (theme) => ({
   },
 
   tableTitle: {
-    marginBottom: theme.spacing(2),
-    fontWeight: 500,
+    fontWeight: 600,
     color: theme.palette.text.secondary
   },
 
@@ -82,5 +81,27 @@ export const styles = (theme) => ({
   absentIcon: {
     color: theme.palette.error.main,
     fontSize: '1.5rem'
+  },
+
+  header: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: theme.spacing(2)
+  },
+
+  printButton: {
+    marginLeft: 'auto'
+  },
+
+  '@media print': {
+    tableContainer: {
+      margin: 0,
+      padding: 0,
+      boxShadow: 'none'
+    },
+    printHide: {
+      display: 'none !important'
+    }
   }
 }); 

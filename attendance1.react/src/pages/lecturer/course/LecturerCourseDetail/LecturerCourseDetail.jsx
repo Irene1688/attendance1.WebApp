@@ -377,6 +377,13 @@ const LecturerCourseDetail = () => {
             tutorials={course?.tutorials || []}
             courseStartDate={course?.semester?.startDate}
             onUpdateStatus={handleUpdateStudentAttendanceStatus}
+            courseInfo={{
+              courseCode: course?.courseCode,
+              courseName: course?.courseName,
+              lecturerName: course?.lecturer.userName,
+              session: course?.courseSession,
+              programme: course?.programme.programmeName,
+            }}
           />
         </Paper>
       )}

@@ -11,7 +11,7 @@ export const lecturerBaseMenuItems = [
   },
   {
     title: 'Add Class',
-    path: '/lecturer/classes/add',
+    path: '/lecturer/add-class',
     icon: AddIcon
   },
   {

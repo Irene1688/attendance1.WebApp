@@ -245,22 +245,24 @@ namespace attendance1.Application.Services
                     var response = new GetLecturerClassRequestDto
                     {
                         LecturerId = requestDto.IdInString,
-                        Courses = courses.Select(c => new CourseDto
-                        {
-                            CourseId = c.CourseId,
-                            CourseCode = c.CourseCode,
-                            CourseName = c.CourseName,
-                            CourseSession = c.CourseSession,
-                            OnClassDay = c.ClassDay ?? string.Empty,
-                            Tutorials = c.Tutorials
-                                .Where(t => t.IsDeleted == false)
-                                .Select(t => new TutorialDto
-                                {
-                                    TutorialId = t.TutorialId,
-                                    TutorialName = t.TutorialName ?? string.Empty,
-                                    ClassDay = t.TutorialClassDay ?? string.Empty,
-                                }).ToList()
-                        }).ToList()
+                        Courses = courses
+                            .Where(c => c.Semester.EndWeek >= DateOnly.FromDateTime(DateTime.Now))
+                            .Select(c => new CourseDto
+                            {
+                                CourseId = c.CourseId,
+                                CourseCode = c.CourseCode,
+                                CourseName = c.CourseName,
+                                CourseSession = c.CourseSession,
+                                OnClassDay = c.ClassDay ?? string.Empty,
+                                Tutorials = c.Tutorials
+                                    .Where(t => t.IsDeleted == false)
+                                    .Select(t => new TutorialDto
+                                    {
+                                        TutorialId = t.TutorialId,
+                                        TutorialName = t.TutorialName ?? string.Empty,
+                                        ClassDay = t.TutorialClassDay ?? string.Empty,
+                                    }).ToList()
+                            }).ToList()
                     };
                     return response;
                 },

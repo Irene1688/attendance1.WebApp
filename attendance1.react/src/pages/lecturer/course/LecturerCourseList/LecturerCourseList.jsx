@@ -113,7 +113,6 @@ const LecturerCourseList = () => {
     }
   };
 
-  console.log('courses', courses);
   return (
     <Box sx={{ pl: 3, pr: 3 }}>
       {loading && <Loader />}

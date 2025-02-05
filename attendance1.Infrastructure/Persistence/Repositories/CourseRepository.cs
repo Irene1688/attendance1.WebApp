@@ -145,7 +145,7 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                 .Where(c => 
                     c.LecturerId == lecturerId && 
                     c.IsDeleted == false &&
-                    c.Semester.EndWeek > DateOnly.FromDateTime(DateTime.Now))
+                    c.Semester.EndWeek >= DateOnly.FromDateTime(DateTime.Now))
                 .AsNoTracking()
                 .ToListAsync());
         }
@@ -450,6 +450,7 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                     c.LecturerId == lectureId && 
                     c.IsDeleted == false)
                 .Include(c => c.Tutorials)
+                .Include(c => c.Semester)
                 .AsNoTracking()
                 .ToListAsync());
         }

@@ -99,10 +99,10 @@ const CourseStudentTable = ({
       <TableCell>{student.tutorialName}</TableCell>
       <TableCell>
         <span style={{ 
-          color: student.attendanceRate >= 80 ? 'green' : 
-                 student.attendanceRate >= 60 ? 'orange' : 'red'
+          color: student.attendanceRate * 100 >= 80 ? 'green' : 
+                 student.attendanceRate * 100 >= 60 ? 'orange' : 'red'
         }}>
-          {student.attendanceRate}%
+          {student.attendanceRate * 100}%
         </span>
       </TableCell>
       <TableCell>

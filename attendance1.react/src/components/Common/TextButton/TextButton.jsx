@@ -1,4 +1,4 @@
-import { Button as MuiButton } from '@mui/material';
+import { Button as MuiButton, useTheme } from '@mui/material';
 import { styles } from './TextButton.styles';
 
 const TextButton = ({ 
@@ -15,11 +15,14 @@ const TextButton = ({
       case 'delete':
         return styles.delete;
       case 'cancel':
-        return styles.cancel;
+        return themedStyles.cancel;
       default:
-        return styles.primary;
+        return themedStyles.primary;
     }
   };
+  
+  const theme = useTheme();
+  const themedStyles = styles(theme);
 
   return (
     <MuiButton
@@ -27,9 +30,9 @@ const TextButton = ({
       onClick={onClick}
       startIcon={Icon}
       sx={{
-        ...styles.base,
+        ...themedStyles.base,
         ...getColorStyle(color),
-        ...(Icon && styles.withIcon)
+        ...(Icon && themedStyles.withIcon)
       }}
       {...props}
     >
