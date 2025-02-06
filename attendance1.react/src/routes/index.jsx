@@ -22,10 +22,11 @@ import {
   LecturerCourseList 
 } from '../pages/lecturer';
 import {
-  StudentHome
+  StudentHome,
+  MePage,
+  StudentClassDetail
 } from '../pages/student';
 import Profile from '../pages/Shared/Profile';
-// import StudentClasses from '../pages/student/Classes/Classes';
 // import StudentCheckIn from '../pages/student/CheckIn/CheckIn';
 // import StudentProfile from '../pages/student/Profile/Profile';
 
@@ -150,18 +151,18 @@ export const router = createBrowserRouter([
         path: 'home',
         element: <StudentHome />
       },
-      // {
-      //   path: 'classes',
-      //   element: <StudentClasses />
-      // },
-      // {
-      //   path: 'check-in',
-      //   element: <StudentCheckIn />
-      // },
-      // {
-      //   path: 'profile',
-      //   element: <StudentProfile />
-      // }
+      {
+        path: 'classes/:id',
+        element: <StudentClassDetail />
+      },
+      {
+        path: 'me',
+        element: <MePage />
+      },
+      {
+        path: 'profile',
+        element: <Profile />
+      }
     ]
   },
   {

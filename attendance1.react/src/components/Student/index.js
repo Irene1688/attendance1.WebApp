@@ -1,2 +1,3 @@
 export { default as AttendanceRecordList } from './AttendanceRecordList/AttendanceRecordList';
-export { default as ClassesList } from './ClassesList/ClassesList';
+export { default as CheckInCard } from './CheckInCard/CheckInCard';
+export { default as WeeklyAttendanceCard } from './WeeklyAttendanceCard/WeeklyAttendanceCard';

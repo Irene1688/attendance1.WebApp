@@ -4,7 +4,7 @@ export const styles = (theme) => ({
   root: {
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing(3)
+    gap: theme.spacing(3),
   },
   header: {
     marginBottom: theme.spacing(1)

@@ -1,6 +1,5 @@
 import HomeIcon from '@mui/icons-material/Home';
-import ClassIcon from '@mui/icons-material/Class';
-import QrCodeIcon from '@mui/icons-material/QrCode';
+import PersonIcon from '@mui/icons-material/Person';
 
 export const menuItems = [
   {
@@ -9,13 +8,8 @@ export const menuItems = [
     icon: HomeIcon
   },
   {
-    title: 'Classes',
-    path: '/classes',
-    icon: ClassIcon
-  },
-  {
-    title: 'Check In',
-    path: '/check-in',
-    icon: QrCodeIcon
+    title: 'Me',
+    path: '/me',
+    icon: PersonIcon
   }
 ]; 

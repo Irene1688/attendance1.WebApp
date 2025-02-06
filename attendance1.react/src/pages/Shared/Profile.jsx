@@ -1,23 +1,27 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, useNavigate } from 'react-router-dom';
 import { 
   Box, 
   Paper, 
   Grid,
   Divider
 } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { 
   AvatarSection,
   TextButton, 
   PromptMessage,
-  Loader 
+  Loader,
+  IconButton
 } from '../../components/Common';
 import { AdminHeader } from '../../components/Admin';
 import { ProfileForm } from '../../components/Shared';
 import { useAuth } from '../../hooks/auth';
 import { useMessageContext } from '../../contexts/MessageContext';
+import { USER_ROLES } from '../../constants/userRoles';
 
 const Profile = () => {
+  const navigate = useNavigate();
   const { setPageTitle } = useOutletContext();
   const { profileData, fetchUserProfile, updateProfile, loading } = useAuth();
   const { message, showSuccessMessage, showErrorMessage, hideMessage } = useMessageContext();
@@ -65,6 +69,14 @@ const Profile = () => {
       )}
 
       <Paper sx={{ p: 3 }}>
+        {
+          profileData?.role === USER_ROLES.STUDENT && !isEditing && (
+            <IconButton 
+              onClick={() => navigate('/student/me')}
+              Icon={<ArrowBackIcon />}
+              sx={{ mr: 2, float: 'left' }} />
+          )
+        }
         <AdminHeader title="Profile" isTitleBold={true} sx={{ mb: 2 }}>
           {!isEditing && (
             <TextButton

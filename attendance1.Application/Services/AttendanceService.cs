@@ -333,7 +333,7 @@ namespace attendance1.Application.Services
             );
         }
 
-        public async Task<Result<List<GetAttendanceRecordByStudentIdResponseDto>>> GetAttendanceOfStudentInCurrentWeekAsync(DataIdRequestDto requestDto)
+        public async Task<Result<List<GetAttendanceRecordByStudentIdResponseDto>>> GetAttendanceOfStudentAsync(DataIdRequestDto requestDto, bool isCurrentWeek = false)
         {
            var studentId = requestDto.IdInString ?? string.Empty;
 
@@ -342,16 +342,27 @@ namespace attendance1.Application.Services
                 if (!await _validateService.ValidateStudentAsync(studentId))
                     throw new KeyNotFoundException("Student not found");
 
-                var today = DateTime.UtcNow;
-                var currentWeekStart = today.Date.AddDays(-(int)today.DayOfWeek + 1); // Monday
-                var currentWeekEnd = currentWeekStart.AddDays(6); // Sunday
-
                 var attendanceRecords = await _attendanceRepository.GetAttendanceDataByStudentIdAsync(studentId);
-                var filteredRecords = attendanceRecords
-                    .Where(a => a.DateAndTime.Date >= currentWeekStart && a.DateAndTime.Date <= currentWeekEnd)
-                    .ToList();
+                if (requestDto.IdInInteger > 0)
+                {
+                    // filter by course id
+                    attendanceRecords = attendanceRecords
+                        .Where(a => a.CourseId == requestDto.IdInInteger)
+                        .ToList();
+                }
 
-                var attendanceRecord = filteredRecords
+                if (isCurrentWeek)
+                {
+                    // filter by current week
+                    var today = DateTime.UtcNow;
+                    var currentWeekStart = today.Date.AddDays(-(int)today.DayOfWeek + 1); // Monday
+                    var currentWeekEnd = currentWeekStart.AddDays(6); // Sunday
+                    attendanceRecords = attendanceRecords
+                        .Where(a => a.DateAndTime.Date >= currentWeekStart && a.DateAndTime.Date <= currentWeekEnd)
+                        .ToList();
+                }
+
+                var attendanceRecord = attendanceRecords
                     .Select( a => new GetAttendanceRecordByStudentIdResponseDto
                     {
                         IsPresent = a.IsPresent,
@@ -371,5 +382,62 @@ namespace attendance1.Application.Services
             },
             $"Failed to get attendance records of student ID {studentId}");
         }
+
+        public async Task<Result<bool>> SubmitAttendanceAsync(CreateAttendanceRecordRequestDto requestDto)
+        {
+            var submittedTime = DateTime.UtcNow;
+            
+            return await ExecuteAsync(async () =>
+            {
+                if (!await _validateService.ValidateStudentAsync(requestDto.StudentId))
+                    throw new KeyNotFoundException("Student not found");
+                    
+                var attendanceCodeDetails = await _attendanceRepository.GetAttendanceCodeDetailsByCodeAsync(requestDto.AttendanceCode);
+                if (attendanceCodeDetails == null)
+                    throw new KeyNotFoundException("Attendance code not found");
+                
+                if (!attendanceCodeDetails.EndTime.HasValue)
+                    throw new Exception("Invalid attendance end time");
+
+                // Adjust for timezone differences
+                var submittedTimeUtc = submittedTime.ToUniversalTime(); // Convert submitted time to UTC
+                var attendanceCodeEndTime = attendanceCodeDetails.EndTime.Value; // Get the end time
+                var attendanceCodeEndTimeUtc = attendanceCodeDetails.Date.ToDateTime(attendanceCodeEndTime).ToUniversalTime(); // Convert end time to UTC
+
+                var isAttendanceCodeExpired = submittedTimeUtc > attendanceCodeEndTimeUtc; // Compare in UTC
+                if (isAttendanceCodeExpired)
+                    throw new InvalidOperationException("Attendance code expired");
+                
+                var isValidStudent = await _courseRepository.HasStudentEnrolledInCourseAsync(requestDto.StudentId, attendanceCodeDetails.CourseId);
+                if (!isValidStudent)
+                    throw new InvalidOperationException("You are not enrolled in this class");
+
+                if (!attendanceCodeDetails.IsLecture)
+                {
+                    var isStudentInTutorial = await _courseRepository.HasStudentEnrolledInTutorialAsync(requestDto.StudentId, attendanceCodeDetails.CourseId, attendanceCodeDetails.TutorialId ?? 0);
+                    if (!isStudentInTutorial)
+                        throw new InvalidOperationException("You are not enrolled in this tutorial");
+                }
+
+                var isStudentDuplicated = await _attendanceRepository.HasAttendanceRecordExistedAsync(requestDto.StudentId, attendanceCodeDetails.RecordId);
+                if (isStudentDuplicated)
+                    throw new InvalidOperationException("You have already submitted attendance");
+
+                var attendanceData = new StudentAttendance
+                {
+                    StudentId = requestDto.StudentId,
+                    DateAndTime = submittedTime,
+                    CourseId = attendanceCodeDetails.CourseId,
+                    IsPresent = true,
+                    Remark = $"Present at {submittedTime}",
+                    RecordId = attendanceCodeDetails.RecordId,
+                };
+
+                await _attendanceRepository.CreateAttendanceDataAsync(attendanceData);
+                return true;
+            },
+            $"Failed to submit attendance for student ID {requestDto.StudentId}");
+        }
+    
     }
 }

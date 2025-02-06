@@ -67,7 +67,8 @@ export const useCourseById = () => {
     );
   }, [handleApiCall, user?.campusId]);
 
-  const fetchActiveCoursesByStudentId = useCallback(async () => {
+  // fetch enrolled courses selection of a student
+  const fetchEnrolledCoursesSelectionByStudentId = useCallback(async () => {
     if (!user?.campusId) return;
 
     const requestDto = {
@@ -75,13 +76,28 @@ export const useCourseById = () => {
       idInInteger: user.userId
     };
     return await handleApiCall(
-      () => courseApi.getActiveCoursesByStudentId(requestDto),
+      () => courseApi.getEnrolledCoursesSelectionByStudentId(requestDto),
+      (response) => response
+    );
+  }, [handleApiCall, user?.campusId]);
+
+  // fetch enrolled course details with enrolled tutorial of a student
+  const fetchEnrolledCourseDetailsWithEnrolledTutorial = useCallback(async (courseId) => {
+    if (!user?.campusId || !courseId) return;
+
+    const requestDto = {
+      idInString: user.campusId,
+      idInInteger: Number(courseId)
+    };
+    return await handleApiCall(
+      () => courseApi.getEnrolledCourseDetailsWithEnrolledTutorial(requestDto),
       (response) => {
-        setActiveCourses(response || []);
+        setCourse(response);
         return response;
       }
     );
   }, [handleApiCall, user?.campusId]);
+
 
 
   // fetch all details of a course
@@ -111,7 +127,8 @@ export const useCourseById = () => {
     // operations
     fetchActiveCoursesMenuItems,
     fetchActiveCoursesByLecturerId,
-    fetchActiveCoursesByStudentId,
+    fetchEnrolledCoursesSelectionByStudentId,
+    fetchEnrolledCourseDetailsWithEnrolledTutorial,
     fetchCourseById
   };
 }; 

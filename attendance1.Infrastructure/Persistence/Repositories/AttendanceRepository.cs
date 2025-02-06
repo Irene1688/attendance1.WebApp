@@ -222,11 +222,20 @@ namespace attendance1.Infrastructure.Persistence.Repositories
 
         public async Task<AttendanceRecord> GetAttendanceCodeDetailsByCodeAsync(string attendanceCode)
         {
-            return await ExecuteGetAsync(async () => await _database.AttendanceRecords
-                .OrderByDescending(a => a.RecordId)
-                .Take(100)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(a => a.AttendanceCode == attendanceCode));
+            return await ExecuteGetAsync(async () => 
+            {
+                var attendanceRecord = await _database.AttendanceRecords
+                    .Where(a => 
+                        a.Date == DateOnly.FromDateTime(DateTime.UtcNow.Date) &&
+                        a.AttendanceCode == attendanceCode)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync();
+
+                if (attendanceRecord == null)
+                    throw new KeyNotFoundException("Attendance code not found");
+
+                return attendanceRecord;
+            });
         }
 
         public async Task<bool> CreateAttendanceDataAsync(StudentAttendance studentAttendance)

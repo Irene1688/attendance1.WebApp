@@ -57,13 +57,18 @@ namespace attendance1.WebApi.Controllers
         }
 
         [HttpPost("getAttendanceOfStudent")]
-        public async Task<ActionResult<List<GetAttendanceRecordByStudentIdResponseDto>>> GetAttendanceOfStudent([FromBody] DataIdRequestDto requestDto)
+        public async Task<ActionResult<List<GetAttendanceRecordByStudentIdResponseDto>>> GetAttendanceOfStudent([FromBody] DataIdRequestDto requestDto, [FromQuery] bool isCurrentWeek = false)
         {
-            var result = await _attendanceService.GetAttendanceOfStudentInCurrentWeekAsync(requestDto);
+            var result = await _attendanceService.GetAttendanceOfStudentAsync(requestDto, isCurrentWeek);
             return StatusCode((int)result.StatusCode, result);
         }
 
-
+        [HttpPost("submitAttendance")]
+        public async Task<ActionResult<bool>> SubmitAttendance([FromBody] CreateAttendanceRecordRequestDto requestDto)
+        {
+            var result = await _attendanceService.SubmitAttendanceAsync(requestDto);
+            return StatusCode((int)result.StatusCode, result);
+        }
 
 
 

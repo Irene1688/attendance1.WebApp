@@ -632,7 +632,7 @@ namespace attendance1.Application.Services
         #endregion
 
         #region Student fetch Course
-        public async Task<Result<List<GetStudentActiveCourseResponseDto>>> GetActiveCoursesByStudentIdAsync(DataIdRequestDto requestDto)
+        public async Task<Result<List<GetStudentEnrolledCourseSelectionResponseDto>>> GetEnrolledCourseSelectionByStudentIdAsync(DataIdRequestDto requestDto)
         {
             return await ExecuteAsync(async () =>
             {
@@ -640,31 +640,90 @@ namespace attendance1.Application.Services
                     throw new KeyNotFoundException("Student not found");
 
                 var courses = await _courseRepository.GetEnrollmentCoursesByStudentIdAsync(requestDto.IdInString ?? string.Empty);
-                var studentTutorials = await _courseRepository.GetTutorialsByStudentIdAsync(requestDto.IdInString ?? string.Empty);
+
                 return courses
-                    .Where(c => 
-                        c.Semester.EndWeek >= DateOnly.FromDateTime(DateTime.Now) &&
-                        c.IsDeleted == false)
-                    .Select(c => new GetStudentActiveCourseResponseDto
+                    .Where(c => c.IsDeleted == false)
+                    .Select(c => new GetStudentEnrolledCourseSelectionResponseDto
                     {
                         CourseId = c.CourseId,
                         CourseCode = c.CourseCode,
                         CourseName = c.CourseName,
-                        ClassDay = c.ClassDay ?? string.Empty,
-                        LecturerName = c.User?.UserName ?? string.Empty,
-                        Tutorials = c.Tutorials
+                        IsActive = c.Semester.EndWeek >= DateOnly.FromDateTime(DateTime.Now)
+                    }).ToList();
+            }, $"Error occurred while getting the active classes");
+        }
+
+        public async Task<Result<GetEnrolledCourseDetailWithEnrolledTutorialResponseDto>> GetCourseDetailsWithEnrolledTutorialAsync(DataIdRequestDto requestDto)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                if (!await _validateService.ValidateCourseAsync(requestDto.IdInInteger ?? 0))
+                    throw new KeyNotFoundException("Class not found");
+                if (!await _validateService.ValidateStudentAsync(requestDto.IdInString ?? string.Empty))
+                    throw new KeyNotFoundException("Student not found");
+                if (!await _validateService.HasStudentInTheCourseAsync(requestDto.IdInInteger ?? 0, requestDto.IdInString ?? string.Empty))
+                    throw new UnauthorizedAccessException("You are not enrolled in the class");
+
+                var classDetails = await _courseRepository.GetCourseDetailsAsync(requestDto.IdInInteger ?? 0);
+                var studentEnrolledTutorialId = classDetails.EnrolledStudents
+                    .FirstOrDefault(s => s.StudentId == requestDto.IdInString)
+                    ?.TutorialId ?? 0;
+                
+                return new GetEnrolledCourseDetailWithEnrolledTutorialResponseDto 
+                {
+                    CourseId = classDetails.CourseId,
+                    LecturerName = classDetails.User?.UserName ?? string.Empty,
+                    CourseCode = classDetails.CourseCode,
+                    CourseName = classDetails.CourseName,
+                    CourseSession = classDetails.CourseSession,
+                    ProgrammeName = classDetails.Programme.ProgrammeName,
+                    EnrolledTutorial = classDetails.Tutorials
                         .Where(t => 
-                            t.IsDeleted == false &&
-                            studentTutorials.Any(st => st.TutorialId == t.TutorialId))
+                            t.IsDeleted == false && 
+                            t.TutorialId == studentEnrolledTutorialId)
                         .Select(t => new TutorialDto
                         {
                             TutorialId = t.TutorialId,
                             TutorialName = t.TutorialName ?? string.Empty,
                             ClassDay = t.TutorialClassDay ?? string.Empty,
-                        }).ToList()
-                    }).ToList();
-            }, $"Error occurred while getting the active courses");
+                        }).FirstOrDefault() ?? new TutorialDto(),
+                };
+            }, $"Error occurred while getting the course details");
+
         }
+        // public async Task<Result<GetStudentEnrolledCourseSelectionResponseDto>> GetEnrolledCourseSelectionByStudentIdAsync(DataIdRequestDto requestDto)
+        // {
+        //     return await ExecuteAsync(async () =>
+        //     {
+        //         if (!await _validateService.ValidateStudentAsync(requestDto.IdInString ?? string.Empty))
+        //             throw new KeyNotFoundException("Student not found");
+
+        //         var courses = await _courseRepository.GetEnrollmentCoursesByStudentIdAsync(requestDto.IdInString ?? string.Empty);
+        //         var studentTutorials = await _courseRepository.GetTutorialsByStudentIdAsync(requestDto.IdInString ?? string.Empty);
+        //         return courses
+        //             .Where(c => 
+        //                 c.Semester.EndWeek >= DateOnly.FromDateTime(DateTime.Now) &&
+        //                 c.IsDeleted == false)
+        //             .Select(c => new GetStudentActiveCourseResponseDto
+        //             {
+        //                 CourseId = c.CourseId,
+        //                 CourseCode = c.CourseCode,
+        //                 CourseName = c.CourseName,
+        //                 ClassDay = c.ClassDay ?? string.Empty,
+        //                 LecturerName = c.User?.UserName ?? string.Empty,
+        //                 Tutorials = c.Tutorials
+        //                 .Where(t => 
+        //                     t.IsDeleted == false &&
+        //                     studentTutorials.Any(st => st.TutorialId == t.TutorialId))
+        //                 .Select(t => new TutorialDto
+        //                 {
+        //                     TutorialId = t.TutorialId,
+        //                     TutorialName = t.TutorialName ?? string.Empty,
+        //                     ClassDay = t.TutorialClassDay ?? string.Empty,
+        //                 }).ToList()
+        //             }).ToList();
+        //     }, $"Error occurred while getting the active courses");
+        // }
         #endregion
     }
 }

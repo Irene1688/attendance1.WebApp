@@ -473,8 +473,6 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                     && s.IsDeleted == false)
                 .Include(s => s.Course)
                 .Include(s => s.Course.Semester)
-                .Include(s => s.Course.User)
-                .Include(s => s.Course.Tutorials)
                 .Select(s => s.Course)
                 .AsNoTracking()
                 .ToListAsync());

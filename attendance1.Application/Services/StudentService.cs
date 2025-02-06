@@ -58,123 +58,119 @@ namespace attendance1.Application.Services
         //     $"Failed to get attendance records of student ID {studentId}");
         // }
 
-        public async Task<Result<bool>> SubmitAttendanceAsync(CreateAttendanceRecordRequestDto requestDto)
-        {
-            var submittedTime = DateTime.UtcNow;
-            var studentId = requestDto.StudentId;
-            if (!await _validateService.ValidateStudentAsync(studentId))
-                return Result<bool>.FailureResult("Student not found", HttpStatusCode.NotFound);
-    
-            return await ExecuteAsync(async () =>
-            {
-                var submittedCode = requestDto.AttendanceCode;
-                var attendanceCodeDetails = await _attendanceRepository.GetAttendanceCodeDetailsByCodeAsync(submittedCode);
-
-                var isValidStudent = await _courseRepository.HasStudentEnrolledInCourseAsync(studentId, attendanceCodeDetails.CourseId);
-                if (!isValidStudent)
-                    throw new Exception("Student not enrolled in this course");
-                    //return Result<bool>.FailureResult("Student not enrolled in this course", HttpStatusCode.BadRequest);
-
-                if (!attendanceCodeDetails.IsLecture)
-                {
-                    var isStudentInTutorial = await _courseRepository.HasStudentEnrolledInTutorialAsync(studentId, attendanceCodeDetails.CourseId, attendanceCodeDetails.TutorialId ?? 0);
-                    if (!isStudentInTutorial)
-                        throw new Exception("Student not belong to this tutorial");
-                        //return Result<bool>.FailureResult("Student not belong to this tutorial", HttpStatusCode.BadRequest);
-                }
-
-                var isStudentDuplicated = await _attendanceRepository.HasAttendanceRecordExistedAsync(studentId, attendanceCodeDetails.RecordId);
-                if (isStudentDuplicated)
-                    throw new Exception("Student already submitted attendance");
-                    //return Result<bool>.FailureResult("Student already submitted attendance", HttpStatusCode.BadRequest);
-
-                if (!attendanceCodeDetails.EndTime.HasValue)
-                    throw new Exception("Invalid attendance end time");
-                    //return Result<bool>.FailureResult("Invalid attendance end time", HttpStatusCode.BadRequest);
-                var isAttendanceCodeExpired = submittedTime.TimeOfDay > attendanceCodeDetails.EndTime.Value.ToTimeSpan();
-                if (isAttendanceCodeExpired)
-                    throw new Exception("Attendance code expired");
-                    //return Result<bool>.FailureResult("Attendance code expired", HttpStatusCode.BadRequest);
-
-                var attendanceData = new StudentAttendance
-                {
-                    StudentId = studentId,
-                    DateAndTime = submittedTime,
-                    CourseId = attendanceCodeDetails.CourseId,
-                    IsPresent = true,
-                    Remark = null,
-                    RecordId = attendanceCodeDetails.RecordId,
-                };
-
-                await _attendanceRepository.CreateAttendanceDataAsync(attendanceData);
-                return true;
-            },
-            $"Failed to submit attendance for student ID {studentId}");
-        }
-
-        public async Task<Result<List<DataIdResponseDto>>> GetEnrollmentClassesAsync(DataIdRequestDto requestDto)
-        {
-            var studentId = requestDto.IdInString ?? string.Empty;
-            if (!await _validateService.ValidateStudentAsync(studentId))
-                return Result<List<DataIdResponseDto>>.FailureResult("Student not found", HttpStatusCode.NotFound);
-
-            return await ExecuteAsync(async () =>
-            {
-                var enrollmentClasses = await _courseRepository.GetEnrollmentCoursesByStudentIdAsync(studentId);
-                return enrollmentClasses.Select(c => new DataIdResponseDto 
-                {
-                    Id = c.CourseId, 
-                    Name = c.CourseName 
-                }).ToList();
-            },
-            $"Failed to get enrollment classes of student ID {studentId}");
-        }
-
-        public async Task<Result<GetClassDetailsWithAttendanceResponseDto>> GetClassDetailsWithAttendanceByStudentIdAsync(DataIdRequestDto requestDto)
-        {
-            var studentId = requestDto.IdInString ?? string.Empty;
-            var courseId = requestDto.IdInInteger ?? 0;
-            if (!await _validateService.ValidateStudentAsync(studentId))
-                return Result<GetClassDetailsWithAttendanceResponseDto>.FailureResult("Student not found", HttpStatusCode.NotFound);
-
-            if (!await _validateService.ValidateCourseAsync(courseId))
-                return Result<GetClassDetailsWithAttendanceResponseDto>.FailureResult("Course not found", HttpStatusCode.NotFound);
+        // public async Task<Result<bool>> SubmitAttendanceAsync(CreateAttendanceRecordRequestDto requestDto)
+        // {
+        //     var submittedTime = DateTime.UtcNow;
             
-            return await ExecuteAsync(async () =>
-            {
-                var attendanceRecords = await _attendanceRepository.GetAttendanceDataByStudentIdAsync(studentId);
+        //     return await ExecuteAsync(async () =>
+        //     {
+        //         if (!await _validateService.ValidateStudentAsync(requestDto.StudentId))
+        //             throw new KeyNotFoundException("Student not found");
+                    
+        //         var attendanceCodeDetails = await _attendanceRepository.GetAttendanceCodeDetailsByCodeAsync(requestDto.AttendanceCode);
+        //         if (attendanceCodeDetails == null)
+        //             throw new KeyNotFoundException("Attendance code not found");
                 
-                var course = attendanceRecords.First().Course ?? throw new Exception("Course not found");
-                var lecturerName = await _userRepository.GetLecturerNameByLecturerIdAsync(attendanceRecords.First().Course?.LecturerId ?? string.Empty);
+        //         if (!attendanceCodeDetails.EndTime.HasValue)
+        //             throw new Exception("Invalid attendance end time");
+        //         var isAttendanceCodeExpired = submittedTime.TimeOfDay > attendanceCodeDetails.EndTime.Value.ToTimeSpan();
+        //         if (isAttendanceCodeExpired)
+        //             throw new InvalidOperationException("Attendance code expired");
                 
-                var processedAttendanceRecordsTask = attendanceRecords
-                    .Where(a => a.CourseId == courseId)
-                    .OrderByDescending(a => a.DateAndTime)
-                    .Select(async a =>
-                    {
-                        var tutorialName = await _courseRepository.GetTutorialNameByTutorialIdAsync(a.Record?.TutorialId ?? 0);
-                        return new AttendanceDto
-                        {
-                            IsPresent = a.IsPresent,
-                            AttendanceTime = a.DateAndTime,
-                            SessionName = a.Record?.IsLecture == true 
-                                ? "Lecture" 
-                                : tutorialName
-                        };
-                    });
+        //         var isValidStudent = await _courseRepository.HasStudentEnrolledInCourseAsync(requestDto.StudentId, attendanceCodeDetails.CourseId);
+        //         if (!isValidStudent)
+        //             throw new InvalidOperationException("You are not enrolled in this class");
 
-                var attendanceResults = await Task.WhenAll(processedAttendanceRecordsTask);
+        //         if (!attendanceCodeDetails.IsLecture)
+        //         {
+        //             var isStudentInTutorial = await _courseRepository.HasStudentEnrolledInTutorialAsync(requestDto.StudentId, attendanceCodeDetails.CourseId, attendanceCodeDetails.TutorialId ?? 0);
+        //             if (!isStudentInTutorial)
+        //                 throw new InvalidOperationException("You are not enrolled in this tutorial");
+        //         }
 
-                return new GetClassDetailsWithAttendanceResponseDto 
-                {
-                    ClassCode = course.CourseCode ?? string.Empty,
-                    ClassName =course.CourseName ?? string.Empty,
-                    LectureName = lecturerName,
-                    AttendanceRecords = attendanceResults.ToList()
-                };
-            },
-            $"Failed to get class details with attendance of student ID {studentId} and course ID {courseId}");
-        }
+        //         var isStudentDuplicated = await _attendanceRepository.HasAttendanceRecordExistedAsync(requestDto.StudentId, attendanceCodeDetails.RecordId);
+        //         if (isStudentDuplicated)
+        //             throw new InvalidOperationException("You have already submitted attendance");
+
+        //         var attendanceData = new StudentAttendance
+        //         {
+        //             StudentId = requestDto.StudentId,
+        //             DateAndTime = submittedTime,
+        //             CourseId = attendanceCodeDetails.CourseId,
+        //             IsPresent = true,
+        //             Remark = $"Present at {submittedTime}",
+        //             RecordId = attendanceCodeDetails.RecordId,
+        //         };
+
+        //         await _attendanceRepository.CreateAttendanceDataAsync(attendanceData);
+        //         return true;
+        //     },
+        //     $"Failed to submit attendance for student ID {requestDto.StudentId}");
+        // }
+
+        // public async Task<Result<List<DataIdResponseDto>>> GetEnrollmentClassesAsync(DataIdRequestDto requestDto)
+        // {
+        //     var studentId = requestDto.IdInString ?? string.Empty;
+        //     if (!await _validateService.ValidateStudentAsync(studentId))
+        //         return Result<List<DataIdResponseDto>>.FailureResult("Student not found", HttpStatusCode.NotFound);
+
+        //     return await ExecuteAsync(async () =>
+        //     {
+        //         var enrollmentClasses = await _courseRepository.GetEnrollmentCoursesByStudentIdAsync(studentId);
+        //         return enrollmentClasses.Select(c => new DataIdResponseDto 
+        //         {
+        //             Id = c.CourseId, 
+        //             Name = c.CourseName 
+        //         }).ToList();
+        //     },
+        //     $"Failed to get enrollment classes of student ID {studentId}");
+        //}
+
+        // public async Task<Result<GetClassDetailsWithAttendanceResponseDto>> GetClassDetailsWithAttendanceByStudentIdAsync(DataIdRequestDto requestDto)
+        // {
+        //     var studentId = requestDto.IdInString ?? string.Empty;
+        //     var courseId = requestDto.IdInInteger ?? 0;
+        //     if (!await _validateService.ValidateStudentAsync(studentId))
+        //         return Result<GetClassDetailsWithAttendanceResponseDto>.FailureResult("Student not found", HttpStatusCode.NotFound);
+
+        //     if (!await _validateService.ValidateCourseAsync(courseId))
+        //         return Result<GetClassDetailsWithAttendanceResponseDto>.FailureResult("Course not found", HttpStatusCode.NotFound);
+            
+        //     return await ExecuteAsync(async () =>
+        //     {
+        //         var attendanceRecords = await _attendanceRepository.GetAttendanceDataByStudentIdAsync(studentId);
+                
+        //         var course = attendanceRecords.First().Course ?? throw new Exception("Course not found");
+        //         var lecturerName = await _userRepository.GetLecturerNameByLecturerIdAsync(attendanceRecords.First().Course?.LecturerId ?? string.Empty);
+                
+        //         var processedAttendanceRecordsTask = attendanceRecords
+        //             .Where(a => a.CourseId == courseId)
+        //             .OrderByDescending(a => a.DateAndTime)
+        //             .Select(async a =>
+        //             {
+        //                 var tutorialName = await _courseRepository.GetTutorialNameByTutorialIdAsync(a.Record?.TutorialId ?? 0);
+        //                 return new AttendanceDto
+        //                 {
+        //                     IsPresent = a.IsPresent,
+        //                     AttendanceTime = a.DateAndTime,
+        //                     SessionName = a.Record?.IsLecture == true 
+        //                         ? "Lecture" 
+        //                         : tutorialName
+        //                 };
+        //             });
+
+        //         var attendanceResults = await Task.WhenAll(processedAttendanceRecordsTask);
+
+        //         return new GetClassDetailsWithAttendanceResponseDto 
+        //         {
+        //             ClassCode = course.CourseCode ?? string.Empty,
+        //             ClassName =course.CourseName ?? string.Empty,
+        //             LectureName = lecturerName,
+        //             AttendanceRecords = attendanceResults.ToList()
+        //         };
+        //     },
+        //     $"Failed to get class details with attendance of student ID {studentId} and course ID {courseId}");
+        // }
 
         public async Task<Result<List<GetAttendanceRecordByStudentIdResponseDto>>> GetAllAttendanceByStudentIdAsync(DataIdRequestDto requestDto)
         {

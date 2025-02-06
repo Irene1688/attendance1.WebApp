@@ -121,11 +121,18 @@ namespace attendance1.WebApi.Controllers
         #endregion
 
         #region Student fetch Course
-        [HttpPost("getActiveCoursesByStudentId")]
-        public async Task<ActionResult<List<GetStudentActiveCourseResponseDto>>> GetActiveCoursesByStudentId([FromBody] DataIdRequestDto requestDto)
+        [HttpPost("getEnrolledCoursesSelectionByStudentId")]
+        public async Task<ActionResult<List<GetStudentEnrolledCourseSelectionResponseDto>>> GetEnrolledCoursesSelectionByStudentId([FromBody] DataIdRequestDto requestDto)
         {
-            var courses = await _courseService.GetActiveCoursesByStudentIdAsync(requestDto);
+            var courses = await _courseService.GetEnrolledCourseSelectionByStudentIdAsync(requestDto);
             return StatusCode((int)courses.StatusCode, courses);
+        }
+
+        [HttpPost("getEnrolledCourseDetailsWithEnrolledTutorial")]
+        public async Task<ActionResult<GetEnrolledCourseDetailWithEnrolledTutorialResponseDto>> GetEnrolledCourseDetailsWithEnrolledTutorial([FromBody] DataIdRequestDto requestDto)
+        {
+            var courseDetails = await _courseService.GetCourseDetailsWithEnrolledTutorialAsync(requestDto);
+            return StatusCode((int)courseDetails.StatusCode, courseDetails);
         }
         #endregion
 

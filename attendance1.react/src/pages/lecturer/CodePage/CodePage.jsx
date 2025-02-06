@@ -17,14 +17,14 @@ const CodePage = () => {
   const themedStyles = styles(theme);
   const navigate = useNavigate();
   const location = useLocation();
-  const attendanceCode = location.state.attendanceCode;
-  const courseInfo = location.state.courseInfo;
+  const attendanceCode = location?.state?.attendanceCode;
+  const courseInfo = location?.state?.courseInfo;
   const [timeLeft, setTimeLeft] = useState(0);
   const [progress, setProgress] = useState(100);
   const { loading, markAbsentForUnattendedStudents } = useAttendanceManagement();
   const { showSuccessMessage } = useMessageContext();
   const [countdownStarted, setCountdownStarted] = useState(false);
-
+  console.log(attendanceCode);
   // calculate the total time and remaining time
   const calculateTimes = () => {
     if (!attendanceCode) return { totalTime: 0, remainingTime: 0 };
@@ -98,14 +98,15 @@ const CodePage = () => {
     return `${totalSeconds} sec`;
   };
 
-  // 处理倒计时结束
+  // handle countdown complete, insert attendance records for unattended students
   const handleCountdownComplete = useCallback(async () => {
+    if (!attendanceCode) return;
     // mark absent for unattended students
     const success = await markAbsentForUnattendedStudents(courseInfo.courseId, attendanceCode.codeId, attendanceCode.tutorialId);
     if (success) {
       showSuccessMessage('Attendance session completed');
     }
-  }, [attendanceCode.codeId, courseInfo.courseId, attendanceCode.tutorialId, timeLeft]);
+  }, [attendanceCode, timeLeft]);
 
   useEffect(() => {
     if (timeLeft > 0) setCountdownStarted(true);
@@ -115,13 +116,11 @@ const CodePage = () => {
   if (loading) return <Loader message="Processing attendance session..." />;
 
   return (
-    <Box
-      sx={themedStyles.container}
-    >
+    <Box sx={themedStyles.container}>
         {/* Header */}
         <Box sx={themedStyles.header}>
             <Typography variant="h6" sx={{ mb: 1, color: theme.palette.grey[600] }}>
-                {courseInfo.courseCode} - {courseInfo.courseName}
+                {courseInfo ? `${courseInfo.courseCode} - ${courseInfo.courseName}` : 'No course info'}
             </Typography>
         </Box>
 
@@ -137,12 +136,12 @@ const CodePage = () => {
         </Typography>
 
         <Typography variant="h2" sx={themedStyles.code}>
-          {attendanceCode.attendanceCode}
+          { attendanceCode ? attendanceCode.attendanceCode : 'No attendance code'}
         </Typography>
 
         {/* Duration */}
         <Typography variant="h6" sx={themedStyles.duration}>
-          {formatDuration(attendanceCode.startTime, attendanceCode.endTime)}
+          {attendanceCode ? formatDuration(attendanceCode.startTime, attendanceCode.endTime) : 'No duration'}
         </Typography>
 
         {/* Circular Progress */}

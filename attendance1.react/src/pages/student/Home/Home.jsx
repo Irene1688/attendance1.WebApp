@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { 
   Box, 
@@ -6,13 +6,18 @@ import {
   useTheme
 } from '@mui/material';
 import { useSelector } from 'react-redux';
-import { AttendanceRecordList, ClassesList } from '../../../components/Student';
+import { 
+  AttendanceRecordList, 
+  CheckInCard,
+  WeeklyAttendanceCard 
+} from '../../../components/Student';
 import { styles } from './Home.styles';
 import { useCourseById } from '../../../hooks/features/course/useCourseById';
 import { useAttendanceManagement } from '../../../hooks/features/attendance/useAttendanceManagement';
 import { useMessageContext } from '../../../contexts/MessageContext';
 import { PromptMessage, Loader } from '../../../components/Common';
-import { isTodayOnClass } from '../../../constants/courseConstant';
+import { isTodayOnClass, isSameDay } from '../../../constants/courseConstant';
+import { format } from 'date-fns';
 
 const StudentHome = () => {
   const theme = useTheme();
@@ -20,47 +25,54 @@ const StudentHome = () => {
   const { setPageTitle } = useOutletContext();
   const { user } = useSelector((state) => state.auth);
   const { loading: activeCoursesLoading, fetchActiveCoursesByStudentId } = useCourseById();
-  const { loading: attendanceLoading, fetchAttendanceOfStudent } = useAttendanceManagement();
-  const { message, hideMessage } = useMessageContext();
+  const { loading: attendanceLoading, fetchAttendanceOfStudent, submitAttendance } = useAttendanceManagement();
+  const { message, hideMessage, showSuccessMessage } = useMessageContext();
   const [todayClasses, setTodayClasses] = useState([]);
   const [recentAttendance, setRecentAttendance] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   useEffect(() => {
     setPageTitle('Home');
   }, [setPageTitle]);
 
-  const loadTodayCourses = useCallback(async () => {
-    const courses = await fetchActiveCoursesByStudentId();
-    setTodayClasses(courses?.filter(course => {
-      // Check if the course is on today's class day
-      const isOnClassDay = isTodayOnClass(course.onClassDay);
-      // Mark the type as 'Lecture' if it's on class day
-      const type = isOnClassDay ? 'Lecture' : course.tutorials?.some(tutorial => 
-        isTodayOnClass(tutorial.classDay) ? 'Tutorial' : null
-      );
-
-      return isOnClassDay || type;
-    }).map(course => ({
-      ...course,
-      type: isTodayOnClass(course.onClassDay) ? 'Lecture' : 
-            course.tutorials?.some(tutorial => isTodayOnClass(tutorial.classDay)) ? 'Tutorial' : undefined
-    })));
-  }, []);
-
-  useEffect(() => {
-    loadTodayCourses();
-  }, [loadTodayCourses]);
-
   const loadRecentAttendance = useCallback(async () => {
     if (!user.campusId) return;
-    const attendance = await fetchAttendanceOfStudent(user.campusId);
+    const attendance = await fetchAttendanceOfStudent(user.campusId, 0, true);
     setRecentAttendance(attendance);
-    console.log(attendance);
   }, [user.campusId]);
 
   useEffect(() => {
     loadRecentAttendance();
   }, [loadRecentAttendance]);
+
+  // filter attendance records by selected date
+  const filteredAttendance = useMemo(() => {
+    return recentAttendance.filter(record => 
+      isSameDay(new Date(record.date), selectedDate)
+    );
+  }, [recentAttendance, selectedDate]);
+
+  // handle date selection
+  const handleDateSelect = (date) => {
+    setSelectedDate(date);
+  };
+
+  // handle attendance submission
+  const handleSubmitAttendance = async (attendanceCode) => {
+    if (!attendanceCode) return;
+    if (!user.campusId) return;
+
+    const requestDto = {
+      studentId: user.campusId,
+      attendanceCode: attendanceCode
+    };
+    console.log(requestDto);
+    const success = await submitAttendance(requestDto);
+    if (success) {
+      loadRecentAttendance();
+      showSuccessMessage("Attendance submitted successfully");
+    }
+  };
 
   if (activeCoursesLoading || attendanceLoading) 
     return <Loader />;
@@ -86,18 +98,22 @@ const StudentHome = () => {
           {user?.campusId || ''}
         </Typography>
       </Box>
-      
-      <ClassesList
-        title="Today's Classes"
-        isLoading={activeCoursesLoading}
-        classes={todayClasses}
-        emptyMessage="No classes scheduled for today"
+
+      <CheckInCard 
+        onSubmit={handleSubmitAttendance}
+        isLoading={attendanceLoading}
+      />
+
+      <WeeklyAttendanceCard
+        records={recentAttendance}
+        onDateSelect={handleDateSelect}
       />
 
       <AttendanceRecordList
-        title="Recent Attendance"
+        title={`Attendance Records (${format(selectedDate, 'dd MMM yyyy')})`}
         isLoading={attendanceLoading}
-        records={recentAttendance}
+        records={filteredAttendance}
+        emptyMessage="No attendance records for this date"
       />
     </Box>
   );

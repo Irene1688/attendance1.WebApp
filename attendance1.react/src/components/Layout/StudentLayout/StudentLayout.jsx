@@ -25,6 +25,7 @@ const StudentLayout = () => {
   const theme = useTheme();
   const themedStyles = styles(theme);
   const [pageTitle, setPageTitle] = useState('');
+  const [hideBottomNav, setHideBottomNav] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { userProfile } = useSelector((state) => state.auth);
@@ -98,25 +99,32 @@ const StudentLayout = () => {
 
       {/* Main Content Area */}
       <Box sx={themedStyles.content}>
-        <Outlet context={{ setPageTitle }}/>
+        <Outlet context={{ 
+          pageTitle, 
+          setPageTitle,
+          hideBottomNav,
+          setHideBottomNav 
+        }} />
       </Box>
 
         {/* Bottom Navigation Bar */}
-        <BottomNavigation
-            value={getCurrentPageIndex()}
-            onChange={(event, newValue) => {
-            navigate(`/student${menuItems[newValue].path}`);
-            }}
-            sx={themedStyles.bottomNav}
-        >
-            {menuItems.map((item) => (
-              <BottomNavigationAction
-                  key={item.path}
-                  label={item.title}
-                  icon={<item.icon />}
-              />
-            ))}
-        </BottomNavigation>
+        {!hideBottomNav && (
+          <BottomNavigation
+              value={getCurrentPageIndex()}
+              onChange={(event, newValue) => {
+              navigate(`/student${menuItems[newValue].path}`);
+              }}
+              sx={themedStyles.bottomNav}
+          >
+              {menuItems.map((item) => (
+                <BottomNavigationAction
+                    key={item.path}
+                    label={item.title}
+                    icon={<item.icon />}
+                />
+              ))}
+          </BottomNavigation>
+        )}
       </Box>
     </>
   );

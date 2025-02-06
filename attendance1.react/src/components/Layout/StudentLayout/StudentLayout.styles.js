@@ -2,6 +2,7 @@ export const styles = (theme) => ({
   root: {
     display: 'flex',
     flexDirection: 'column',
+    maxWidth: '100vw',
     minHeight: '100vh',
     backgroundColor: theme.palette.background.default
   },

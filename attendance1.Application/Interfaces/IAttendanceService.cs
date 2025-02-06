@@ -21,6 +21,11 @@ namespace attendance1.Application.Interfaces
         /// <summary>
         /// Get the attendance of a student for a given course id
         /// </summary>
-        Task<Result<List<GetAttendanceRecordByStudentIdResponseDto>>> GetAttendanceOfStudentInCurrentWeekAsync(DataIdRequestDto requestDto);
+        Task<Result<List<GetAttendanceRecordByStudentIdResponseDto>>> GetAttendanceOfStudentAsync(DataIdRequestDto requestDto, bool isCurrentWeek = false);
+
+        /// <summary>
+        /// Submit attendance by a student
+        /// </summary>
+        Task<Result<bool>> SubmitAttendanceAsync(CreateAttendanceRecordRequestDto requestDto);
     }
 }

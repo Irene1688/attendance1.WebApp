@@ -23,10 +23,17 @@ namespace attendance1.Application.Interfaces
         #endregion
 
         #region Student fetch Course
+        // Task<Result<GetStudentEnrolledCourseSelectionResponseDto>> GetEnrolledCourseSelectionByStudentIdAsync(DataIdRequestDto requestDto);
+        
+        // /// <summary>
+        // /// Get enrolled courses selection by student id for menu selection
+        // /// </summary>
+        Task<Result<List<GetStudentEnrolledCourseSelectionResponseDto>>> GetEnrolledCourseSelectionByStudentIdAsync(DataIdRequestDto requestDto);
+        
         /// <summary>
-        /// Get active courses by student id
+        /// Get enrolled course details with enrolled tutorial by student id and course id
         /// </summary>
-        Task<Result<List<GetStudentActiveCourseResponseDto>>> GetActiveCoursesByStudentIdAsync(DataIdRequestDto requestDto);
+        Task<Result<GetEnrolledCourseDetailWithEnrolledTutorialResponseDto>> GetCourseDetailsWithEnrolledTutorialAsync(DataIdRequestDto requestDto);
         #endregion
 
         

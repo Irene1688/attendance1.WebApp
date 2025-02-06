@@ -106,16 +106,29 @@ export const useAttendanceManagement = () => {
     }, [handleApiCall]);
 
     // fetch attendance of a student
-    const fetchAttendanceOfStudent = useCallback(async (studentId) => {
+    const fetchAttendanceOfStudent = useCallback(async (studentId, courseId = 0, isCurrentWeek = false) => {
       const requestDto = {
-        idInString: studentId
+        idInString: studentId,
+        idInInteger: Number(courseId)
       }
       return await handleApiCall(
-        () => attendanceApi.getAttendanceOfStudent(requestDto),
+        () => attendanceApi.getAttendanceOfStudent(requestDto, isCurrentWeek),
         (response) => {
           setStudentAttendanceRecords(response);
           return response;
         }
+      );
+    }, [handleApiCall]);
+
+    // submit attendance by a student
+    const submitAttendance = useCallback(async (params) => {
+      const requestDto = {
+        studentId: params.studentId,
+        attendanceCode: String(params.attendanceCode)
+      };
+      return await handleApiCall(
+        () => attendanceApi.submitAttendance(requestDto),
+        () => true
       );
     }, [handleApiCall]);
 
@@ -132,7 +145,8 @@ export const useAttendanceManagement = () => {
         markAbsentForUnattendedStudents,
         generateNewAttendanceSession,
         updateStudentAttendanceStatus,
-        fetchAttendanceOfStudent
+        fetchAttendanceOfStudent,
+        submitAttendance
     }
     
 }

@@ -102,7 +102,7 @@ const CourseStudentTable = ({
           color: student.attendanceRate * 100 >= 80 ? 'green' : 
                  student.attendanceRate * 100 >= 60 ? 'orange' : 'red'
         }}>
-          {student.attendanceRate * 100}%
+          { (student.attendanceRate * 100).toFixed(2) === "100.00" ? "100%" : (student.attendanceRate * 100).toFixed(2).replace(/\.00$/, '') + '%' }
         </span>
       </TableCell>
       <TableCell>

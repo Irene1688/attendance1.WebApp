@@ -1,4 +1,5 @@
 import { STATUS } from './status';
+import { format } from 'date-fns';
 
 export const SESSION_MONTH = [
   { value: 'Sep', label: 'September' },
@@ -82,4 +83,15 @@ export const isTodayOnClass = (classDay) => {
   // change Sunday to 7 to avoid 0
   const adjustedToday = today === 0 ? 7 : today;
   return classDays.includes(adjustedToday);
+}; 
+
+export const isSameDay = (date1, date2) => {
+  if (!date1 || !date2) return false;
+  
+  const d1 = new Date(date1);
+  const d2 = new Date(date2);
+  
+  return d1.getFullYear() === d2.getFullYear() &&
+         d1.getMonth() === d2.getMonth() &&
+         d1.getDate() === d2.getDate();
 }; 

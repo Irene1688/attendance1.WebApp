@@ -16,19 +16,20 @@ const ListCard = ({
     items = [], 
     renderItem, 
     emptyMessage,
-    loadingCount = 2 
+    loadingCount = 2,
+    sx
   }) => {
     const theme = useTheme();
     const themedStyles = styles(theme);
   
     return (
-      <Card sx={themedStyles.card}>
+      <Card sx={[themedStyles.card, sx]}>
         <CardContent>
           <Typography variant="h6" sx={themedStyles.cardTitle}>
             {title}
           </Typography>
           {isLoading ? (
-            <List>
+            <List sx={themedStyles.listContainer}>
               {[...Array(loadingCount)].map((_, index) => (
                 <ListItem key={index}>
                   <Skeleton variant="rectangular" width="100%" height={60} />
@@ -36,7 +37,7 @@ const ListCard = ({
               ))}
             </List>
           ) : items.length > 0 ? (
-            <List>
+            <List sx={themedStyles.listContainer}>
               {items.map((item, index) => (
                 <Box key={item.id || index}>
                   {index > 0 && <Box sx={themedStyles.divider} />}
