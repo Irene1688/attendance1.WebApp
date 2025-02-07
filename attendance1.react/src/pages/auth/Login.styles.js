@@ -1,6 +1,7 @@
 export const styles = (theme) => ({
     loginContainer: {
         minHeight: '100vh',
+        maxWidth: '95vw',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -10,9 +11,8 @@ export const styles = (theme) => ({
       },
         
       loginPaper: (isStaff) => ({
-        padding: theme.spacing(4),
+        padding: theme.spacing(4, 8),
         width: '100%',
-        maxWidth: 400,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
