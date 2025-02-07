@@ -72,7 +72,7 @@ const Profile = () => {
         {
           profileData?.role === USER_ROLES.STUDENT && !isEditing && (
             <IconButton 
-              onClick={() => navigate('/student/me')}
+              onClick={() => navigate(-1)} // back to previous page
               Icon={<ArrowBackIcon />}
               sx={{ mr: 2, float: 'left' }} />
           )

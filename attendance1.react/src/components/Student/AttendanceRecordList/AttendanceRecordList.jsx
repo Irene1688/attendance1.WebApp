@@ -51,9 +51,9 @@ const AttendanceRecordList = (
                     second: '2-digit',
                     hour12: true
                   };
-    
+                  return utcDate.toLocaleString('en-MY', options).replace(',', '');
                   // Convert to local string and format
-                  return localDate.toLocaleString('en-MY', options).replace(',', '');
+                  //return localDate.toLocaleString('en-MY', options).replace(',', '');
                 })()}
               </Box>
             </Box>

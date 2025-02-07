@@ -46,19 +46,18 @@ namespace attendance1.Application.Services
                     EndTime = ar.EndTime?.ToString("HH:mm:ss") ?? "00:00:00",
                     IsLecture = ar.IsLecture,
                     TutorialName = ar.Tutorial?.TutorialName ?? string.Empty,
-                    PresentCount = studentAttendance.Count(sa => 
-                        sa.RecordId == ar.RecordId && 
-                        sa.IsPresent == true),
-                    AbsentCount = studentAttendance.Count(sa => 
-                        sa.RecordId == ar.RecordId && 
-                        sa.IsPresent == false),
+                    PresentCount = studentAttendance
+                        .Count(sa => sa.RecordId == ar.RecordId && sa.IsPresent == true),
+                    AbsentCount = studentAttendance
+                        .Count(sa => sa.RecordId == ar.RecordId && sa.IsPresent == false),
                     AttendanceRate = studentAttendance
                         .Where(sa => sa.RecordId == ar.RecordId)
-                        .Average(sa => sa.IsPresent ? 1 : 0),
-                    // alternative way to calculate attendance rate
-                    // AttendanceRate = studentAttendance.Count(sa => sa.RecordId == ar.RecordId) > 0
-                    //     ? (double)studentAttendance.Count(sa => sa.RecordId == ar.RecordId && sa.IsPresent) / studentAttendance.Count(sa => sa.RecordId == ar.RecordId)
-                    //     : 0
+                        .Any()
+                        ? (double)studentAttendance
+                            .Count(sa => sa.RecordId == ar.RecordId && sa.IsPresent == true) /
+                          studentAttendance
+                            .Count(sa => sa.RecordId == ar.RecordId)
+                        : 0
                 }).ToList();
 
                 // sorting
@@ -70,80 +69,28 @@ namespace attendance1.Application.Services
                             ? response.OrderBy(r => r.Date) 
                             : response.OrderByDescending(r => r.Date);
                         break;
-                    case "startTime":
-                        sortedResponse = isAscending 
-                            ? response.OrderBy(r => r.StartTime) 
-                            : response.OrderByDescending(r => r.StartTime);
-                        break;
-                    case "endTime":
-                        sortedResponse = isAscending 
-                            ? response.OrderBy(r => r.EndTime) 
-                            : response.OrderByDescending(r => r.EndTime);
-                        break;
-                    case "isLecture":
-                        sortedResponse = isAscending 
-                            ? response.OrderBy(r => r.IsLecture) 
-                            : response.OrderByDescending(r => r.IsLecture);
-                        break;
-                    case "tutorialName":
-                        sortedResponse = isAscending 
-                            ? response.OrderBy(r => r.TutorialName) 
-                            : response.OrderByDescending(r => r.TutorialName);
-                        break;
-                    case "presentCount":
+                    case "presentcount":
                         sortedResponse = isAscending 
                             ? response.OrderBy(r => r.PresentCount) 
                             : response.OrderByDescending(r => r.PresentCount);
                         break;
-                    case "absentCount":
+                    case "absentcount":
                         sortedResponse = isAscending 
                             ? response.OrderBy(r => r.AbsentCount) 
                             : response.OrderByDescending(r => r.AbsentCount);
                         break;
-                    case "attendanceRate":
+                    case "attendancerate":
                         sortedResponse = isAscending 
                             ? response.OrderBy(r => r.AttendanceRate) 
                             : response.OrderByDescending(r => r.AttendanceRate);
                         break;
                     default:
-                        sortedResponse = response.OrderBy(r => r.RecordId); // Default sorting
+                        sortedResponse = response.OrderByDescending(r => r.RecordId); // Default sorting
                         break;
                 }
-                // if (orderBy == "date")
-                // {
-                //     response = response.OrderBy(r => r.Date).ToList();
-                // }
-                // else if (orderBy == "startTime")
-                // {
-                //     response = response.OrderBy(r => r.StartTime).ToList();
-                // }
-                // else if (orderBy == "endTime")
-                // {
-                //     response = response.OrderBy(r => r.EndTime).ToList();
-                // }
-                // else if (orderBy == "isLecture")
-                // {
-                //     response = response.OrderBy(r => r.IsLecture).ToList();
-                // }
-                // else if (orderBy == "tutorialName")
-                // {
-                //     response = response.OrderBy(r => r.TutorialName).ToList();
-                // }
-                // else if (orderBy == "presentCount")
-                // {
-                //     response = response.OrderBy(r => r.PresentCount).ToList();
-                // }
-                // else if (orderBy == "absentCount")
-                // {
-                //     response = response.OrderBy(r => r.AbsentCount).ToList();
-                // }
-                // else if (orderBy == "attendanceRate")
-                // {
-                //     response = response.OrderBy(r => r.AttendanceRate).ToList();
-                // }
 
                 // Paging
-                var pagedResponse = response.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+                var pagedResponse = sortedResponse.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
 
                 // Pagination
                 var paginatedResult = new PaginatedResult<GetAttendanceRecordByCourseIdResponseDto>(
@@ -194,7 +141,7 @@ namespace attendance1.Application.Services
                 $"Error occurred while generating attendance code for the class"
             );
         }
-
+    
         // lecturer's page: class attendance management
         public async Task<Result<GetStudentAttendanceDataByCourseIdResponseDto>> GetCourseStudentAttendanceRecordsAsync(DataIdRequestDto requestDto)
         {
@@ -235,10 +182,10 @@ namespace attendance1.Application.Services
                         Attendances = attendances
                             .Where(a => a.RecordId == r.RecordId)
                             .Select(a => new StudentAttendanceStatusDto
-                            {
-                                StudentId = a.StudentId,
-                                IsPresent = a.IsPresent
-                            }).ToList()
+                        {
+                            StudentId = a.StudentId,
+                            IsPresent = a.IsPresent
+                        }).ToList()
                     }).ToList(),
 
                     Students = students.Select(s => new StudentAttendanceDto
@@ -386,6 +333,7 @@ namespace attendance1.Application.Services
         public async Task<Result<bool>> SubmitAttendanceAsync(CreateAttendanceRecordRequestDto requestDto)
         {
             var submittedTime = DateTime.UtcNow;
+            var submittedTimeLocal = DateTime.Now;
             
             return await ExecuteAsync(async () =>
             {
@@ -426,10 +374,10 @@ namespace attendance1.Application.Services
                 var attendanceData = new StudentAttendance
                 {
                     StudentId = requestDto.StudentId,
-                    DateAndTime = submittedTime,
+                    DateAndTime = submittedTimeLocal,
                     CourseId = attendanceCodeDetails.CourseId,
                     IsPresent = true,
-                    Remark = $"Present at {submittedTime}",
+                    Remark = $"Present at {submittedTimeLocal}",
                     RecordId = attendanceCodeDetails.RecordId,
                 };
 

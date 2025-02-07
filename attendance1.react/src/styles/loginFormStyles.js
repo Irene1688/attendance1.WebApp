@@ -83,8 +83,8 @@ export const StyledLoginButton = styled(Button, {
     shouldForwardProp: (prop) => prop !== 'isStaff'
   })(({ theme, isStaff }) => ({
     margin: isStaff 
-      ? theme.spacing(5, 0, 2) 
-      : theme.spacing(3, 0, 12),
+      ? theme.spacing(5, 0, 8) 
+      : theme.spacing(3, 0, 8),
     padding: theme.spacing(1.5),
     borderRadius: theme.spacing(1),
     fontSize: '1.1rem',

@@ -462,6 +462,10 @@ namespace attendance1.Application.Services
                         };
                     });
                     var responseData = await Task.WhenAll(calculateAttendanceRateTasks);
+                    if (orderBy == "attendancerate" && isAscending)
+                        responseData = responseData.OrderBy(r => r.AttendanceRate).ToArray();
+                    else if (orderBy == "attendancerate" && !isAscending)
+                        responseData = responseData.OrderByDescending(r => r.AttendanceRate).ToArray();
                     
                     var paginatedResult = new PaginatedResult<GetEnrolledStudentResponseDto>(
                         responseData, 

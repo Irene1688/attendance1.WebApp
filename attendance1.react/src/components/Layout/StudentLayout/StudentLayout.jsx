@@ -28,7 +28,7 @@ const StudentLayout = () => {
   const [hideBottomNav, setHideBottomNav] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { userProfile } = useSelector((state) => state.auth);
+  const { user } = useSelector((state) => state.auth);
   
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -69,11 +69,10 @@ const StudentLayout = () => {
             onClick={handleProfileMenuOpen}
             sx={themedStyles.profileButton}
           >
-            {userProfile?.profilePicture ? (
-              <Avatar 
-                src={userProfile.profilePicture} 
-                sx={themedStyles.avatar}
-              />
+            {user?.name ? (
+              <Avatar sx={themedStyles.avatar}>
+                {user.name?.charAt(0)?.toUpperCase()}
+              </Avatar>
             ) : (
               <AccountCircleIcon sx={themedStyles.avatarIcon} />
             )}
@@ -91,9 +90,6 @@ const StudentLayout = () => {
       >
         <MenuItem onClick={() => handleNavigate('/student/profile')}>
           Profile
-        </MenuItem>
-        <MenuItem onClick={() => handleNavigate('/student/settings')}>
-          Settings
         </MenuItem>
       </Menu>
 

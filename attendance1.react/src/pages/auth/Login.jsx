@@ -71,7 +71,7 @@ const Login = () => {
             variant="h1" 
             onClick={toggleLoginRole} 
             sx={{
-              marginTop: isStaffLogin ? 8 : 0,
+              marginTop: 5,
               marginBottom: 4,
               color: isStaffLogin ? 'grey.800' : 'common.white',
               fontWeight: 600,

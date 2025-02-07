@@ -27,22 +27,22 @@ const AttendanceRecordTable = ({
     {
       id: 'startTime',
       label: 'Start Time',
-      sortable: true
+      sortable: false
     },
     {
       id: 'endTime',
       label: 'End Time',
-      sortable: true
+      sortable: false
     },
     {
       id: 'isLecture',
       label: 'Type',
-      sortable: true
+      sortable: false
     },
     {
       id: 'tutorialSession',
       label: 'Tutorial Session',
-      sortable: true
+      sortable: false
     },
     {
       id: 'presentCount',
