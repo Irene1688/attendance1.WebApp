@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace attendance1.Domain.Entities;
+﻿namespace attendance1.Domain.Entities;
 
 public partial class CourseSemester
 {

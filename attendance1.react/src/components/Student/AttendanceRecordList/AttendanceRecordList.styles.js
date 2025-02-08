@@ -18,7 +18,8 @@ export const styles = (theme) => ({
     padding: theme.spacing(0.2, 1),
     borderRadius: 4,
     textTransform: 'uppercase',
-    fontSize: '0.75rem'
+    fontSize: '0.75rem',
+    marginRight: theme.spacing(1)
   }),
   attendanceInfo: {
     display: 'flex',

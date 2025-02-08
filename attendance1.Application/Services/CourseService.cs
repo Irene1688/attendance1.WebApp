@@ -692,7 +692,7 @@ namespace attendance1.Application.Services
                             ClassDay = t.TutorialClassDay ?? string.Empty,
                         }).FirstOrDefault() ?? new TutorialDto(),
                 };
-            }, $"Error occurred while getting the course details");
+            }, $"Error occurred while getting the class details");
 
         }
         // public async Task<Result<GetStudentEnrolledCourseSelectionResponseDto>> GetEnrolledCourseSelectionByStudentIdAsync(DataIdRequestDto requestDto)

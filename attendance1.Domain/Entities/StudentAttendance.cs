@@ -19,11 +19,7 @@ public partial class StudentAttendance
 
     public int RecordId { get; set; }
 
-    public int? DeviceId { get; set; }
-
     public virtual Course? Course { get; set; }
-
-    public virtual StudentDevice? Device { get; set; }
 
     public virtual AttendanceRecord Record { get; set; } = null!;
 }

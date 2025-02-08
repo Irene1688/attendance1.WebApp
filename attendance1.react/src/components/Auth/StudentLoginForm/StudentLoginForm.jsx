@@ -1,6 +1,7 @@
 import { Formik } from 'formik';
 import { StyledLoginForm, StyledLoginTextField, StyledLoginButton } from '../../../styles';
 import { studentLoginValidationSchema } from '../../../validations/schemas';
+import DeviceBindingPrompt from '../DeviceBindingPrompt/DeviceBindingPrompt';
 
 const StudentLoginForm = ({ isStaff, onSubmit, onHelperTextChange }) => {
   return (
@@ -18,6 +19,7 @@ const StudentLoginForm = ({ isStaff, onSubmit, onHelperTextChange }) => {
 
         return (
           <StyledLoginForm noValidate>
+            <DeviceBindingPrompt isFirstLogin={true} />
             <StyledLoginTextField
               margin="normal"
               required

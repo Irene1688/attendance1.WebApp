@@ -6,6 +6,8 @@ import { authApi } from '../../api/auth';
 import { userApi } from '../../api/user';
 import { useApiExecutor } from '../../hooks/common';
 import { USER_ROLES } from '../../constants/userRoles';
+import { getVisitorInfo, getDeviceType } from '../../services/deviceInfo';
+import { useMessageContext } from '../../contexts/MessageContext';
 
 export const useAuth = () => {
   const dispatch = useDispatch();
@@ -13,43 +15,65 @@ export const useAuth = () => {
   const { loading, handleApiCall } = useApiExecutor();
   const [profileData, setProfileData] = useState(null);
   const user = useSelector(state => state.auth.user);
+  const { showErrorMessage } = useMessageContext();
 
   const handleLogin = useCallback(async (values, formikHelpers, isStaff) => {
     try {
-      const loginData = isStaff
-        ? {
-            username: values.username,
-            password: values.password,
-            role: values.role
-          }
-        : {
-            email: values.email.toLowerCase(),
-            password: values.password,
-            role: USER_ROLES.STUDENT
-          };
-
-      await handleApiCall(
-        () => isStaff ? authApi.staffLogin(loginData) : authApi.studentLogin(loginData),
-        (data) => {
-          const { userId, name, role, campusId, accessToken, refreshToken } = data;
-          dispatch(setCredentials({
-            user: { userId, name, role, campusId },
-            accessToken,
-            refreshToken
-          }));
-
-          let redirectPath;
-          if (isStaff) {
-            redirectPath = role === 'Admin' ? '/admin/dashboard' : '/lecturer/take-attendance';
-          } else {
-            redirectPath = '/student/home';
-          }
-
-          localStorage.removeItem('returnPath');
-          navigate(redirectPath);
+      if (!isStaff) {
+        // 获取访客信息
+        const deviceType = await getDeviceType();
+        if (deviceType === 'Desktop') {
+          showErrorMessage('You should login with your mobile device');
+          return;
         }
-      );
-    } catch (err) {
+
+        const deviceInfo = await getVisitorInfo();
+        
+        // 将指纹信息添加到登录请求
+        const loginData = {
+          email: values.email.toLowerCase(),
+          password: values.password,
+          deviceInfo
+        };
+
+        await handleApiCall(
+          () => authApi.studentLogin(loginData),
+          (data) => {
+            const { userId, name, role, campusId, accessToken, refreshToken } = data;
+            dispatch(setCredentials({
+              user: { userId, name, role, campusId },
+              accessToken,
+              refreshToken
+            }));
+            //navigate('/student/home');
+          }
+        );
+      } else {
+        const loginData = {
+          username: values.username,
+          password: values.password,
+          role: values.role
+        }
+
+        await handleApiCall(
+          () => authApi.staffLogin(loginData),
+          (data) => {
+            const { userId, name, role, campusId, accessToken, refreshToken } = data;
+            dispatch(setCredentials({
+              user: { userId, name, role, campusId },
+              accessToken,
+              refreshToken
+            }));
+
+            let redirectPath;
+            redirectPath = role === 'Admin' ? '/admin/dashboard' : '/lecturer/take-attendance';
+          
+            localStorage.removeItem('returnPath');
+            navigate(redirectPath);
+          }
+        );
+      }
+    } catch (error) {
       formikHelpers?.setSubmitting(false);
     }
   }, [dispatch, navigate, handleApiCall]);

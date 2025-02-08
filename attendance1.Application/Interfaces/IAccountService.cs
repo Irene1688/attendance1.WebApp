@@ -10,5 +10,6 @@ namespace attendance1.Application.Interfaces
         Task<Result<bool>> DeleteUserAsync(DeleteRequestDto requestDto);
         Task<Result<bool>> MultipleDeleteUserAsync(List<DeleteRequestDto> requestDto);
         Task<Result<bool>> ResetPasswordAsync(DataIdRequestDto requestDto);
+        Task<Result<bool>> ResetFingerprintOfStudentAsync(DataIdRequestDto requestDto);
     }
 }

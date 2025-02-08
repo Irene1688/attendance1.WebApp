@@ -6,13 +6,15 @@ import {
   Typography, 
   useTheme, 
   Container, 
-  Paper
+  Paper,
+  Link
 } from '@mui/material';
 import { styles } from './Login.styles';
 import { StudentLoginForm, StaffLoginForm, LoginRoleToggle } from '../../components/Auth';
 import { PromptMessage } from '../../components/Common';
 import { useAuth } from '../../hooks/auth';
 import { formatPageTitle } from '../../utils/helpers';
+import { ADMIN_EMAIL, BUG_REPORT_FORM_URL } from '../../constants/contactConstatnt';
 import { useMessageContext } from '../../contexts/MessageContext';
 
 const Login = () => {
@@ -24,7 +26,7 @@ const Login = () => {
   const [helperTextCount, setHelperTextCount] = useState(0);
   const { handleLogin } = useAuth();
   const [error, setError] = useState('');
-  const { message, hideMessage } = useMessageContext();
+  const { message, hideMessage, showErrorMessage } = useMessageContext();
   // handle the error message in the URL parameters
   useEffect(() => {
     const errorMessage = searchParams.get('error');
@@ -41,6 +43,15 @@ const Login = () => {
       localStorage.setItem('returnPath', from);
     }
   }, [searchParams, navigate]);
+
+  useEffect(() => {
+    const error = searchParams.get('error');
+    if (error === 'invalid_device') {
+      showErrorMessage(
+        'Your account can only be accessed from your registered device. Please contact administrator if you need to change devices.'
+      );
+    }
+  }, [searchParams, showErrorMessage]);
 
   const handleHelperTextChange = (helperTextCount) => {
     setHelperTextCount(helperTextCount);
@@ -71,8 +82,8 @@ const Login = () => {
             variant="h1" 
             onClick={toggleLoginRole} 
             sx={{
-              marginTop: 5,
-              marginBottom: 4,
+              marginTop: isStaffLogin ? 5 : 3,
+              marginBottom: isStaffLogin ? 4 : 2,
               color: isStaffLogin ? 'grey.800' : 'common.white',
               fontWeight: 600,
               fontSize: '2rem',
@@ -109,6 +120,12 @@ const Login = () => {
             {isStaffLogin ? 'Student Login' : 'Staff Login'}
           </LoginRoleToggle>
         </Paper>
+
+        <Typography variant="body2" sx={{ mt: 2 }}>
+          {/* navigate to email with title */}
+          <Link href={`mailto:${ADMIN_EMAIL}?subject=Need help with Attendance System`}>Contact Admin</Link> | &nbsp;
+          <Link href={BUG_REPORT_FORM_URL}>Report bug</Link>
+        </Typography>
       </Container>
     </>
   );

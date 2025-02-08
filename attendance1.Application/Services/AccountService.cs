@@ -290,5 +290,18 @@ namespace attendance1.Application.Services
             },
             $"Failed to reset password for the user");
         }
+
+        public async Task<Result<bool>> ResetFingerprintOfStudentAsync(DataIdRequestDto requestDto)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                if (!_validateService.HasAdminPermissionAsync())
+                    throw new UnauthorizedAccessException("You don't have permission to perform this action");
+                if (!await _validateService.ValidateStudentAsync(requestDto.IdInString ?? string.Empty))
+                    throw new KeyNotFoundException("Student not found");
+                return await _userRepository.ResetFingerprintOfStudentAsync(requestDto.IdInString ?? string.Empty);
+            },
+            $"Failed to cancel device binding");
+        }
     }
 }

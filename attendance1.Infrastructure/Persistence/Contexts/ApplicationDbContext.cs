@@ -238,14 +238,11 @@ public partial class ApplicationDbContext : DbContext
 
             entity.ToTable("studentAttendance");
 
-            entity.HasIndex(e => new { e.RecordId, e.DeviceId }, "UQ_attendanceRecord_recordID_device").IsUnique();
-
             entity.HasIndex(e => new { e.RecordId, e.StudentId }, "UQ_attendanceRecord_recordID_student").IsUnique();
 
             entity.Property(e => e.AttendanceId).HasColumnName("attendanceID");
             entity.Property(e => e.CourseId).HasColumnName("courseID");
             entity.Property(e => e.DateAndTime).HasColumnType("datetime");
-            entity.Property(e => e.DeviceId).HasColumnName("deviceID");
             entity.Property(e => e.RecordId).HasColumnName("recordID");
             entity.Property(e => e.IsPresent).HasColumnName("isPresent");
             entity.Property(e => e.Remark)
@@ -261,10 +258,6 @@ public partial class ApplicationDbContext : DbContext
                 .HasForeignKey(d => d.CourseId)
                 .HasConstraintName("FK__studentAt__cours__49C3F6B7");
 
-            entity.HasOne(d => d.Device).WithMany(p => p.StudentAttendances)
-                .HasForeignKey(d => d.DeviceId)
-                .HasConstraintName("FK_studentAttendance_studentDevice");
-
             entity.HasOne(d => d.Record).WithMany(p => p.StudentAttendances)
                 .HasForeignKey(d => d.RecordId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -276,33 +269,25 @@ public partial class ApplicationDbContext : DbContext
             entity.HasKey(e => e.DeviceId).HasName("PK__studentD__84BE14B71B8283B5");
 
             entity.ToTable("studentDevice");
+            
+            entity.HasOne(d => d.Student)
+                .WithMany()
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             entity.Property(e => e.DeviceId).HasColumnName("deviceID");
+            entity.Property(e => e.UserId).HasColumnName("userId");
             entity.Property(e => e.BindDate).HasColumnName("bindDate");
-            entity.Property(e => e.DeviceCode)
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .HasColumnName("deviceCode");
-            entity.Property(e => e.DeviceOs)
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .HasColumnName("deviceOS");
-            entity.Property(e => e.DeviceType)
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .HasColumnName("deviceType");
-            entity.Property(e => e.MacAddress)
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .HasColumnName("macAddress");
+            entity.Property(e => e.IsActive).HasColumnName("isActive")
+                .HasDefaultValue(true);
             entity.Property(e => e.StudentId)
                 .HasMaxLength(15)
                 .IsUnicode(false)
                 .HasColumnName("studentID");
-            entity.Property(e => e.UuId)
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasColumnName("uuID");
+            entity.Property(e => e.FingerprintHash)
+                .IsRequired()
+                .HasMaxLength(256)
+                .HasColumnName("fingerprintHash");
         });
 
         modelBuilder.Entity<Tutorial>(entity =>

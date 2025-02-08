@@ -17,7 +17,6 @@ export const useApiExecutor = () => {
 
       try {
         const response = await apiCall();
-        
         if (onSuccess) {
           await onSuccess(response.data);
         }

@@ -159,7 +159,6 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                         RecordId = attendanceCodeId,
                         StudentId = s.StudentId,
                         IsPresent = isPresent,
-                        Device = null,
                         Remark = $"{(isPresent ? "Present" : "Absent")} for {attendanceCode.Date.ToDateTime(attendanceCode.StartTime.Value):yyyy-MM-dd HH:mm:ss}"
 
                     })
@@ -272,7 +271,6 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                         RecordId = attendanceCodeId,
                         StudentId = studentId,
                         IsPresent = isPresent,
-                        Device = null,
                         Remark = $"{(isPresent ? "Present" : "Absent")} for {attendanceCode.Date.ToDateTime(attendanceCode.StartTime.Value):yyyy-MM-dd HH:mm:ss}"
                     };
                     await _database.StudentAttendances.AddAsync(attendance);

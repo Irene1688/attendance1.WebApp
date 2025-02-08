@@ -60,5 +60,12 @@ namespace attendance1.Domain.Interfaces
         Task<UserDetail?> GetUserByRefreshTokenAsync(string refreshToken);
         Task<bool> UpdateUserRefreshTokenAsync(UserDetail user, string newRefreshToken, DateTime? expiryTime);
         #endregion
+
+        #region browser fingerprint
+        Task<StudentDevice> GetFingerprintByStudentIdAsync(string studentId);
+        Task<StudentDevice> GetDeviceByFingerprintHashAsync(string fingerprintHash);
+        Task<bool> SaveFingerprintOfStudentAsync(StudentDevice fingerprint);
+        Task<bool> ResetFingerprintOfStudentAsync(string studentId);
+        #endregion
     }
 }

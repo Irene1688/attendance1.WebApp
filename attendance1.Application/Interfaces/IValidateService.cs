@@ -4,6 +4,7 @@ namespace attendance1.Application.Interfaces
 {
     public interface IValidateService
     {
+        bool HasAdminPermissionAsync();
         Task<bool> HasPermissionToAccessCourseAsync(int courseId);
 
         Task<bool> ValidateUserAsync(int userId);

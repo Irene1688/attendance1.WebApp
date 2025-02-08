@@ -477,5 +477,65 @@ namespace attendance1.Infrastructure.Persistence.Repositories
         }
         #endregion
 
+        public async Task<StudentDevice> GetFingerprintByStudentIdAsync(string studentId)
+        {
+            return await ExecuteGetAsync(async () => {
+                var device = await _database.StudentDevices
+                    .FirstOrDefaultAsync(d =>
+                        d.StudentId == studentId &&
+                        d.IsActive == true);
+                if (device == null)
+                    return new StudentDevice();
+                return device;
+            });
+        }
+
+        public async Task<bool> SaveFingerprintOfStudentAsync(StudentDevice fingerprint)
+        {
+            return await ExecuteWithTransactionAsync(async () =>
+            {
+                // Deactivate existing device bindings
+                var existingDevices = await _database.StudentDevices
+                    .Where(d => d.StudentId == fingerprint.StudentId)
+                    .ToListAsync();
+                    
+                foreach (var device in existingDevices)
+                {
+                    device.IsActive = false;
+                }
+
+                // Add new device binding
+                await _database.StudentDevices.AddAsync(fingerprint);
+                await _database.SaveChangesAsync();
+                return true;
+            });
+        }
+
+        public async Task<bool> ResetFingerprintOfStudentAsync(string studentId)
+        {
+            return await ExecuteWithTransactionAsync(async () =>
+            {
+                var fingerprint = await _database.StudentDevices.FirstOrDefaultAsync(d => d.StudentId == studentId);
+                if (fingerprint == null)
+                    throw new Exception("No binded device found");
+                fingerprint.IsActive = false;
+                await _database.SaveChangesAsync();
+                return true;
+            });
+        }
+
+        public async Task<StudentDevice> GetDeviceByFingerprintHashAsync(string fingerprintHash)
+        {
+            return await ExecuteGetAsync(async () => {
+                var device = await _database.StudentDevices
+                    .FirstOrDefaultAsync(d => 
+                        d.FingerprintHash == fingerprintHash && 
+                        d.IsActive == true);
+                if (device == null)
+                    return new StudentDevice();
+                return device;
+            });
+        }
+
     }
 }

@@ -59,6 +59,13 @@ namespace attendance1.WebApi.Controllers
             return StatusCode((int)result.StatusCode, result);
         }
 
+        [HttpPost("resetFingerprint")]
+        public async Task<ActionResult<bool>> ResetFingerprint([FromBody] DataIdRequestDto requestDto)
+        {
+            var result = await _accountService.ResetFingerprintOfStudentAsync(requestDto);
+            return StatusCode((int)result.StatusCode, result);
+        }
+
         [HttpPost("deleteUser")]
         public async Task<ActionResult<bool>> DeleteUser([FromBody] DeleteRequestDto requestDto)
         {

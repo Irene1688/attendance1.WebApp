@@ -27,11 +27,11 @@ const AttendanceRecordList = (
           </ListItemIcon>
           <ListItemText>
             <Box sx={themedStyles.cardItemTitle}>
-              <Typography variant="caption" sx={themedStyles.classType(record.sessionName === 'Lecture')}>
-                  {record.sessionName}
-              </Typography>
               <Typography variant="body1" sx={themedStyles.classTitle}>
-                  {record.courseCode} - {record.courseName}
+                <span style={themedStyles.classType(record.sessionName === 'Lecture')}>
+                    {record.sessionName}
+                </span>
+                {record.courseCode} - {record.courseName}
               </Typography>
             </Box> 
             <Box sx={themedStyles.attendanceInfo}>

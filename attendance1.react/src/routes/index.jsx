@@ -148,6 +148,10 @@ export const router = createBrowserRouter([
     ),
     children: [
       {
+        index: true,
+        element: <Navigate to="/student/home" replace />
+      },
+      {
         path: 'home',
         element: <StudentHome />
       },

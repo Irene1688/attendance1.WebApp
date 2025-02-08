@@ -12,7 +12,7 @@ import {
   useTheme,
   Grid,
 } from '@mui/material';
-import { Loader, PromptMessage, IconButton } from '../../../components/Common';
+import { Loader, PromptMessage, IconButton, EmptyState } from '../../../components/Common';
 import { AttendanceRecordList } from '../../../components/Student';
 import { useCourseById } from '../../../hooks/features';
 import { useAttendanceManagement } from '../../../hooks/features';

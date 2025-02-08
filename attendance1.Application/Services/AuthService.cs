@@ -2,20 +2,25 @@ namespace attendance1.Application.Services
 {
     public class AuthService : BaseService, IAuthService
     {
+        private readonly IConfiguration _configuration;
         private readonly JwtSettings _jwtSettings;
         private readonly IValidateService _validateService;
         private readonly ICourseRepository _courseRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public AuthService(ILogger<AuthService> logger, IOptions<JwtSettings> jwtSettings, IValidateService validateService, ICourseRepository courseRepository, IUserRepository userRepository, LogContext logContext)
+        public AuthService(ILogger<AuthService> logger, IConfiguration configuration, IOptions<JwtSettings> jwtSettings, IValidateService validateService, ICourseRepository courseRepository, IUserRepository userRepository, LogContext logContext, IHttpContextAccessor httpContextAccessor)
             : base(logger, logContext)
         {
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _jwtSettings = jwtSettings.Value ?? throw new ArgumentNullException(nameof(jwtSettings));
             _validateService = validateService ?? throw new ArgumentNullException(nameof(validateService));
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             _courseRepository = courseRepository ?? throw new ArgumentNullException(nameof(courseRepository));
+            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         }
 
+        #region token generation
         private string GenerateAccessToken(UserDetail user)
         {
             var claims = new[]
@@ -73,6 +78,62 @@ namespace attendance1.Application.Services
         {
             return await _userRepository.UpdateUserRefreshTokenAsync(user, refreshToken, expiryTime);
         }
+        #endregion
+
+        #region fingerprint generation
+        private static string NormalizeUserAgent(string userAgent)
+        {
+            var pattern = @"\/\d+(\.\d+)*|\s+";
+            return Regex.Replace(userAgent, pattern, "").ToLowerInvariant();
+        }
+
+        private static string NormalizeResolution(string resolution)
+        {
+            // 处理分辨率,允许小范围变化
+            var parts = resolution.Split('x');
+            if(parts.Length == 2 && int.TryParse(parts[0], out int width) && int.TryParse(parts[1], out int height))
+            {
+                // 将分辨率归类到最接近的标准分辨率
+                return $"{RoundToNearest(width, 50)}x{RoundToNearest(height, 50)}";
+            }
+            return resolution;
+        }
+
+        private static int RoundToNearest(int value, int factor)
+        {
+            return ((value + factor / 2) / factor) * factor;
+        }
+        
+        public string GenerateFingerprintHash(DeviceInfoDto deviceInfo)
+        {
+            // 1. 规范化设备信息
+            var normalizedInfo = new
+            {
+                Fingerprint = deviceInfo.Fingerprint,
+                UserAgent = NormalizeUserAgent(deviceInfo.UserAgent),
+                Platform = deviceInfo.Platform.ToUpperInvariant(),
+                Resolution = NormalizeResolution(deviceInfo.ScreenResolution),
+                Language = deviceInfo.Language.ToLowerInvariant(),
+                Timezone = deviceInfo.Timezone
+            };
+
+            var fingerprintData = JsonSerializer.Serialize(normalizedInfo);
+            var salt = _configuration["Fingerprint:Salt"];
+            var dataWithSalt = $"{fingerprintData}|{salt}";
+            
+            using var sha256 = SHA256.Create();
+            var bytes = Encoding.UTF8.GetBytes(dataWithSalt);
+            var hash = sha256.ComputeHash(bytes);
+            return Convert.ToBase64String(hash);
+        }
+
+        private bool ValidateFingerprint(string storedHash, DeviceInfoDto newDeviceInfo)
+        {
+            var newHash = GenerateFingerprintHash(newDeviceInfo);
+            return storedHash == newHash;
+        }
+        #endregion
+
 
         public async Task<Result<LoginResponseDto>> StudentLoginAsync(StudentLoginRequestDto requestDto)
         {
@@ -80,14 +141,43 @@ namespace attendance1.Application.Services
             {
                 var user = await _userRepository.GetUserByEmailAsync(requestDto.Email);
                 if (user == null)
-                    throw new KeyNotFoundException("User not found");
+                    throw new KeyNotFoundException("User not found, please check your email and try again");
 
                 if (!BCrypt.Net.BCrypt.Verify(requestDto.Password, user.UserPassword)) 
                     throw new InvalidOperationException("Incorrect password");
+
+                var currentFingerprintHash = GenerateFingerprintHash(requestDto.DeviceInfo);
                 
+                // 1. check if the device is already bound to another account
+                var existingDevice = await _userRepository.GetDeviceByFingerprintHashAsync(currentFingerprintHash);
+                if (existingDevice.BindDate != DateOnly.MinValue && existingDevice.StudentId != user.StudentId)
+                    throw new UnauthorizedAccessException("This device is already bound to another account");
+
+                // 2. check if the current user has already bound to a device
+                var fingerprint = await _userRepository.GetFingerprintByStudentIdAsync(user.StudentId ?? string.Empty);
+                bool isFirstLogin = false;
+                if (fingerprint.BindDate == DateOnly.MinValue || string.IsNullOrEmpty(fingerprint.StudentId))
+                {
+                    isFirstLogin = true;
+                    fingerprint = new StudentDevice
+                    {
+                        UserId = user.UserId,
+                        StudentId = user.StudentId ?? string.Empty,
+                        FingerprintHash = currentFingerprintHash,
+                        BindDate = DateOnly.FromDateTime(DateTime.Now),
+                        IsActive = true
+                    };
+                    var success = await _userRepository.SaveFingerprintOfStudentAsync(fingerprint);
+                    if (!success)
+                        throw new Exception("Failed to bind your device to your account, please try again later");
+                }
+
+                if (!isFirstLogin && !ValidateFingerprint(fingerprint.FingerprintHash, requestDto.DeviceInfo))
+                    throw new UnauthorizedAccessException("This account can only be accessed from your first-login device");
+
                 var (accessToken, refreshToken) = await HandleTokenGeneration(user);
                 
-                return new LoginResponseDto
+                return new LoginResponseDto 
                 {
                     UserId = user.UserId,
                     Name = user.UserName ?? string.Empty,
