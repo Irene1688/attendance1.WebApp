@@ -22,6 +22,10 @@ export const useUserManagement = () => {
         open: false,
         user: null
     });
+    const [confirmRebindDialog, setConfirmRebindDialog] = useState({
+        open: false,
+        user: null
+    });
 
     // hooks
     const { loading, handleApiCall } = useApiExecutor();
@@ -153,6 +157,17 @@ export const useUserManagement = () => {
         );
     }, [handleApiCall]);
 
+    const rebindStudentDevice = useCallback(async (user) => {
+        const requestDto = {
+            idInInteger: user.userId,
+            idInString: user.studentId
+        };
+        return await handleApiCall(
+            () => accountApi.rebindStudentDevice(requestDto),
+            () => true
+        );
+    }, [handleApiCall]);
+
     return {
         // states
         lecturers,
@@ -160,6 +175,7 @@ export const useUserManagement = () => {
         lecturerSelection,
         selectedUser,
         openDialog,
+        confirmRebindDialog,
         confirmDeleteDialog,
         confirmMultipleDeleteDialog,
         confirmResetDialog,
@@ -171,6 +187,7 @@ export const useUserManagement = () => {
         setLecturerSelection,
         setSelectedUser,
         setOpenDialog,
+        setConfirmRebindDialog,
         setConfirmDeleteDialog,
         setConfirmMultipleDeleteDialog,
         setConfirmResetDialog,
@@ -183,6 +200,7 @@ export const useUserManagement = () => {
         updateUser,
         deleteUser,
         resetPassword,
-        bulkDeleteUsers
+        bulkDeleteUsers,
+        rebindStudentDevice
     };
 };

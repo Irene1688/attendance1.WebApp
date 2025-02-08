@@ -23,12 +23,14 @@ const StudentManagement = () => {
     students,
     selectedUser,
     openDialog,
+    confirmRebindDialog,
     confirmDeleteDialog,
     confirmMultipleDeleteDialog,
     confirmResetDialog,
     loading,
     setSelectedUser,
     setOpenDialog,
+    setConfirmRebindDialog,
     setConfirmDeleteDialog,
     setConfirmMultipleDeleteDialog,
     setConfirmResetDialog,
@@ -37,7 +39,8 @@ const StudentManagement = () => {
     updateUser,
     deleteUser,
     bulkDeleteUsers,
-    resetPassword
+    resetPassword,
+    rebindStudentDevice
   } = useUserManagement();
   const { programmeSelection, fetchProgrammeSelection } = useProgrammeManagement();
   const { message, showSuccessMessage, hideMessage } = useMessageContext();
@@ -149,6 +152,18 @@ const StudentManagement = () => {
     }
   };
 
+  // rebind device
+  const handleRebindConfirm = async () => {
+    if (confirmRebindDialog.user) {
+      const success = await rebindStudentDevice(confirmRebindDialog.user);
+      if (success) {
+        setConfirmRebindDialog({ open: false, user: null });
+        await loadData();
+        showSuccessMessage('Device unbound successfully');
+      }
+    }
+  };
+
   return (
     <Box sx={{ pl: 3, pr: 3 }}>
       {loading && <Loader />}
@@ -197,6 +212,12 @@ const StudentManagement = () => {
           setSelectedUser(user);
           setOpenDialog(true);
         }}
+        onRebindDevice={(user) => {
+          setConfirmRebindDialog({
+            open: true,
+            user
+          });
+        }}
         onDelete={(user) => {
           setConfirmDeleteDialog({
             open: true,
@@ -241,6 +262,17 @@ const StudentManagement = () => {
           programmeSelection={programmeSelection}
         />
       </Dialog>
+
+      <ConfirmDialog
+        open={confirmRebindDialog.open}
+        title="Unbind Student Device"
+        content={`Are you sure you want to unbind the device for ${confirmRebindDialog.user?.name}?`}
+        onConfirm={handleRebindConfirm}
+        onCancel={() => setConfirmRebindDialog({ open: false, user: null })}
+        confirmText="Unbind"
+        cancelText="Cancel"
+        type="primary"
+      />
 
       <ConfirmDialog
         open={confirmDeleteDialog.open}

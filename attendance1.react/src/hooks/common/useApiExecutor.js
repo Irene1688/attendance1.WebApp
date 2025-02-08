@@ -40,6 +40,13 @@ export const useApiExecutor = () => {
             return;
           }
 
+          if (messageFromServer.includes("You have not bound your device")) {
+            dispatch(logout());
+            navigate('/login');
+            showErrorMessage('You have not bound your device. Please re-login to continue.');
+            return;
+          }
+
           const errorMessage = messageFromServer || messageFromClientServer;
           showErrorMessage(errorMessage);
           return;

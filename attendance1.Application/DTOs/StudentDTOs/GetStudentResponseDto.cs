@@ -7,6 +7,8 @@ namespace attendance1.Application.DTOs.StudentDTOs
         public string Name { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string ProgrammeName { get; set; } = string.Empty;
+        public bool HasDevice { get; set; } = false;
+        public DateOnly DeviceBindDate { get; set; }
         public List<StudentCourseViewResponseDto> EnrolledCourses { get; set; } = [];
     }
 

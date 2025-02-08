@@ -339,7 +339,11 @@ namespace attendance1.Application.Services
             {
                 if (!await _validateService.ValidateStudentAsync(requestDto.StudentId))
                     throw new KeyNotFoundException("Student not found");
-                    
+                
+                var studentFingerprint = await _userRepository.GetFingerprintByStudentIdAsync(requestDto.StudentId);
+                if (studentFingerprint.BindDate == DateOnly.MinValue || studentFingerprint.FingerprintHash == null)
+                    throw new KeyNotFoundException("You have not bound your device");
+
                 var attendanceCodeDetails = await _attendanceRepository.GetAttendanceCodeDetailsByCodeAsync(requestDto.AttendanceCode);
                 if (attendanceCodeDetails == null)
                     throw new KeyNotFoundException("Attendance code not found");

@@ -59,7 +59,7 @@ namespace attendance1.WebApi.Controllers
             return StatusCode((int)result.StatusCode, result);
         }
 
-        [HttpPost("resetFingerprint")]
+        [HttpPost("rebindStudentDevice")]
         public async Task<ActionResult<bool>> ResetFingerprint([FromBody] DataIdRequestDto requestDto)
         {
             var result = await _accountService.ResetFingerprintOfStudentAsync(requestDto);

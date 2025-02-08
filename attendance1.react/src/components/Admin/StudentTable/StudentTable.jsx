@@ -11,6 +11,7 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import LockResetIcon from '@mui/icons-material/LockReset';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import { PaginatedTable, IconButton } from '../../Common';
 import { styles } from './StudentTable.styles';
 
@@ -25,6 +26,7 @@ const StudentTable = ({
   onRowsPerPageChange,
   onSort,
   onEdit,
+  onRebindDevice,
   onDelete,
   onResetPassword,
   onBulkDelete,
@@ -99,6 +101,16 @@ const StudentTable = ({
       sortable: true
     },
     {
+      id: 'hasDevice',
+      label: 'Has Device',
+      sortable: false
+    },
+    {
+      id: 'deviceBindDate',
+      label: 'Device Bind Date',
+      sortable: false
+    },
+    {
       id: 'classes',
       label: 'Classes',
       sortable: false
@@ -122,6 +134,15 @@ const StudentTable = ({
       <TableCell>{student.name}</TableCell>
       <TableCell>{student.email}</TableCell>
       <TableCell>{student.programmeName}</TableCell>
+      <TableCell>{student.hasDevice ? 'Yes' : 'No'}</TableCell>
+      <TableCell sx={{textAlign: 'center'}}>
+        { 
+          (() => {
+            const date = new Date(student.deviceBindDate).toLocaleString().split(',')[0];
+            return date !== "1/1/1" ? date : '-';
+          })()
+        }
+      </TableCell>
       <TableCell>{student.enrolledCourses?.length || 0}</TableCell>
       <TableCell>
         <Box sx={themedStyles.actionButton}>
@@ -130,6 +151,15 @@ const StudentTable = ({
               <IconButton 
                 Icon={<EditIcon />} 
                 onClick={() => onEdit(student)} 
+                color="primary" 
+              />
+            </Box>
+          </Tooltip>
+          <Tooltip title="Rebind Device">
+            <Box component="span">
+              <IconButton 
+                Icon={<RestartAltIcon />} 
+                onClick={() => onRebindDevice(student)} 
                 color="primary" 
               />
             </Box>

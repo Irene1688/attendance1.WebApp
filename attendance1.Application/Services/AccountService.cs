@@ -150,6 +150,8 @@ namespace attendance1.Application.Services
                         });
                     }
 
+                    var fingerprint = await _userRepository.GetFingerprintByStudentIdAsync(student.StudentId ?? string.Empty);
+
                     response.Add(new GetStudentResponseDto
                     {
                         UserId = student.UserId,
@@ -159,7 +161,9 @@ namespace attendance1.Application.Services
                         ProgrammeName = student.Programme != null 
                             ? student.Programme.ProgrammeName ?? string.Empty 
                             : string.Empty,
-                        EnrolledCourses = enrolledCourses
+                        EnrolledCourses = enrolledCourses,
+                        HasDevice = fingerprint.BindDate != DateOnly.MinValue ? true : false,
+                        DeviceBindDate = fingerprint.BindDate != DateOnly.MinValue ? fingerprint.BindDate : DateOnly.MinValue
                     });
                 }
 

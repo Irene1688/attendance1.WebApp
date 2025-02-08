@@ -515,9 +515,9 @@ namespace attendance1.Infrastructure.Persistence.Repositories
         {
             return await ExecuteWithTransactionAsync(async () =>
             {
-                var fingerprint = await _database.StudentDevices.FirstOrDefaultAsync(d => d.StudentId == studentId);
+                var fingerprint = await _database.StudentDevices.FirstOrDefaultAsync(d => d.StudentId == studentId && d.IsActive == true);
                 if (fingerprint == null)
-                    throw new Exception("No binded device found");
+                    throw new Exception("No bound device found");
                 fingerprint.IsActive = false;
                 await _database.SaveChangesAsync();
                 return true;
