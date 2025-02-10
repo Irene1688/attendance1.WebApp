@@ -93,9 +93,8 @@ const LecturerCourseDetail = () => {
   // load attendance records
   const loadAttendanceRecords = useCallback(async () => {
     if (!course) return;
-    if (tabValue !== 0) return;
     await fetchStudentAttendanceRecords(id);
-  }, [id, tabValue, course]);
+  }, [id, course]);
 
   useEffect(() => {
     loadAttendanceRecords();
@@ -103,7 +102,6 @@ const LecturerCourseDetail = () => {
 
   // load enrolled students
   const loadEnrolledStudents = useCallback(async () => {
-    if (tabValue !== 1) return;
     if (!course) return;
 
     const requestDto = {
@@ -116,7 +114,7 @@ const LecturerCourseDetail = () => {
     };
     const paginatedResult = await fetchEnrolledStudents(requestDto);
     setTotal(paginatedResult.totalCount); 
-  }, [id, tabValue, getPaginationParams, getSortParams, searchTerm, course]);
+  }, [id, getPaginationParams, getSortParams, searchTerm, course]);
  
   useEffect(() => {
     loadEnrolledStudents();
@@ -164,7 +162,7 @@ const LecturerCourseDetail = () => {
       const formData = new FormData();
       formData.append('File', values.data);
  
-      const success = await addStudentsToCourseByCSV(id, formData);
+      const success = await addStudentsToCourseByCSV(id, formData, values.defaultAttendance);
       if (success) {
         setOpenAddDialog(false);
         await loadEnrolledStudents();
@@ -442,6 +440,7 @@ const LecturerCourseDetail = () => {
         <AddStudentForm
           courseId={id}
           tutorials={course?.tutorials || []}
+          hasAttendanceRecordExisted={studentAttendanceRecords?.records?.length > 0 || false}
           onSubmit={handleAddStudents}
           onClose={() => setOpenAddDialog(false)}
           loading={studentsLoading}

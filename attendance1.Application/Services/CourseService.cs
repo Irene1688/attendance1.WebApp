@@ -533,7 +533,7 @@ namespace attendance1.Application.Services
                 if (!await _validateService.ValidateTutorialAsync(requestDto.TutorialId, requestDto.CourseId))
                     throw new KeyNotFoundException("Tutorial not found");
                 if (await _validateService.HasStudentInTheCourseAsync(requestDto.CourseId, requestDto.StudentId))
-                    throw new InvalidOperationException("Student already exists in the class");
+                   throw new InvalidOperationException("Student already exists in the class");
 
                 if (!await _validateService.ValidateStudentAsync(requestDto.StudentId))
                 {
@@ -560,11 +560,28 @@ namespace attendance1.Application.Services
                     TutorialId = requestDto.TutorialId,
                     IsDeleted = false,
                 };
-                return await _courseRepository.AddSingleStudentToCourseAsync(newEnrollment);
+                var isSuccess = await _courseRepository.AddSingleStudentToCourseAsync(newEnrollment);
+                if (!isSuccess)
+                   throw new Exception("Error occurred while adding student to course");
+
+                var existedAttendanceRecord = await _attendanceRepository.GetAttendanceRecordByCourseIdAsync(requestDto.CourseId);
+                if (existedAttendanceRecord.Count > 0)
+                {
+                    var success = await _attendanceRepository.InsertStudentPastAttendanceAsync(
+                        requestDto.CourseId, 
+                        existedAttendanceRecord, 
+                        requestDto.DefaultAttendance, 
+                        new List<string> { requestDto.StudentId }
+                    );
+                    if (!success)
+                        throw new Exception("Error occurred while inserting attendance");
+                }
+                
+                return true;
             }, $"Failed to add student to class");
         }
 
-        public async Task<Result<bool>> AddStudentsByCsvToCourseAsync(int courseId, IFormFile file)
+        public async Task<Result<bool>> AddStudentsByCsvToCourseAsync(int courseId, IFormFile file, bool defaultAttendance)
         {
             return await ExecuteAsync(async () =>
             {
@@ -610,7 +627,26 @@ namespace attendance1.Application.Services
                     IsDeleted = false,
                 }).ToList();
                 
-                return await _courseRepository.AddMultipleStudentsToCourseAsync(newEnrollments);
+                var isSuccess = await _courseRepository.AddMultipleStudentsToCourseAsync(newEnrollments);
+                if (!isSuccess)
+                    throw new Exception("Error occurred while adding students to course");
+
+                var existedAttendanceRecord = await _attendanceRepository.GetAttendanceRecordByCourseIdAsync(courseId);
+                if (existedAttendanceRecord.Count > 0)
+                {
+                    if (existedAttendanceRecord.Count > 0)
+                {
+                    var success = await _attendanceRepository.InsertStudentPastAttendanceAsync(
+                        courseId, 
+                        existedAttendanceRecord, 
+                        defaultAttendance, 
+                        studentIdList
+                    );
+                    if (!success)
+                        throw new Exception("Error occurred while inserting attendance");
+                }
+                }
+                return true;
             }, $"Failed to add students to class");
         }
 

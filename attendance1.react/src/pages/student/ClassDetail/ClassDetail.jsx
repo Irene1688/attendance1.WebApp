@@ -59,9 +59,9 @@ const ClassDetail = () => {
 
   // load attendance records
   const loadAttendanceRecords = useCallback(async () => {
-    if (!id || !user) return;
+    if (!id || !user || !course) return;
     await fetchAttendanceOfStudent(user?.campusId, id, false);
-  }, [id]);
+  }, [id, course]);
 
   useEffect(() => {
     loadAttendanceRecords();

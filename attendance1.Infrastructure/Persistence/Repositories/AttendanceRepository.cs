@@ -173,6 +173,24 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                 return true;
             });
         }
+
+        public async Task<bool> InsertStudentPastAttendanceAsync(int courseId, List<AttendanceRecord> attendanceCodes, bool isPresent, List<string> studentIds)
+        {
+            return await ExecuteWithTransactionAsync(async () =>
+            {
+                await _database.StudentAttendances.AddRangeAsync(attendanceCodes.SelectMany(attendanceCode => studentIds.Select(studentId => new StudentAttendance
+                {
+                    CourseId = courseId,
+                    RecordId = attendanceCode.RecordId,
+                    StudentId = studentId,
+                    IsPresent = isPresent,
+                    DateAndTime = attendanceCode.Date.ToDateTime(attendanceCode.StartTime.Value),
+                    Remark = $"{(isPresent ? "Present" : "Absent")} for {attendanceCode.Date.ToDateTime(attendanceCode.StartTime.Value):yyyy-MM-dd HH:mm:ss}"
+                })));
+                await _database.SaveChangesAsync();
+                return true;
+            });
+        }
         
         public async Task<bool> ChangeAttendanceDataAsync(IEnumerable<StudentAttendance> newAttendanceData)
         {

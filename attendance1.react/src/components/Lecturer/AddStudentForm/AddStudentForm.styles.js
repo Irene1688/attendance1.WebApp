@@ -62,7 +62,15 @@ export const styles = (theme) => ({
   },
 
   uploadButton: {
-    mt: theme.spacing(2)
+    width: '100%',
+    height: '100px',
+    border: `2px dashed ${theme.palette.primary.main}`,
+    borderRadius: theme.shape.borderRadius,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: theme.spacing(1)
   },
 
   fileName: {
@@ -76,12 +84,32 @@ export const styles = (theme) => ({
   },
 
   downloadButton: {
-    mt: 2
+    alignSelf: 'flex-start'
   },
 
   actions: {
     width: '100%',
     px: 3,
     py: 2
+  },
+
+  formContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing(2),
+    marginTop: theme.spacing(2)
+  },
+
+  uploadContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: theme.spacing(2),
+    marginTop: theme.spacing(2)
+  },
+
+  defaultAttendanceSwitch: {
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(1)
   }
 }); 

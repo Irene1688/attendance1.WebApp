@@ -69,7 +69,8 @@ export const useEnrolledStudentManagement = () => {
             courseId: Number(id),
             studentId: values.data.studentId,
             tutorialId: Number(values.data.tutorialId),
-            studentName: values.data.studentName
+            studentName: values.data.studentName,
+            defaultAttendance: values.data.defaultAttendance
         };
         return await handleApiCall(
             () => courseApi.addSingleStudentToCourse(requestDto),
@@ -77,10 +78,12 @@ export const useEnrolledStudentManagement = () => {
         );
     }, [handleApiCall]);
 
-    const addStudentsToCourseByCSV = useCallback(async (id, formData) => {
+    const addStudentsToCourseByCSV = useCallback(async (id, formData, defaultAttendance) => {
         if (!formData.has('CourseId')) {
             formData.append('CourseId', id);
         }
+        formData.append('defaultAttendance', defaultAttendance);
+       
         return await handleApiCall(
             () => courseApi.addStudentsByCsvToCourse(formData),
             () => true

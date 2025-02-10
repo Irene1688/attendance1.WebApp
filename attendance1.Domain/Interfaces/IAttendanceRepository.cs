@@ -24,6 +24,7 @@ namespace attendance1.Domain.Interfaces
         Task<List<StudentAttendance>> GetAttendanceDataByAttendanceCodeIdAsync(int attendanceRecordId);
         Task<bool> InsertStudentAttendanceAsync(int courseId, int attendanceCodeId, int tutorialId, bool isPresent);
         Task<bool> UpdateStudentAttendanceStatusAsync(int courseId, int attendanceCodeId, string studentId, bool isPresent);
+        Task<bool> InsertStudentPastAttendanceAsync(int courseId, List<AttendanceRecord> attendanceCodes, bool isPresent, List<string> studentIds);
         Task<bool> ChangeAttendanceDataAsync(IEnumerable<StudentAttendance> newAttendanceData);
         #endregion
         

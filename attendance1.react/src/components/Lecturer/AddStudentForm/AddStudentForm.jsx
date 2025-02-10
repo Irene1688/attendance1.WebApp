@@ -15,6 +15,8 @@ import {
   MenuItem,
   Select,
   InputLabel,
+  Switch,
+  FormControlLabel,
   useTheme
 } from '@mui/material';
 import { Formik, Form } from 'formik';
@@ -23,14 +25,16 @@ import { Loader, TextButton, PromptMessage } from '../../Common';
 import { useMessageContext } from '../../../contexts/MessageContext';
 import { styles } from './AddStudentForm.styles';
 
-const AddStudentForm = ({
+const AddStudentForm = ({ 
   courseId,
   tutorials = [],
+  hasAttendanceRecordExisted,
   onSubmit,
   onClose,
   loading
 }) => {
   const [tabValue, setTabValue] = useState(0); // 0: Single, 1: Batch
+  const [defaultAttendance, setDefaultAttendance] = useState(false);
   const [file, setFile] = useState(null);
   const [fileError, setFileError] = useState('');
   const { message, hideMessage } = useMessageContext();
@@ -115,7 +119,8 @@ const AddStudentForm = ({
       data: {
         studentId: values.studentId,
         studentName: values.studentName,
-        tutorialId: values.tutorialId
+        tutorialId: values.tutorialId,
+        defaultAttendance: values.defaultAttendance
       }
     };
     onSubmit(formattedValues);
@@ -127,7 +132,8 @@ const AddStudentForm = ({
     if (!file) return;
     const formattedValues = {
       type: 'batch',
-      data: file
+      data: file,
+      defaultAttendance: defaultAttendance
     };
     onSubmit(formattedValues);
   };
@@ -162,7 +168,8 @@ const AddStudentForm = ({
             initialValues={{
               studentId: '',
               studentName: '',
-              tutorialId: ''
+              tutorialId: '',
+              defaultAttendance: false
             }}
             validationSchema={singleStudentSchema}
             onSubmit={handleSubmit}
@@ -223,6 +230,17 @@ const AddStudentForm = ({
                       <FormHelperText>{errors.tutorialId}</FormHelperText>
                     )}
                   </FormControl>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        name="defaultAttendance"
+                        checked={values.defaultAttendance}
+                        onChange={handleChange}
+                        color="primary"
+                      />
+                    }
+                    label="Set Past Attendance (if have) as Present"
+                  />
                 </Box>
                 <DialogActions sx={themedStyles.actions}>
                   <TextButton 
@@ -247,6 +265,17 @@ const AddStudentForm = ({
         ) : (
           // batch upload form
           <Box sx={themedStyles.uploadSection}>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={defaultAttendance}
+                  onChange={(e) => setDefaultAttendance(e.target.checked)}
+                  color="primary"
+                />
+              }
+              label="Set Past Attendance (if have) as Present"
+              sx={themedStyles.defaultAttendanceSwitch}
+            />
             <Typography variant="body2" color="textSecondary" sx={themedStyles.uploadHint}>
               Upload a CSV file with the following columns:
               <br />

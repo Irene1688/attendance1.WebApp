@@ -18,7 +18,7 @@ namespace attendance1.Application.Interfaces
         Task<Result<GetAvailableStudentResponseDto>> GetAvailableStudentsAsync(GetAvailableStudentRequestDto requestDto);
         Task<Result<bool>> AddStudentsToCourseAndTutorialAsync(AddStudentsToCourseRequestDto requestDto);
         Task<Result<bool>> AddSingleStudentToCourseAsync(AddStudentToCourseWithoutUserIdRequestDto requestDto);
-        Task<Result<bool>> AddStudentsByCsvToCourseAsync(int courseId, IFormFile file);
+        Task<Result<bool>> AddStudentsByCsvToCourseAsync(int courseId, IFormFile file, bool defaultAttendance);
         Task<Result<bool>> RemoveStudentFromCourseAsync(RemoveStudentFromCourseRequestDto requestDto);
         #endregion
 

@@ -7,5 +7,7 @@ export const singleStudentSchema = Yup.object().shape({
       .required('Student name is required')
       .min(3, 'Student name must be at least 3 characters'),
     tutorialId: Yup.number()
-      .required('Tutorial session is required')
+      .required('Tutorial session is required'),
+    defaultAttendance: Yup.boolean()
+      .required('Default attendance is required')
   });

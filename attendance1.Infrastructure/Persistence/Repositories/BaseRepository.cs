@@ -117,11 +117,11 @@ namespace attendance1.Infrastructure.Persistence.Repositories
             finally
             {
                 // 安全地清理资源
-                // if (_currentDatabase != null)
-                // {
+                if (_currentDatabase != null)
+                {
                     await _currentDatabase.DisposeAsync();
                     _currentDatabase = null;
-                //}
+                }
             }
         }
     }

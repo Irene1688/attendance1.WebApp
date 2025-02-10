@@ -106,9 +106,9 @@ namespace attendance1.WebApi.Controllers
         }
 
         [HttpPost("addStudentsByCsvToCourse")]
-        public async Task<ActionResult<bool>> AddStudentsByCsvToCourse([FromForm] int courseId, [FromForm] IFormFile file)
+        public async Task<ActionResult<bool>> AddStudentsByCsvToCourse([FromForm] int courseId, [FromForm] IFormFile file, [FromForm] bool defaultAttendance)
         {
-            var result = await _courseService.AddStudentsByCsvToCourseAsync(courseId, file);
+            var result = await _courseService.AddStudentsByCsvToCourseAsync(courseId, file, defaultAttendance);
             return StatusCode((int)result.StatusCode, result);
         }
 
