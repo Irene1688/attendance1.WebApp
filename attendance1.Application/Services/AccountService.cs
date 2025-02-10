@@ -49,6 +49,9 @@ namespace attendance1.Application.Services
         {
             return await ExecuteAsync(async () =>
             {
+                if (!_validateService.HasAdminPermissionAsync())
+                    throw new UnauthorizedAccessException("You don't have permission to perform this action");
+
                 var lecturers = await _userRepository.GetLecturerSelectionAsync();
                 var response = new GetLecturerSelectionResponseDto
                 {
@@ -71,6 +74,9 @@ namespace attendance1.Application.Services
             var isAscending = requestDto.PaginatedRequest.IsAscending;
             return await ExecuteAsync(async () =>
             {
+                if (!_validateService.HasAdminPermissionAsync())
+                    throw new UnauthorizedAccessException("You don't have permission to perform this action");
+
                 var lecturers = await _userRepository.GetAllLecturerAsync(pageNumber, pageSize, searchTerm, orderBy, isAscending);
                 if (lecturers.Count == 0)
                     return new PaginatedResult<GetLecturerResponseDto>([], 0, pageNumber, pageSize);
@@ -119,6 +125,9 @@ namespace attendance1.Application.Services
             var isAscending = requestDto.PaginatedRequest.IsAscending;
             return await ExecuteAsync(async () =>
             {
+                if (!_validateService.HasAdminPermissionAsync())
+                    throw new UnauthorizedAccessException("You don't have permission to perform this action");
+
                 var students = await _userRepository.GetAllStudentAsync(pageNumber, pageSize, searchTerm, orderBy, isAscending);
                 if (students.Count == 0)
                     return new PaginatedResult<GetStudentResponseDto>(new List<GetStudentResponseDto>(), 0, pageNumber, pageSize);
@@ -181,6 +190,9 @@ namespace attendance1.Application.Services
         {
             return await ExecuteAsync(async () =>
             {
+                if (!_validateService.HasAdminPermissionAsync())
+                    throw new UnauthorizedAccessException("You don't have permission to perform this action");
+
                 if (requestDto.Role == AccRoleEnum.Student && !_validateService.HasStudentIdMatchEmail(requestDto.CampusId, requestDto.Email))
                     throw new InvalidOperationException("The student ID does not match with the email");
 
@@ -217,6 +229,9 @@ namespace attendance1.Application.Services
         {
             return await ExecuteAsync(async () =>
             {
+                if (!_validateService.HasAdminPermissionAsync())
+                    throw new UnauthorizedAccessException("You don't have permission to perform this action");
+
                 if (requestDto.Role == AccRoleEnum.Student && !_validateService.HasStudentIdMatchEmail(requestDto.CampusId, requestDto.Email))
                     throw new InvalidOperationException("The student ID does not match with the email");
 
@@ -254,6 +269,8 @@ namespace attendance1.Application.Services
         {
             return await ExecuteAsync(async () =>
             {
+                if (!_validateService.HasAdminPermissionAsync())
+                    throw new UnauthorizedAccessException("You don't have permission to perform this action");
                 if (!await _validateService.ValidateUserAsync(requestDto.Id))
                     throw new KeyNotFoundException("User not found");
 
@@ -267,6 +284,9 @@ namespace attendance1.Application.Services
         {
             return await ExecuteAsync(async () =>
             {
+                if (!_validateService.HasAdminPermissionAsync())
+                    throw new UnauthorizedAccessException("You don't have permission to perform this action");
+
                 var userIds = requestDto.Select(r => r.Id).ToList();
                 if (userIds.Count == 0)
                     throw new InvalidOperationException("No user IDs provided");
@@ -283,6 +303,8 @@ namespace attendance1.Application.Services
         {
             return await ExecuteAsync(async () =>
             {
+                if (!_validateService.HasAdminPermissionAsync())
+                    throw new UnauthorizedAccessException("You don't have permission to perform this action");
                 if (!await _validateService.ValidateUserAsync(requestDto.IdInInteger ?? 0))
                     throw new KeyNotFoundException("User not found");
                 if (string.IsNullOrEmpty(requestDto.IdInString))
@@ -306,6 +328,53 @@ namespace attendance1.Application.Services
                 return await _userRepository.ResetFingerprintOfStudentAsync(requestDto.IdInString ?? string.Empty);
             },
             $"Failed to cancel device binding");
+        }
+    
+        public async Task<Result<bool>> CreateSingleStudentAccountAsync(CreateAccountRequestDto requestDto)
+        {
+            return await ExecuteAsync(
+                async () =>
+                {
+                    var newStudentAccount = new UserDetail
+                    {
+                        StudentId = requestDto.CampusId,
+                        UserName = requestDto.Name,
+                        Email = requestDto.Email,
+                        UserPassword = BCrypt.Net.BCrypt.HashPassword(requestDto.Password),
+                        AccRole = AccRoleEnum.Student.ToString(),
+                        ProgrammeId = requestDto.ProgrammeId,
+                        IsDeleted = false
+                    };
+                    return await _userRepository.CreateUserAsync(newStudentAccount);
+                },
+                "Failed to create student account"
+            );
+        }
+        
+        public async Task<Result<bool>> CreateMultipleStudentAccountsAsync(List<CreateAccountRequestDto> requestDto, int programmeId)
+        {
+            return await ExecuteAsync(
+                async () =>
+                {
+                    var existedStudentIds = await _userRepository.GetAllExistedStudentIdinProgrammeAsync(programmeId);
+                    
+                    var newStudents = requestDto.Where(student => !existedStudentIds.Contains(student.CampusId))
+                        .ToList();
+                    var accountToBeCreate = newStudents.Select(student => new UserDetail
+                    {
+                        StudentId = student.CampusId,
+                        UserName = student.Name,
+                        Email = student.Email,
+                        UserPassword = BCrypt.Net.BCrypt.HashPassword(student.Password),
+                        AccRole = AccRoleEnum.Student.ToString(),
+                        ProgrammeId = programmeId,
+                        IsDeleted = false
+                    }).ToList();
+
+                    return await _userRepository.CreateMultipleUserAsync(accountToBeCreate);
+                },
+                "Failed to create student account"
+            );
         }
     }
 }

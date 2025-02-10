@@ -16,7 +16,6 @@ global using attendance1.Application.DTOs.Lecturer;
 global using attendance1.Application.DTOs.LecturerDTOs;
 global using attendance1.Application.DTOs.ProfileDTODs;
 global using attendance1.Application.DTOs.ProgrammeDTOs;
-global using attendance1.Application.DTOs.Student;
 global using attendance1.Application.DTOs.StudentDTOs;
 
 // Models

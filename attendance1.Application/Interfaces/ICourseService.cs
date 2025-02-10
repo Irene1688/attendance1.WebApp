@@ -23,8 +23,6 @@ namespace attendance1.Application.Interfaces
         #endregion
 
         #region Student fetch Course
-        // Task<Result<GetStudentEnrolledCourseSelectionResponseDto>> GetEnrolledCourseSelectionByStudentIdAsync(DataIdRequestDto requestDto);
-        
         // /// <summary>
         // /// Get enrolled courses selection by student id for menu selection
         // /// </summary>

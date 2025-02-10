@@ -330,7 +330,7 @@ namespace attendance1.Application.Services
             $"Failed to get attendance records of student ID {studentId}");
         }
 
-        public async Task<Result<bool>> SubmitAttendanceAsync(CreateAttendanceRecordRequestDto requestDto)
+        public async Task<Result<bool>> SubmitAttendanceAsync(SubmitAttendanceRequestDto requestDto)
         {
             var submittedTime = DateTime.UtcNow;
             var submittedTimeLocal = DateTime.Now;

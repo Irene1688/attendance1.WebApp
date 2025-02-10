@@ -64,13 +64,10 @@ namespace attendance1.WebApi.Controllers
         }
 
         [HttpPost("submitAttendance")]
-        public async Task<ActionResult<bool>> SubmitAttendance([FromBody] CreateAttendanceRecordRequestDto requestDto)
+        public async Task<ActionResult<bool>> SubmitAttendance([FromBody] SubmitAttendanceRequestDto requestDto)
         {
             var result = await _attendanceService.SubmitAttendanceAsync(requestDto);
             return StatusCode((int)result.StatusCode, result);
         }
-
-
-
     }
 }

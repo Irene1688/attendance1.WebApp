@@ -5,16 +5,12 @@ namespace attendance1.WebApi.Controllers
     [Authorize(Policy = "AllLoginedUser")]
     public class CourseController : ControllerBase
     {
-        private readonly IAdminService _adminService;
-        private readonly ILectureService _lectureService;
         private readonly ICourseService _courseService;
         private readonly ILogger<CourseController> _logger;
 
-        public CourseController(ICourseService courseService, IAdminService adminService, ILectureService lectureService, ILogger<CourseController> logger)
+        public CourseController(ICourseService courseService, ILogger<CourseController> logger)
         {
             _courseService = courseService ?? throw new ArgumentNullException(nameof(courseService));
-            _adminService = adminService ?? throw new ArgumentNullException(nameof(adminService));
-            _lectureService = lectureService ?? throw new ArgumentNullException(nameof(lectureService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 

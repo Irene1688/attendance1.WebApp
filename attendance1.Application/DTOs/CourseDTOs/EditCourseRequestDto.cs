@@ -13,6 +13,7 @@ namespace attendance1.Application.DTOs.CourseDTOs
         public int LecturerUserId { get; set; }
         public List<int> ClassDays { get; set; } = [];
         public List<EditTutorialDto> Tutorials { get; set; } = [];
+        public List<int> RemovedTutorialIds { get; set; } = [];
     }
 
     public class EditTutorialDto

@@ -3,7 +3,7 @@ namespace attendance1.Application.Services
     public class CourseService : BaseService, ICourseService
     {
         private readonly IValidateService _validateService;
-        private readonly IUserService _userService;
+        private readonly IAccountService _accountService;
         private readonly ICourseRepository _courseRepository;
         private readonly IUserRepository _userRepository;
         private readonly IAttendanceRepository _attendanceRepository;
@@ -12,7 +12,7 @@ namespace attendance1.Application.Services
         public CourseService(
             ILogger<CourseService> logger, 
             IValidateService validateService, 
-            IUserService userService,
+            IAccountService accountService,
             ICourseRepository courseRepository, 
             IUserRepository userRepository, 
             IAttendanceRepository attendanceRepository, 
@@ -23,7 +23,7 @@ namespace attendance1.Application.Services
             _validateService = validateService ?? throw new ArgumentNullException(nameof(validateService));
             _courseRepository = courseRepository ?? throw new ArgumentNullException(nameof(courseRepository));
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-            _userService = userService ?? throw new ArgumentNullException(nameof(userService));
+            _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService));
             _attendanceRepository = attendanceRepository ?? throw new ArgumentNullException(nameof(attendanceRepository));
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         }
@@ -94,6 +94,9 @@ namespace attendance1.Application.Services
         {
             return await ExecuteAsync(async () =>
             {
+                if (!_validateService.HasAdminOrLecturerPermissionAsync())
+                    throw new UnauthorizedAccessException("You don't have permission to perform this action");
+
                 var lecturerUserId = 0;
                 var programmeId = 0;
 
@@ -150,6 +153,9 @@ namespace attendance1.Application.Services
 
         public async Task<Result<PaginatedResult<GetCourseResponseDto>>> GetAllCourseAsync(GetCourseRequestDto requestDto)
         {
+            if (!_validateService.HasAdminOrLecturerPermissionAsync())
+                throw new UnauthorizedAccessException("You don't have permission to perform this action");
+
             var pageNumber = requestDto.PaginatedRequest.PageNumber;
             var pageSize = requestDto.PaginatedRequest.PageSize;
             var searchTerm = requestDto.SearchTerm;
@@ -215,6 +221,9 @@ namespace attendance1.Application.Services
         {
             return await ExecuteAsync(async () =>
             {
+                if (!_validateService.HasAdminOrLecturerPermissionAsync())
+                    throw new UnauthorizedAccessException("You don't have permission to perform this action");
+
                 if (!await _validateService.ValidateLecturerAsync(requestDto.IdInString ?? string.Empty))
                     throw new InvalidOperationException("Lecturer not found");
 
@@ -235,6 +244,9 @@ namespace attendance1.Application.Services
             return await ExecuteAsync(
                 async () =>
                 {
+                    if (!_validateService.HasAdminOrLecturerPermissionAsync())
+                        throw new UnauthorizedAccessException("You don't have permission to perform this action");
+
                     if (!await _validateService.ValidateLecturerAsync(requestDto.IdInString ?? string.Empty))
                         throw new KeyNotFoundException($"Lecturer with ID {requestDto.IdInString} does not exist");
 
@@ -386,7 +398,31 @@ namespace attendance1.Application.Services
                 var isSuccessTutorials = await _courseRepository.EditCourseTutorialsAsync(course.CourseId, tutorials);
                 if (!isSuccessTutorials)
                     throw new Exception("Cancelled editing tutorials");
+                
+                // remove tutorial
+                if (requestDto.RemovedTutorialIds.Count > 0)
+                {
+                    foreach (var tutorialId in requestDto.RemovedTutorialIds)
+                    {
+                        if (tutorialId == 0) 
+                        {
+                            requestDto.RemovedTutorialIds.Remove(tutorialId);
+                            continue;
+                        }
+                        if (!await _validateService.ValidateTutorialAsync(tutorialId, course.CourseId))
+                            throw new KeyNotFoundException("Tutorials not found");
+                        var hasStudentEnrolled = await _courseRepository.HasAnyStudentInTutorialAsync(course.CourseId, tutorialId);
+                        if (hasStudentEnrolled)
+                            throw new InvalidOperationException("You cannot delete tutorial that has students enrolled");
+                    }
 
+                    if (requestDto.RemovedTutorialIds.Count > 0)
+                    {
+                        var isSuccessRemovedTutorials = await _courseRepository.DeleteTutorialAsync(requestDto.RemovedTutorialIds);
+                        if (!isSuccessRemovedTutorials)
+                            throw new Exception("Cancelled editing removed tutorials");
+                    }
+                }
                 return true;
             },
             $"Failed to edit course");
@@ -547,7 +583,7 @@ namespace attendance1.Application.Services
                         Password = requestDto.StudentId.ToLower(),
                         Role = AccRoleEnum.Student,
                     };
-                    var createAccountTask = await _userService.CreateSingleStudentAccountsAsync(newStudentAccount);
+                    var createAccountTask = await _accountService.CreateSingleStudentAccountAsync(newStudentAccount);
                     if (!createAccountTask.Success)
                         throw new Exception("Failed to create student's account");
                 }
@@ -603,7 +639,7 @@ namespace attendance1.Application.Services
                     Password = studentId.ToLower(),
                     Role = AccRoleEnum.Student
                 }).ToList();
-                var createAccountTask = await _userService.CreateMultipleStudentAccountsAsync(studentAccounts, programmeId);
+                var createAccountTask = await _accountService.CreateMultipleStudentAccountsAsync(studentAccounts, programmeId);
                 if (!createAccountTask.Success)
                     throw new Exception("Failed to create students' accounts.");
 
@@ -731,39 +767,6 @@ namespace attendance1.Application.Services
             }, $"Error occurred while getting the class details");
 
         }
-        // public async Task<Result<GetStudentEnrolledCourseSelectionResponseDto>> GetEnrolledCourseSelectionByStudentIdAsync(DataIdRequestDto requestDto)
-        // {
-        //     return await ExecuteAsync(async () =>
-        //     {
-        //         if (!await _validateService.ValidateStudentAsync(requestDto.IdInString ?? string.Empty))
-        //             throw new KeyNotFoundException("Student not found");
-
-        //         var courses = await _courseRepository.GetEnrollmentCoursesByStudentIdAsync(requestDto.IdInString ?? string.Empty);
-        //         var studentTutorials = await _courseRepository.GetTutorialsByStudentIdAsync(requestDto.IdInString ?? string.Empty);
-        //         return courses
-        //             .Where(c => 
-        //                 c.Semester.EndWeek >= DateOnly.FromDateTime(DateTime.Now) &&
-        //                 c.IsDeleted == false)
-        //             .Select(c => new GetStudentActiveCourseResponseDto
-        //             {
-        //                 CourseId = c.CourseId,
-        //                 CourseCode = c.CourseCode,
-        //                 CourseName = c.CourseName,
-        //                 ClassDay = c.ClassDay ?? string.Empty,
-        //                 LecturerName = c.User?.UserName ?? string.Empty,
-        //                 Tutorials = c.Tutorials
-        //                 .Where(t => 
-        //                     t.IsDeleted == false &&
-        //                     studentTutorials.Any(st => st.TutorialId == t.TutorialId))
-        //                 .Select(t => new TutorialDto
-        //                 {
-        //                     TutorialId = t.TutorialId,
-        //                     TutorialName = t.TutorialName ?? string.Empty,
-        //                     ClassDay = t.TutorialClassDay ?? string.Empty,
-        //                 }).ToList()
-        //             }).ToList();
-        //     }, $"Error occurred while getting the active courses");
-        // }
         #endregion
     }
 }

@@ -29,6 +29,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { format } from 'date-fns';
+import { useEffect, useState } from 'react';
 
 const CourseForm = ({ 
   userRole,
@@ -51,6 +52,9 @@ const CourseForm = ({
     },
   };
   
+  // Track removed tutorial IDs
+  const [removedTutorialIds, setRemovedTutorialIds] = useState([]);
+
   return (
     <Formik
       initialValues={{
@@ -87,6 +91,11 @@ const CourseForm = ({
             classDays: classNumbers,
             tutorials
           };
+          
+          // Add removed tutorial IDs to form data when editing
+          if (isEditing) {
+            session.removedTutorialIds = removedTutorialIds;
+          }
           
           onSubmit(session, actions);
         } catch (error) {
@@ -400,7 +409,13 @@ const CourseForm = ({
                           </Grid>
                           <Grid item xs={1} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             <MuiIconButton 
-                              onClick={() => remove(index)}
+                              onClick={() => {
+                                // When editing, track removed tutorial IDs
+                                if (isEditing && tutorial.id) {
+                                  setRemovedTutorialIds(prev => [...prev, tutorial.id]);
+                                }
+                                remove(index);
+                              }}
                               disabled={values.tutorials.length === 1}
                             >
                               <DeleteIcon />
@@ -411,7 +426,8 @@ const CourseForm = ({
                       <TextButton
                         onClick={() => push({ 
                           name: generateDefaultTutorialName(values.tutorials.length), 
-                          classDay: '' 
+                          classDay: '',
+                          tutorialId: 0
                         })}
                         startIcon={<AddIcon />}
                         variant="text"

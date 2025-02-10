@@ -76,7 +76,6 @@ export const useCourseManagement = () => {
     if (!id) {
       throw new Error('No course selected for update');
     }
-
     const requestDto = {
       updatedBy: userRole,
       courseId: Number(id),
@@ -92,7 +91,8 @@ export const useCourseManagement = () => {
         tutorialId: tutorial.id,
         tutorialName: tutorial.name,
         classDay: Number(tutorial.classDay)
-      }))
+      })),
+      removedTutorialIds: values.removedTutorialIds
     };
     return await handleApiCall(
       () => courseApi.updateCourse(requestDto),

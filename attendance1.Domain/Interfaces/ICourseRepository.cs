@@ -8,6 +8,7 @@ namespace attendance1.Domain.Interfaces
         Task<bool> HasCourseExistedAsync(int courseId);
         Task<bool> HasTutorialExistedAsync(int tutorialId, int courseId);
         Task<bool> HasTutorialExistedAsync(int tutorialId);
+        Task<bool> HasAnyStudentInTutorialAsync(int courseId, int tutorialId);
         Task<bool> HasStudentEnrolledInCourseAsync(string studentId, int courseId);
         Task<bool> HasStudentEnrolledInTutorialAsync(string studentId,int courseId, int tutorialId);
         Task<bool> HasLecturerPermittedToAccessCourseAsync(string lecturerId, int userId, int courseId);
@@ -42,7 +43,7 @@ namespace attendance1.Domain.Interfaces
         Task<string> GetTutorialNameByTutorialIdAsync(int tutorialId);
         Task<bool> CreateNewTutorialAsync(Tutorial tutorial);
         Task<bool> EditTutorialAsync(Tutorial tutorial);
-        Task<bool> DeleteTutorialAsync(int tutorialId);
+        Task<bool> DeleteTutorialAsync(List<int> tutorialIds);
         #endregion
         
         #region student CRUD    

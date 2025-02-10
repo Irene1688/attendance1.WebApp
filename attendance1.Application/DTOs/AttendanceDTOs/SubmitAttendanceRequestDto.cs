@@ -1,6 +1,6 @@
-namespace attendance1.Application.DTOs.Student
+namespace attendance1.Application.DTOs.AttendanceDTOs
 {
-    public class CreateAttendanceRecordRequestDto
+    public class SubmitAttendanceRequestDto
     {
         public string StudentId { get; set; } = string.Empty;
         public string AttendanceCode { get; set; } = string.Empty;

@@ -155,6 +155,7 @@ const LecturerCourseDetail = () => {
       if (success) {
         setOpenAddDialog(false);
         await loadEnrolledStudents();
+        await loadAttendanceRecords();
         showSuccessMessage('Student added successfully');
       }
     } else {
@@ -166,6 +167,7 @@ const LecturerCourseDetail = () => {
       if (success) {
         setOpenAddDialog(false);
         await loadEnrolledStudents();
+        await loadAttendanceRecords();
         showSuccessMessage('Students added successfully');
       }
     }
@@ -177,6 +179,7 @@ const LecturerCourseDetail = () => {
       if (success) {
         setConfirmRemoveDialog({ open: false, students: [] });
         await loadEnrolledStudents();
+        await loadAttendanceRecords();
         showSuccessMessage('Students removed successfully');
       }
     }

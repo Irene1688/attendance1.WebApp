@@ -23,12 +23,12 @@
         //    return StatusCode((int)classDetails.StatusCode, classDetails);
         //}
 
-        [HttpPost("getClassDetailsWithAttendanceData")]
-        public async Task<ActionResult<GetClassDetailsWithAttendanceDataResponseDto>> GetClassDetailsWithAttendanceData([FromBody] DataIdRequestDto requestDto)
-        {
-            var classDetails = await _lectureService.GetClassDetailsWithAttendanceDataAsync(requestDto);
-            return StatusCode((int)classDetails.StatusCode, classDetails);
-        }
+        //[HttpPost("getClassDetailsWithAttendanceData")]
+        //public async Task<ActionResult<GetClassDetailsWithAttendanceDataResponseDto>> GetClassDetailsWithAttendanceData([FromBody] DataIdRequestDto requestDto)
+        //{
+        //    var classDetails = await _lectureService.GetClassDetailsWithAttendanceDataAsync(requestDto);
+        //    return StatusCode((int)classDetails.StatusCode, classDetails);
+        //}
 
         //[HttpPost("createNewClass")]
         //public async Task<ActionResult<DataIdResponseDto>> CreateNewClass([FromBody] CreateClassRequestDto requestDto)
@@ -37,19 +37,19 @@
         //    return StatusCode((int)newClassId.StatusCode, newClassId);
         //}
 
-        [HttpPost("editClassDetails")]
-        public async Task<ActionResult<bool>> EditClassDetails([FromBody] EditClassRequestDto requestDto)
-        {
-            var result = await _lectureService.EditClassAsync(requestDto);
-            return StatusCode((int)result.StatusCode, result);
-        }
+        //[HttpPost("editClassDetails")]
+        //public async Task<ActionResult<bool>> EditClassDetails([FromBody] EditClassRequestDto requestDto)
+        //{
+        //    var result = await _lectureService.EditClassAsync(requestDto);
+        //    return StatusCode((int)result.StatusCode, result);
+        //}
 
-        [HttpPost("deleteClass")]
-        public async Task<ActionResult<bool>> DeleteClass([FromBody] DeleteRequestDto requestDto)
-        {
-            var result = await _lectureService.DeleteClassAsync(requestDto);
-            return StatusCode((int)result.StatusCode, result);
-        }
+        //[HttpPost("deleteClass")]
+        //public async Task<ActionResult<bool>> DeleteClass([FromBody] DeleteRequestDto requestDto)
+        //{
+        //    var result = await _lectureService.DeleteClassAsync(requestDto);
+        //    return StatusCode((int)result.StatusCode, result);
+        //}
 
         // [HttpPost("getEnrolledStudents")]
         // public async Task<ActionResult<List<GetEnrolledStudentResponseDto>>> GetEnrolledStudents([FromBody] GetEnrolledStudentRequestDto requestDto)
@@ -79,40 +79,40 @@
         //     return StatusCode((int)result.StatusCode, result);
         // }
 
-        [HttpPost("addStudentToTutorial")]
-        public async Task<ActionResult<bool>> AddStudentToTutorial([FromBody] AddStudentToTutorialRequestDto requestDto)
-        {
-            var result = await _lectureService.AddStudentToTutorialAsync(requestDto);
-            return StatusCode((int)result.StatusCode, result);
-        }
+        //[HttpPost("addStudentToTutorial")]
+        //public async Task<ActionResult<bool>> AddStudentToTutorial([FromBody] AddStudentToTutorialRequestDto requestDto)
+        //{
+        //    var result = await _lectureService.AddStudentToTutorialAsync(requestDto);
+        //    return StatusCode((int)result.StatusCode, result);
+        //}
 
-        [HttpPost("removeStudentFromTutorial")]
-        public async Task<ActionResult<bool>> RemoveStudentFromTutorial([FromBody] RemoveStudentFromTutorialRequestDto requestDto)
-        {
-            var result = await _lectureService.RemoveStudentFromTutorialAsync(requestDto);
-            return StatusCode((int)result.StatusCode, result);
-        }
+        //[HttpPost("removeStudentFromTutorial")]
+        //public async Task<ActionResult<bool>> RemoveStudentFromTutorial([FromBody] RemoveStudentFromTutorialRequestDto requestDto)
+        //{
+        //    var result = await _lectureService.RemoveStudentFromTutorialAsync(requestDto);
+        //    return StatusCode((int)result.StatusCode, result);
+        //}
 
-        [HttpPost("createNewTutorial")]
-        public async Task<ActionResult<bool>> CreateNewTutorial([FromBody] CreateTutorialRequestDto requestDto)
-        {
-            var result = await _lectureService.CreateNewTutorialAsync(requestDto);
-            return StatusCode((int)result.StatusCode, result);
-        }
+        //[HttpPost("createNewTutorial")]
+        //public async Task<ActionResult<bool>> CreateNewTutorial([FromBody] CreateTutorialRequestDto requestDto)
+        //{
+        //    var result = await _lectureService.CreateNewTutorialAsync(requestDto);
+        //    return StatusCode((int)result.StatusCode, result);
+        //}
 
-        [HttpPost("editTutorial")]
-        public async Task<ActionResult<bool>> EditTutorial([FromBody] EditTutorialRequestDto requestDto)
-        {
-            var result = await _lectureService.EditTutorialAsync(requestDto);
-            return StatusCode((int)result.StatusCode, result);
-        }
+        //[HttpPost("editTutorial")]
+        //public async Task<ActionResult<bool>> EditTutorial([FromBody] EditTutorialRequestDto requestDto)
+        //{
+        //    var result = await _lectureService.EditTutorialAsync(requestDto);
+        //    return StatusCode((int)result.StatusCode, result);
+        //}
 
-        [HttpPost("deleteTutorial")]
-        public async Task<ActionResult<bool>> DeleteTutorial([FromBody] DeleteRequestDto requestDto)
-        {
-            var result = await _lectureService.DeleteTutorialAsync(requestDto);
-            return StatusCode((int)result.StatusCode, result);
-        }
+        //[HttpPost("deleteTutorial")]
+        //public async Task<ActionResult<bool>> DeleteTutorial([FromBody] DeleteRequestDto requestDto)
+        //{
+        //    var result = await _lectureService.DeleteTutorialAsync(requestDto);
+        //    return StatusCode((int)result.StatusCode, result);
+        //}
 
         
 

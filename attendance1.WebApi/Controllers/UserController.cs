@@ -27,20 +27,6 @@ namespace attendance1.WebApi.Controllers
             var result = await _userService.EditProfileWithPasswordAsync(requestDto);
             return StatusCode((int)result.StatusCode, result);
         }
-
-        // [HttpPost("editProfile")]
-        // public async Task<ActionResult<bool>> EditProfile([FromBody] EditProfileRequestDto requestDto)
-        // {
-        //     var result = await _userService.EditProfileAsync(requestDto);
-        //     return StatusCode((int)result.StatusCode, result);
-        // }
-
-        // [HttpPost("changePassword")]
-        // public async Task<ActionResult<bool>> ChangePassword([FromBody] EditPasswordRequestDto requestDto)
-        // {
-        //     var result = await _userService.ChangePasswordAsync(requestDto);
-        //     return StatusCode((int)result.StatusCode, result);
-        // }
     }
 }
 

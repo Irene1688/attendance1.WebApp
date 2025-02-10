@@ -6,7 +6,6 @@ namespace attendance1.Application.Extensions
         {
             services.AddScoped<ILectureService, LectureService>();
             services.AddScoped<IAdminService, AdminService>();
-            services.AddScoped<IStudentService, StudentService>();
             services.AddScoped<IValidateService, ValidateService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserService, UserService>();

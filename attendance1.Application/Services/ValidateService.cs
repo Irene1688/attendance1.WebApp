@@ -34,6 +34,22 @@ namespace attendance1.Application.Services
             return true;
         }
 
+        public bool HasAdminOrLecturerPermissionAsync()
+        {
+            if (_httpContextAccessor.HttpContext == null)
+                throw new UnauthorizedAccessException("Not found user context");
+            ClaimsPrincipal userClaims = _httpContextAccessor.HttpContext.User;
+            
+            var userRole = userClaims.FindFirst(ClaimTypes.Role)?.Value;
+            if (userRole == null)
+                throw new UnauthorizedAccessException("Not found user role");
+            
+            if (userRole== AccRoleEnum.Student.ToString())
+                return false;
+
+            return true;
+        }
+
         public async Task<bool> HasPermissionToAccessCourseAsync(int courseId)
         {
             if (courseId <= 0)

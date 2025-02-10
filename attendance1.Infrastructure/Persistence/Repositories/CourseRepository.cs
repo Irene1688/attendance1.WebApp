@@ -45,6 +45,16 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                 && t.IsDeleted == false);
             return isTutorialExisted;
         }
+
+        public async Task<bool> HasAnyStudentInTutorialAsync(int courseId, int tutorialId)
+        {
+            var isAnyStudentInTutorial = await _database.EnrolledStudents
+                .AnyAsync(s => 
+                    s.CourseId == courseId && 
+                    s.TutorialId == tutorialId && 
+                    s.IsDeleted == false);
+            return isAnyStudentInTutorial;
+        }
         
         public async Task<bool> HasStudentEnrolledInCourseAsync(string studentId, int courseId)
         {
@@ -548,18 +558,22 @@ namespace attendance1.Infrastructure.Persistence.Repositories
             });
         }
 
-        public async Task<bool> DeleteTutorialAsync(int tutorialId)
+        public async Task<bool> DeleteTutorialAsync(List<int> tutorialIds)
         {
             return await ExecuteWithTransactionAsync(async () =>
             {
-                var tutorial = await _database.Tutorials
-                    .Where(t => t.TutorialId == tutorialId && t.IsDeleted == false)
-                    .FirstOrDefaultAsync();
+                var tutorialsToDelete = await _database.Tutorials
+                    .Where(t => tutorialIds.Contains(t.TutorialId) && t.IsDeleted == false)
+                    .ToListAsync();
 
-                if (tutorial == null)
-                    throw new Exception("Tutorial not found");
+                if (tutorialsToDelete.Count == 0)
+                    throw new Exception("Tutorials not found");
 
-                tutorial.IsDeleted = true;
+                foreach (var tutorial in tutorialsToDelete)
+                {
+                    tutorial.IsDeleted = true;
+                }
+
                 await _database.SaveChangesAsync();
                 return true;
             });

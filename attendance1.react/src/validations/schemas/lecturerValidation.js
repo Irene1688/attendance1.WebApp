@@ -8,7 +8,7 @@ export const lecturerValidationSchema = (isCreating = true) => Yup.object({
         .email('Invalid email address'),
     campusId: Yup.string()
         .required('Lecturer ID is required')
-        .min(3, 'Lecturer ID must be at least 3 characters'),
+        .min(6, 'Lecturer ID must be at least 6 characters as it will be used as defaultpassword'),
     programmeId: isCreating 
         ? Yup.number()
             .required('Programme is required')
