@@ -26,7 +26,6 @@ public partial class UserDetail
 
     public virtual Programme? Programme { get; set; }
     public virtual ICollection<Course> Courses { get; set; } = new List<Course>();
-    public virtual ICollection<AdminProgramme> AdminProgrammes { get; set; } = new List<AdminProgramme>();
     public virtual ICollection<Tutorial> Tutorials { get; set; } = new List<Tutorial>();
 
 

@@ -196,7 +196,7 @@ namespace attendance1.Application.Services
             return await ExecuteAsync(async () =>
             {
                 var existedStaffs = await _userRepository.GetStaffByUsernameAsync(requestDto.Username, requestDto.Role.ToString());
-                if (existedStaffs == null)
+                if (existedStaffs.Count <= 0)
                     throw new KeyNotFoundException("User not found");
 
                 var loginUser = existedStaffs.FirstOrDefault(staff => BCrypt.Net.BCrypt.Verify(requestDto.Password, staff.UserPassword));

@@ -11,9 +11,9 @@ namespace attendance1.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_studentAttendance_studentDevice",
-                table: "studentAttendance");
+            //migrationBuilder.DropForeignKey(
+            //    name: "FK_studentAttendance_studentDevice",
+            //    table: "studentAttendance");
 
             migrationBuilder.DropColumn(
                 name: "deviceCode",
@@ -35,9 +35,9 @@ namespace attendance1.Infrastructure.Migrations
                 name: "uuID",
                 table: "studentDevice");
 
-            migrationBuilder.DropColumn(
-                name: "deviceID",
-                table: "studentAttendance");
+            //migrationBuilder.DropColumn(
+            //    name: "deviceID",
+            //    table: "studentAttendance");
 
             migrationBuilder.AlterColumn<DateOnly>(
                 name: "bindDate",

@@ -1,0 +1,51 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:latest
+    container_name: sqlserver-container
+    ports:
+      - "1434:1433"  # 映射宿主机的 1434 端口到 SQL Server 的 1433 端口
+    environment:
+      SA_PASSWORD: "yourStrong(!)Password"
+      ACCEPT_EULA: "Y"
+    volumes:
+      - sqlserver_data:/var/opt/mssql 
+    networks:
+      - samsnetwork
+    restart: unless-stopped  # 配置容器自动重启，除非手动停止
+
+  webapi:
+    build:
+      context: .
+      dockerfile: Dockerfile  # 指定 WebAPI 的 Dockerfile
+    container_name: sams-webapi-container
+    ports:
+      - "5000:5000"  # 映射 WebAPI 端口
+    depends_on:
+      - sqlserver  # 确保 SQL Server 先启动
+    environment:
+      - ConnectionStrings__DefaultConnection=Data Source=sqlserver-container,1433;Database=StudentAttendanceSystem;User Id=sa;Password=yourStrong(!)Password;TrustServerCertificate=True;
+    networks:
+      - samsnetwork
+    restart: unless-stopped
+
+  react:
+    build:
+      context: ./attendance1.react  # 确保这里的路径是 React 项目的目录
+      dockerfile: Dockerfile
+    container_name: sams-react-container
+    ports:
+      - "5173:80"  # 让 React 通过 Nginx 运行在 5173 端口
+    depends_on:
+      - webapi
+    networks:
+      - samsnetwork
+    environment:
+      - VITE_API_URL=http://webapi:5000 # 如果需要设置 API 地址
+    restart: unless-stopped
+
+networks:
+  samsnetwork:
+    driver: bridge
+
+volumes:
+  sqlserver_data:

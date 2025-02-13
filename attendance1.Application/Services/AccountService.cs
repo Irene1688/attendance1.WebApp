@@ -45,6 +45,26 @@ namespace attendance1.Application.Services
             return result;
         }
 
+        public async Task<Result<bool>> CreateAdminAsync(CreateAccountRequestDto requestDto)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                var admin = new UserDetail
+                {
+                    StudentId = null,
+                    LecturerId = requestDto.CampusId,
+                    ProgrammeId = null,
+                    UserName = FormatName(requestDto.Name),
+                    Email = requestDto.Email,
+                    UserPassword = BCrypt.Net.BCrypt.HashPassword(requestDto.CampusId.ToLower()),
+                    AccRole = AccRoleEnum.Admin.ToString(),
+                    IsDeleted = false
+                };
+                await _userRepository.CreateUserAsync(admin);
+                return true;
+            }, "Failed to create admin account");
+        }
+
         public async Task<Result<GetLecturerSelectionResponseDto>> GetLecturerSelectionAsync()
         {
             return await ExecuteAsync(async () =>

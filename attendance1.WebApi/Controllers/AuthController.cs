@@ -6,12 +6,21 @@ namespace attendance1.WebApi.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly IAccountService _accountService;
         private readonly ILogger<AuthController> _logger;
 
-        public AuthController(IAuthService authService, ILogger<AuthController> logger)
+        public AuthController(IAuthService authService, IAccountService accountService, ILogger<AuthController> logger)
         {
             _authService = authService ?? throw new ArgumentNullException(nameof(authService));
+            _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
+        [HttpPost("createAdmin")]
+        public async Task<ActionResult<bool>> CreateAdmin([FromBody] CreateAccountRequestDto requestDto)
+        {
+            var result = await _accountService.CreateAdminAsync(requestDto);
+            return StatusCode((int)result.StatusCode, result);
         }
 
         [HttpPost("studentLogin")]

@@ -2,6 +2,11 @@ namespace attendance1.Application.Interfaces
 {
     public interface IAccountService
     {
+        /// <summary>
+        /// to create admin account
+        /// </summary>
+        Task<Result<bool>> CreateAdminAsync(CreateAccountRequestDto requestDto);
+
         Task<Result<GetLecturerSelectionResponseDto>> GetLecturerSelectionAsync();
 
         /// <summary>

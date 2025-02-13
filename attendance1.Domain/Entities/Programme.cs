@@ -12,7 +12,5 @@ public partial class Programme
 
     public virtual ICollection<UserDetail> UserDetails { get; set; } = new List<UserDetail>();
 
-    public virtual ICollection<AdminProgramme> AdminProgrammes { get; set; } = new List<AdminProgramme>();
-
     public virtual ICollection<Course> Courses { get; set; } = new List<Course>();
 }

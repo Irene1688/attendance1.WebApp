@@ -17,8 +17,6 @@ public partial class ApplicationDbContext : DbContext
     {
     }
 
-    public virtual DbSet<AdminProgramme> AdminProgrammes { get; set; }
-
     public virtual DbSet<AttendanceRecord> AttendanceRecords { get; set; }
 
     public virtual DbSet<Course> Courses { get; set; }
@@ -48,31 +46,12 @@ public partial class ApplicationDbContext : DbContext
         // Only configure the connection if it hasn't been configured
         if (!optionsBuilder.IsConfigured)
         {
-            optionsBuilder.UseSqlServer("Data Source=IRENE\\SQLEXPRESS;Initial Catalog=StudentAttendanceSystem;User ID=irene;Password=Root-123;Encrypt=False;Trust Server Certificate=True;");
+            optionsBuilder.UseSqlServer("Data Source=127.0.0.1,1434;Initial Catalog=StudentAttendanceSystem;User ID=sa;Password=yourStrong(!)Password;Encrypt=False;TrustServerCertificate=True");
         }
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<AdminProgramme>(entity =>
-        {
-            entity.HasKey(e => e.ApId).HasName("PK__adminPro__5A28C0A8C465DF30");
-
-            entity.ToTable("adminProgramme");
-
-            entity.Property(e => e.ApId).HasColumnName("apID");
-            entity.Property(e => e.ProgrammeId).HasColumnName("programmeID");
-            entity.Property(e => e.UserId).HasColumnName("userID");
-
-            entity.HasOne(d => d.Programme).WithMany(p => p.AdminProgrammes)
-                .HasForeignKey(d => d.ProgrammeId)
-                .HasConstraintName("FK__adminProg__progr__03F0984C");
-
-            entity.HasOne(d => d.User).WithMany(p => p.AdminProgrammes)
-                .HasForeignKey(d => d.UserId)
-                .HasConstraintName("FK__adminProg__userI__02FC7413");
-        });
-
         modelBuilder.Entity<AttendanceRecord>(entity =>
         {
             entity.HasKey(e => e.RecordId).HasName("PK__attendan__D825197EC0BDBED7");

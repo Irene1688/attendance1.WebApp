@@ -1,5 +1,11 @@
 var builder = WebApplication.CreateBuilder(args);
 
+// for docker to listen on all addresses
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(5000); // listen port 5000
+});
+
 // Add services to the container
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddApplicationServices();
