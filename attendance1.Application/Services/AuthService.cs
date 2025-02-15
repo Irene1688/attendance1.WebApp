@@ -104,12 +104,13 @@ namespace attendance1.Application.Services
             return ((value + factor / 2) / factor) * factor;
         }
         
-        public string GenerateFingerprintHash(DeviceInfoDto deviceInfo)
+        public string GenerateFingerprintHash(DeviceInfoDto deviceInfo, string studentId)
         {
             // 1. 规范化设备信息
             var normalizedInfo = new
             {
                 Fingerprint = deviceInfo.Fingerprint,
+                StudentId = studentId,
                 UserAgent = NormalizeUserAgent(deviceInfo.UserAgent),
                 Platform = deviceInfo.Platform.ToUpperInvariant(),
                 Resolution = NormalizeResolution(deviceInfo.ScreenResolution),
@@ -127,9 +128,9 @@ namespace attendance1.Application.Services
             return Convert.ToBase64String(hash);
         }
 
-        private bool ValidateFingerprint(string storedHash, DeviceInfoDto newDeviceInfo)
+        private bool ValidateFingerprint(string storedHash, DeviceInfoDto newDeviceInfo, string studentId)
         {
-            var newHash = GenerateFingerprintHash(newDeviceInfo);
+            var newHash = GenerateFingerprintHash(newDeviceInfo, studentId);
             return storedHash == newHash;
         }
         #endregion
@@ -146,7 +147,7 @@ namespace attendance1.Application.Services
                 if (!BCrypt.Net.BCrypt.Verify(requestDto.Password, user.UserPassword)) 
                     throw new InvalidOperationException("Incorrect password");
 
-                var currentFingerprintHash = GenerateFingerprintHash(requestDto.DeviceInfo);
+                var currentFingerprintHash = GenerateFingerprintHash(requestDto.DeviceInfo, user.StudentId ?? string.Empty);
                 
                 // 1. check if the device is already bound to another account
                 var existingDevice = await _userRepository.GetDeviceByFingerprintHashAsync(currentFingerprintHash);
@@ -172,7 +173,7 @@ namespace attendance1.Application.Services
                         throw new Exception("Failed to bind your device to your account, please try again later");
                 }
 
-                if (!isFirstLogin && !ValidateFingerprint(fingerprint.FingerprintHash, requestDto.DeviceInfo))
+                if (!isFirstLogin && !ValidateFingerprint(fingerprint.FingerprintHash, requestDto.DeviceInfo, user.StudentId ?? string.Empty))
                     throw new UnauthorizedAccessException("This account can only be accessed from your first-login device");
 
                 var (accessToken, refreshToken) = await HandleTokenGeneration(user);
