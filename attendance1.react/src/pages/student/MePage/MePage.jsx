@@ -5,9 +5,12 @@ import { useNavigate, useOutletContext } from 'react-router-dom';
 import PersonIcon from '@mui/icons-material/Person';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import ClassIcon from '@mui/icons-material/Class';
+import FlagIcon from '@mui/icons-material/Flag';
+import AttachEmailIcon from '@mui/icons-material/AttachEmail';
 import { AvatarSection, ListCard, Loader, PromptMessage } from '../../../components/Common';
 import { useCourseById } from '../../../hooks/features';
 import { useMessageContext } from '../../../contexts/MessageContext';
+import { ADMIN_EMAIL, BUG_REPORT_FORM_URL } from '../../../constants/contactConstatnt';
 import { styles } from './MePage.styles';
 
 const MePage = () => {
@@ -41,11 +44,11 @@ const MePage = () => {
         {item.icon}
       </ListItemIcon>
       <ListItemText>
-        <Box sx={themedStyles.cardItemTitle} onClick={() => navigate(item.path)}>
+        <Box sx={themedStyles.cardItemTitle} onClick={() => item.path ? navigate(item.path) : item.action()}>
           <Typography variant="body1" sx={themedStyles.menuTitle}>
               {item.title}
           </Typography>
-          <KeyboardArrowRightIcon />
+          {item.path && <KeyboardArrowRightIcon />}
         </Box> 
       </ListItemText>
     </ListItem>
@@ -112,6 +115,17 @@ const MePage = () => {
           />
         )
       }
+
+      <ListCard 
+        title="Other"
+        isLoading={false}
+        items={[{ id: 1, title: 'Contact Admin', icon: <AttachEmailIcon />, action: () => window.open(`mailto:${ADMIN_EMAIL}`, '_blank') },
+          { id: 2, title: 'Report a Problem', icon: <FlagIcon />, action: () => window.open(BUG_REPORT_FORM_URL, '_blank') },
+        ]}
+        renderItem={renderMenu}
+        emptyMessage="No profile data available"
+        sx={{ mb: 2 }}
+      />
     </>
   )
 }
