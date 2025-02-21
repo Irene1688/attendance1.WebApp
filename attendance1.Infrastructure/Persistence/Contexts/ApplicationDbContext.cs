@@ -25,8 +25,6 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<EnrolledStudent> EnrolledStudents { get; set; }
 
-    public virtual DbSet<Feedback> Feedbacks { get; set; }
-
     public virtual DbSet<Programme> Programmes { get; set; }
 
     public virtual DbSet<StudentAttendance> StudentAttendances { get; set; }
@@ -176,24 +174,6 @@ public partial class ApplicationDbContext : DbContext
                 .HasForeignKey(d => d.TutorialId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__enrolledS__tutor__46E78A0C");
-        });
-
-        modelBuilder.Entity<Feedback>(entity =>
-        {
-            entity.HasKey(e => e.FeedbackId).HasName("PK__Feedback__2613FD240A0EE6B7");
-
-            entity.ToTable("Feedback");
-
-            entity.Property(e => e.FeedbackId).HasColumnName("feedbackId");
-            entity.Property(e => e.Date)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime")
-                .HasColumnName("date");
-            entity.Property(e => e.FeedbackContent).HasColumnName("feedbackContent");
-            entity.Property(e => e.Rating).HasColumnName("rating");
-            entity.Property(e => e.StudentId)
-                .HasMaxLength(15)
-                .HasColumnName("studentId");
         });
 
         modelBuilder.Entity<Programme>(entity =>
