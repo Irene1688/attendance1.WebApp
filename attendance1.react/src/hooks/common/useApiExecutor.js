@@ -29,11 +29,10 @@ export const useApiExecutor = () => {
             showErrorMessage('You are not authorized to access this page.');
             return;
           }
-
-          const messageFromServer = error.response.data?.errorMessage || '';
+          const messageFromServer = error.response.data?.errorMessage || error.response.data?.message || '';
           const messageFromClientServer = `${error.name}: ${error.message}`;
           
-          if (messageFromServer.includes("Failed to refresh token")) {
+          if (messageFromServer.includes("Failed to refresh token") || messageFromServer.includes("You are not logged in or your login has expired")) {
             dispatch(logout());
             navigate('/login');
             showErrorMessage('Your session has expired. Please login again.');

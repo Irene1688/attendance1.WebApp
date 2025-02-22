@@ -21,6 +21,7 @@ const authSlice = createSlice({
       localStorage.setItem('accessToken', payload.accessToken);
       localStorage.setItem('refreshToken', payload.refreshToken);
     },
+
     logout: (state) => {
       state.user = null;
       state.accessToken = null;
@@ -30,6 +31,7 @@ const authSlice = createSlice({
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
     },
+
     updateUserProfile: (state, action) => {
       if (state.user) {
         state.user = {
