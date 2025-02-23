@@ -366,3 +366,11 @@ FodyWeavers.xsd
 /attendance1.Web/wwwroot/js/Shared/Login.js
 /attendance1.Web/NLog.config
 #/attendance1.Web.sln
+/backup.sh
+/backup.bat
+/DbBackup/
+/backup.bat
+/backup.bat
+/backup.bat
+/backup.sh
+/run_backup.ps1
