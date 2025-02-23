@@ -255,7 +255,7 @@ const LecturerCourseDetail = () => {
         <Paper sx={themedStyles.section}>
           <Box sx={themedStyles.header}>
             <Typography variant="h6" sx={themedStyles.sectionTitle}>
-              Course Information
+              Class Information
             </Typography>
             <TextButton
               onClick={handleEditClass}
@@ -311,7 +311,7 @@ const LecturerCourseDetail = () => {
             <Grid item xs={12} md={6}>
               <Box sx={themedStyles.infoItem}>
                 <Typography variant="subtitle2" color="textSecondary">
-                  Course Name
+                  Class Name
                 </Typography>
                 <Typography variant="body1">
                   {course.courseName}

@@ -417,7 +417,7 @@ const CourseDetail = () => {
       >
         <AddStudentForm
           open={openAddDialog}
-          programmeId={course?.programmeId}
+          programmeId={course?.programme?.programmeId}
           courseId={id}
           tutorials={course?.tutorials || []}
           onSubmit={handleAddStudents}
