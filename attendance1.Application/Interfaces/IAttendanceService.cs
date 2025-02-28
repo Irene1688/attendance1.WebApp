@@ -42,5 +42,10 @@ namespace attendance1.Application.Interfaces
         /// Submit attendance by a student
         /// </summary>
         Task<Result<bool>> SubmitAttendanceAsync(SubmitAttendanceRequestDto requestDto);
+
+        /// <summary>
+        /// Delete an attendance code by id and delete the related attendance records of students
+        /// </summary>
+        Task<Result<bool>> DeleteAttendanceRecordAsync(DeleteRequestDto requestDto);
     }
 }

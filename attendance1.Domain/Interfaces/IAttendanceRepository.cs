@@ -20,6 +20,7 @@ namespace attendance1.Domain.Interfaces
         
         #region lecturer: attendace CRUD
         Task<bool> CreateAttendanceCodeAsync(AttendanceRecord attendanceRecord);
+        Task<bool> DeleteAttendanceRecordAsync(int attendanceRecordId);
         Task<List<StudentAttendance>> GetAttendanceDataByCourseIdAsync(int courseId);
         Task<List<StudentAttendance>> GetAttendanceDataByAttendanceCodeIdAsync(int attendanceRecordId);
         Task<bool> InsertStudentAttendanceAsync(int courseId, int attendanceCodeId, int tutorialId, bool isPresent);

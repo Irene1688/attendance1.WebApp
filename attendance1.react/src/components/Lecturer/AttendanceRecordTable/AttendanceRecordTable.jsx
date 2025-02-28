@@ -1,4 +1,5 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
+import { format } from 'date-fns';
 import { 
   TableCell, 
   TableRow,
@@ -10,12 +11,20 @@ import {
   IconButton,
   Divider,
   useTheme,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  FormControl,
+  Select,
+  MenuItem,
 } from '@mui/material';
-import { SortableTable, TextButton } from '../../Common';
+import { SortableTable, TextButton, ConfirmDialog } from '../../Common';
 import { styles } from './AttendanceRecordTable.styles';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import PrintIcon from '@mui/icons-material/Print';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const AttendanceRecordTable = ({
   courseStartDate,
@@ -23,6 +32,7 @@ const AttendanceRecordTable = ({
   students = [],
   tutorials = [],
   onUpdateStatus,
+  onDeleteRecord,
   courseInfo,
 }) => {
   const theme = useTheme();
@@ -46,6 +56,63 @@ const AttendanceRecordTable = ({
     records: tutorialRecords.filter(r => r.tutorialId === tutorial.tutorialId)
   }));
 
+  // 新增状态用于跟踪选择的课程类型
+  const [selectedSessionType, setSelectedSessionType] = useState('');
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [selectedRecordId, setSelectedRecordId] = useState('');
+
+  // used for delete record
+  const sessionOptions = useMemo(() => {
+    return [
+      { id: 'lecture', label: 'Lecture' },
+      ...safeTutorials.map(tutorial => ({
+        id: `tutorial-${tutorial.tutorialId}`,
+        label: tutorial.tutorialName
+      }))
+    ];
+  }, [safeTutorials]);
+
+  // used for delete record
+  const filteredDateRecords = useMemo(() => {
+    if (!selectedSessionType) return {};
+
+    const dates = {};
+    safeRecords
+      .filter(record => {
+        if (selectedSessionType === 'lecture') {
+          return record.isLecture;
+        } else {
+          const tutorialId = parseInt(selectedSessionType.split('-')[1]);
+          return !record.isLecture && record.tutorialId === tutorialId;
+        }
+      })
+      .forEach(record => {
+        const date = format(new Date(record.date), 'dd/MM');
+        if (dates[date]) {
+          const count = dates[date].length + 1;
+          dates[date].push({
+            id: record.recordId,
+            label: `${date} -${count} - ${record.recordId}`,
+            date: record.date
+          });
+        } else {
+          dates[date] = [{
+            id: record.recordId,
+            label: `${date} -${record.recordId}`,
+            date: record.date
+          }];
+        }
+      });
+
+    // Sort the dates by date in ascending order
+    const sortedDates = Object.keys(dates).sort((a, b) => new Date(a.split('/').reverse().join('-')) - new Date(b.split('/').reverse().join('-')));
+    const sortedRecords = {};
+    sortedDates.forEach(date => {
+      sortedRecords[date] = dates[date];
+    });
+
+    return sortedRecords; // Return the sorted records
+  }, [safeRecords, selectedSessionType]);
 
   // 生成列定义
   const generateColumns = (dateRecords) => {
@@ -80,7 +147,7 @@ const AttendanceRecordTable = ({
       
       acc[weekIndex].push({
         id: `attendance_${record.recordId}`,
-        label: dateLabel,
+        label: `${dateLabel}_${record.recordId}` ,//dateLabel,
         originalDate: record.date, // 保存原始日期用于比较
         startTime: record.startTime, // Assuming you have a startTime field
         sortable: false,
@@ -520,18 +587,58 @@ const AttendanceRecordTable = ({
     }, 500);
   }, [selectedTab, safeTutorials, courseInfo]);
 
+  // 处理对话框关闭
+  const handleCloseDialog = () => {
+    setOpenDeleteDialog(false);
+    setSelectedSessionType('');
+    setSelectedRecordId('');
+  };
+
+  // 处理删除
+  const handleDelete = async () => {
+    if (selectedRecordId && onDeleteRecord) {
+      await onDeleteRecord(selectedRecordId);
+      handleCloseDialog();
+    }
+  };
+
   return (
-    <Box>     
-      <Tabs
-        value={selectedTab}
-        onChange={(e, newValue) => setSelectedTab(newValue)}
-        sx={themedStyles.tabs}
-      >
-        <Tab label="Lecture" />
-        {safeTutorials.map((tutorial, index) => (
-          <Tab key={tutorial.tutorialId} label={tutorial.tutorialName} />
-        ))}
-      </Tabs>
+    // <Box>     
+    //   <Tabs
+    //     value={selectedTab}
+    //     onChange={(e, newValue) => setSelectedTab(newValue)}
+    //     sx={themedStyles.tabs}
+    //   >
+    //     <Tab label="Lecture" />
+    //     {safeTutorials.map((tutorial, index) => (
+    //       <Tab key={tutorial.tutorialId} label={tutorial.tutorialName} />
+    //     ))}
+    //   </Tabs>
+    <Box sx={themedStyles.root}>
+      <Box sx={themedStyles.header}>
+        <Box sx={themedStyles.tabsContainer}>
+          <Tabs
+            value={selectedTab}
+            onChange={(_, value) => setSelectedTab(value)}
+            sx={themedStyles.tabs}
+          >
+            <Tab label="Lecture" value={0} />
+            {safeTutorials.map((tutorial, index) => (
+              <Tab key={tutorial.tutorialId} label={tutorial.tutorialName} />
+            ))}
+          </Tabs>
+        </Box>
+        
+        {/* Delete Record button */}
+        <TextButton
+          onClick={() => setOpenDeleteDialog(true)}
+          variant="outlined"
+          startIcon={<DeleteIcon />}
+          sx={themedStyles.deleteButton}
+        >
+          Delete Attendance Session
+        </TextButton>
+      </Box>
 
       {selectedTab === 0 ? (
         // Lecture Attendance Table
@@ -600,6 +707,91 @@ const AttendanceRecordTable = ({
           />
         </Box>
       )}
+
+      {/* Delete Record Dialog */}
+      <Dialog
+        open={openDeleteDialog}
+        onClose={handleCloseDialog}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle>Delete Attendance Session</DialogTitle>
+        <DialogContent>
+          <Typography sx={themedStyles.infoText}>
+            * This action will delete a column of the attendance sheet.
+          </Typography>
+          <Typography sx={{ mb: 2 }}>
+            Select the class session and date you want to delete:
+          </Typography>
+          
+          {/* Class Session Select */}
+          <FormControl fullWidth sx={{ mb: 2 }}>
+            <Typography variant="subtitle2" sx={{ mb: 1 }}>
+              Class Session
+            </Typography>
+            <Select
+              value={selectedSessionType}
+              onChange={(e) => {
+                setSelectedSessionType(e.target.value);
+                setSelectedRecordId('');
+              }}
+              displayEmpty
+            >
+              <MenuItem value="" disabled>
+                Select a class session
+              </MenuItem>
+              {sessionOptions.map(option => (
+                <MenuItem key={option.id} value={option.id}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          {/* Date Select */}
+          {selectedSessionType && (
+            <FormControl fullWidth>
+              <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                Date
+              </Typography>
+              <Select
+                value={selectedRecordId}
+                onChange={(e) => setSelectedRecordId(e.target.value)}
+                displayEmpty
+                disabled={!selectedSessionType}
+              >
+                <MenuItem value="" disabled>
+                  Select a date
+                </MenuItem>
+                {Object.entries(filteredDateRecords).map(([date, records]) =>
+                  records.map(record => (
+                    <MenuItem key={record.id} value={record.id}>
+                      {record.label}
+                    </MenuItem>
+                  ))
+                )}
+              </Select>
+            </FormControl>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <TextButton
+            onClick={handleCloseDialog}
+            variant="text"
+            color="cancel"
+          >
+            Cancel
+          </TextButton>
+          <TextButton
+            onClick={handleDelete}
+            variant="contained"
+            color="error"
+            disabled={!selectedRecordId}
+          >
+            Delete
+          </TextButton>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

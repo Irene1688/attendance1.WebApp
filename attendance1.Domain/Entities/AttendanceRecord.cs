@@ -21,6 +21,8 @@ public partial class AttendanceRecord
 
     public bool IsLecture { get; set; }
 
+    public bool IsDeleted { get; set; }
+
     public virtual Course Course { get; set; } = null!;
 
     public virtual Tutorial Tutorial { get; set; } = null!;

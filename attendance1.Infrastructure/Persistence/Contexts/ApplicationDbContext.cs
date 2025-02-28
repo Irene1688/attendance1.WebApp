@@ -69,6 +69,9 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.IsLecture)
                 .HasColumnName("isLecture")
                 .HasDefaultValue(true);
+            entity.Property(e => e.IsDeleted).HasColumnName("isDeleted")
+                .HasDefaultValue(false)
+                .HasColumnName("isDeleted");
 
             entity.HasOne(d => d.Course).WithMany(p => p.AttendanceRecords)
                 .HasForeignKey(d => d.CourseId)
@@ -213,6 +216,9 @@ public partial class ApplicationDbContext : DbContext
                 .HasMaxLength(15)
                 .IsUnicode(false)
                 .HasColumnName("studentID");
+            entity.Property(e => e.IsDeleted).HasColumnName("isDeleted")
+                .HasDefaultValue(false)
+                .HasColumnName("isDeleted");
 
             entity.HasOne(d => d.Course).WithMany(p => p.StudentAttendances)
                 .HasForeignKey(d => d.CourseId)

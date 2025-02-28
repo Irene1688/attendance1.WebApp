@@ -103,5 +103,25 @@ export const styles = (theme) => ({
     printHide: {
       display: 'none !important'
     }
+  },
+
+  tabsContainer: {
+    flex: 1
+  },
+
+  deleteButton: {
+    marginLeft: 'auto',
+    color: theme.palette.error.main,
+    borderColor: theme.palette.error.main,
+    '&:hover': {
+      color: theme.palette.error.main,
+      borderColor: theme.palette.error.main,
+    }
+  },
+
+  infoText: {
+    color: theme.palette.text.info,
+    fontStyle: 'italic',
+    marginBottom: theme.spacing(2)
   }
 }); 

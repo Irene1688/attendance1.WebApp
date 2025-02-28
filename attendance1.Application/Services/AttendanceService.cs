@@ -126,7 +126,8 @@ namespace attendance1.Application.Services
                         EndTime = TimeOnly.FromDateTime(localTime.AddSeconds(requestDto.DurationInSeconds)),
                         CourseId = requestDto.CourseId,
                         IsLecture = requestDto.IsLecture,
-                        TutorialId = requestDto.IsLecture ? null : requestDto.TutorialId
+                        TutorialId = requestDto.IsLecture ? null : requestDto.TutorialId,
+                        IsDeleted = false
                     };
                     var saveSuccess = await _attendanceRepository.CreateAttendanceCodeAsync(code);
                     if (!saveSuccess)
@@ -250,7 +251,8 @@ namespace attendance1.Application.Services
                     EndTime = requestDto.StartTime.AddMinutes(1),
                     CourseId = requestDto.CourseId,
                     IsLecture = requestDto.IsLecture,
-                    TutorialId = requestDto.IsLecture ? null : requestDto.TutorialId
+                    TutorialId = requestDto.IsLecture ? null : requestDto.TutorialId,
+                    IsDeleted = false
                 };
                 var saveSuccess = await _attendanceRepository.CreateAttendanceCodeAsync(code);
                 if (!saveSuccess)
@@ -285,7 +287,7 @@ namespace attendance1.Application.Services
 
         public async Task<Result<List<GetAttendanceRecordByStudentIdResponseDto>>> GetAttendanceOfStudentAsync(DataIdRequestDto requestDto, bool isCurrentWeek = false)
         {
-           var studentId = requestDto.IdInString ?? string.Empty;
+            var studentId = requestDto.IdInString ?? string.Empty;
 
             return await ExecuteAsync(async () =>
             {
@@ -308,11 +310,16 @@ namespace attendance1.Application.Services
                     var currentWeekStart = today.Date.AddDays(-(int)today.DayOfWeek + 1); // Monday
                     var currentWeekEnd = currentWeekStart.AddDays(6); // Sunday
                     attendanceRecords = attendanceRecords
-                        .Where(a => a.DateAndTime.Date >= currentWeekStart && a.DateAndTime.Date <= currentWeekEnd)
+                        .Where(a => 
+                            a.DateAndTime.Date >= currentWeekStart && 
+                            a.DateAndTime.Date <= currentWeekEnd &&
+                            a.IsDeleted == false
+                        )
                         .ToList();
                 }
 
                 var attendanceRecord = attendanceRecords
+                    .Where(a => a.IsDeleted == false)
                     .Select( a => new GetAttendanceRecordByStudentIdResponseDto
                     {
                         IsPresent = a.IsPresent,
@@ -387,12 +394,24 @@ namespace attendance1.Application.Services
                     IsPresent = true,
                     Remark = $"Present at {submittedTimeLocal}",
                     RecordId = attendanceCodeDetails.RecordId,
+                    IsDeleted = false
                 };
 
                 await _attendanceRepository.CreateAttendanceDataAsync(attendanceData);
                 return true;
             },
             $"Failed to submit attendance for student ID {requestDto.StudentId}");
+        }
+
+        public async Task<Result<bool>> DeleteAttendanceRecordAsync(DeleteRequestDto requestDto)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                if (!await _validateService.ValidateAttendanceCodeAsync(requestDto.Id))
+                    throw new KeyNotFoundException("Attendance code not found");
+
+                return await _attendanceRepository.DeleteAttendanceRecordAsync(requestDto.Id);
+            }, "Failed to delete attendance record");
         }
     
     }
