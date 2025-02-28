@@ -69,5 +69,12 @@ namespace attendance1.WebApi.Controllers
             var result = await _attendanceService.SubmitAttendanceAsync(requestDto);
             return StatusCode((int)result.StatusCode, result);
         }
+
+        [HttpPost("deleteAttendanceRecord")]
+        public async Task<ActionResult<bool>> DeleteAttendanceRecord([FromBody] DeleteRequestDto requestDto)
+        {
+            var result = await _attendanceService.DeleteAttendanceRecordAsync(requestDto);
+            return StatusCode((int)result.StatusCode, result);
+        }
     }
 }

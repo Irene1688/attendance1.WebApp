@@ -9,4 +9,5 @@ export const attendanceApi = {
   updateStudentAttendanceStatus: (data) => api.post('Attendance/updateStudentAttendanceStatus', data),
   getAttendanceOfStudent: (data, isCurrentWeek) => api.post('Attendance/getAttendanceOfStudent', data, { params: { isCurrentWeek } }),
   submitAttendance: (data) => api.post('Attendance/submitAttendance', data),
+  deleteAttendanceRecord: (data) => api.post('Attendance/deleteAttendanceRecord', data)
 }

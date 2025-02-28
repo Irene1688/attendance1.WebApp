@@ -16,6 +16,8 @@ public partial class StudentAttendance
     public bool IsPresent { get; set; }
 
     public string? Remark { get; set; }
+    
+    public bool IsDeleted { get; set; }
 
     public int RecordId { get; set; }
 

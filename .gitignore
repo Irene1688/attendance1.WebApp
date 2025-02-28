@@ -367,3 +367,11 @@ FodyWeavers.xsd
 /attendance1.Web/NLog.config
 #/attendance1.Web.sln
 /DbBackup
+/backup.sh
+/backup.bat
+/DbBackup/
+/backup.bat
+/backup.bat
+/backup.bat
+/backup.sh
+/run_backup.ps1

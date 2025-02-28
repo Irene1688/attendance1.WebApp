@@ -70,6 +70,7 @@ const CodePage = () => {
 
   // countdown effect
   useEffect(() => {
+    console.log('timeLeft',timeLeft);
     if (!timeLeft || !attendanceCode) return;
 
     const { totalTime } = calculateTimes();

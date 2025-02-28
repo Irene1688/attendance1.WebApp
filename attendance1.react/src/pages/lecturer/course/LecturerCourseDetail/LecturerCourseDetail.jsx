@@ -44,7 +44,8 @@ const LecturerCourseDetail = () => {
     studentAttendanceRecords, 
     fetchStudentAttendanceRecords,
     generateNewAttendanceSession,
-    updateStudentAttendanceStatus
+    updateStudentAttendanceStatus,
+    deleteAttendanceRecord
   } = useAttendanceManagement();
 
   const { 
@@ -215,6 +216,16 @@ const LecturerCourseDetail = () => {
     }
   };
 
+  const handleDeleteRecord = async (recordId) => {
+    if (recordId) {
+      const success = await deleteAttendanceRecord(recordId);
+      if (success) {
+        await loadAttendanceRecords();
+        showSuccessMessage('Attendance session deleted successfully');
+      }
+    }
+  };
+
   if (courseLoading || studentsLoading || recordsLoading) {
     return <Loader />;
   }
@@ -378,6 +389,7 @@ const LecturerCourseDetail = () => {
             tutorials={course?.tutorials || []}
             courseStartDate={course?.semester?.startDate}
             onUpdateStatus={handleUpdateStudentAttendanceStatus}
+            onDeleteRecord={handleDeleteRecord}
             courseInfo={{
               courseCode: course?.courseCode,
               courseName: course?.courseName,

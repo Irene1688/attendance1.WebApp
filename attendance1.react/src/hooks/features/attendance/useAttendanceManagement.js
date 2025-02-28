@@ -132,6 +132,13 @@ export const useAttendanceManagement = () => {
       );
     }, [handleApiCall]);
 
+    const deleteAttendanceRecord = useCallback(async (recordId) => {
+      return await handleApiCall(
+        () => attendanceApi.deleteAttendanceRecord({ id: Number(recordId) }),
+        () => true
+      );
+    }, [handleApiCall]);
+
     return {
         loading,
         openGenerateNewAttendanceSessionDialog,
@@ -146,7 +153,8 @@ export const useAttendanceManagement = () => {
         generateNewAttendanceSession,
         updateStudentAttendanceStatus,
         fetchAttendanceOfStudent,
-        submitAttendance
+        submitAttendance,
+        deleteAttendanceRecord
     }
     
 }
