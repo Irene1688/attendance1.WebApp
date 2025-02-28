@@ -27,6 +27,15 @@ const Login = () => {
   const { handleLogin } = useAuth();
   const [error, setError] = useState('');
   const { message, hideMessage, showErrorMessage } = useMessageContext();
+
+  // read the last login role from localStorage
+  useEffect(() => {
+    const lastLoginRole = localStorage.getItem('lastLoginRole');
+    if (lastLoginRole) {
+      setIsStaffLogin(lastLoginRole === 'staff');
+    }
+  }, []);
+
   // handle the error message in the URL parameters
   useEffect(() => {
     const errorMessage = searchParams.get('error');

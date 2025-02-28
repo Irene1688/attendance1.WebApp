@@ -20,6 +20,9 @@ export const useAuth = () => {
   const handleLogin = useCallback(async (values, formikHelpers, isStaff) => {
     try {
       if (!isStaff) {
+        // memorize the login role
+        localStorage.setItem('lastLoginRole', 'student');
+
         // 获取访客信息
         const deviceType = await getDeviceType();
         if (deviceType === 'Desktop') {
@@ -49,6 +52,9 @@ export const useAuth = () => {
           }
         );
       } else {
+        // memorize the login role
+        localStorage.setItem('lastLoginRole', 'staff');
+
         const loginData = {
           username: values.username,
           password: values.password,
