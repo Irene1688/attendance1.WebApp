@@ -92,13 +92,13 @@ const AttendanceRecordTable = ({
           const count = dates[date].length + 1;
           dates[date].push({
             id: record.recordId,
-            label: `${date} -${count} - ${record.recordId}`,
+            label: `${date} -${count}`,
             date: record.date
           });
         } else {
           dates[date] = [{
             id: record.recordId,
-            label: `${date} -${record.recordId}`,
+            label: `${date}`,
             date: record.date
           }];
         }
@@ -147,7 +147,7 @@ const AttendanceRecordTable = ({
       
       acc[weekIndex].push({
         id: `attendance_${record.recordId}`,
-        label: `${dateLabel}_${record.recordId}` ,//dateLabel,
+        label: dateLabel,
         originalDate: record.date, // 保存原始日期用于比较
         startTime: record.startTime, // Assuming you have a startTime field
         sortable: false,
