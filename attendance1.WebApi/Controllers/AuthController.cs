@@ -16,12 +16,12 @@ namespace attendance1.WebApi.Controllers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        [HttpPost("createAdmin")]
-        public async Task<ActionResult<bool>> CreateAdmin([FromBody] CreateAccountRequestDto requestDto)
-        {
-            var result = await _accountService.CreateAdminAsync(requestDto);
-            return StatusCode((int)result.StatusCode, result);
-        }
+        //[HttpPost("createAdmin")]
+        //public async Task<ActionResult<bool>> CreateAdmin([FromBody] CreateAccountRequestDto requestDto)
+        //{
+        //    var result = await _accountService.CreateAdminAsync(requestDto);
+        //    return StatusCode((int)result.StatusCode, result);
+        //}
 
         [HttpPost("studentLogin")]
         public async Task<ActionResult<LoginResponseDto>> StudentLogin([FromBody] StudentLoginRequestDto requestDto)

@@ -45,7 +45,7 @@ public partial class ApplicationDbContext : DbContext
         if (!optionsBuilder.IsConfigured)
         {
             //optionsBuilder.UseSqlServer("Data Source=127.0.0.1,1434;Initial Catalog=StudentAttendanceSystem;User ID=sa;Password=yourStrong(!)Password;Encrypt=False;TrustServerCertificate=True");
-            optionsBuilder.UseSqlServer("Data Source=IRENE\\SQLEXPRESS;Initial Catalog=StudentAttendanceSystem;User ID=irene;Password=Root-123;Encrypt=False;TrustServerCertificate=True");
+            optionsBuilder.UseSqlServer("Data Source=127.0.0.1,1434;Initial Catalog=StudentAttendanceSystem;User ID=sa;Password=yourStrong(!)Password;Encrypt=False;TrustServerCertificate=True");
         }
     }
 

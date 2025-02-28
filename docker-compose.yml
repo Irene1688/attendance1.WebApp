@@ -8,7 +8,8 @@ services:
       SA_PASSWORD: "yourStrong(!)Password"
       ACCEPT_EULA: "Y"
     volumes:
-      - sqlserver_data:/var/opt/mssql 
+      - sqlserver_data:/var/opt/mssql
+      - ./DbBackup:/var/opt/mssql/backups  # Map host's ./DbBackup folder to container's /var/opt/mssql/backups 
     networks:
       - samsnetwork
     restart: unless-stopped  # 配置容器自动重启，除非手动停止

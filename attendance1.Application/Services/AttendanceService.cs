@@ -1,3 +1,5 @@
+using System;
+
 namespace attendance1.Application.Services
 {
     public class AttendanceService : BaseService, IAttendanceService
@@ -115,12 +117,15 @@ namespace attendance1.Application.Services
                     if (requestDto.TutorialId < 0 && !await _validateService.ValidateTutorialAsync(requestDto.TutorialId ?? 0, requestDto.CourseId))
                         throw new KeyNotFoundException("This tutorial does not exist.");
 
+                    var timeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kuala_Lumpur"); 
+                    var localTime = TimeZoneInfo.ConvertTime(DateTime.Now, timeZone);
+
                     var code = new AttendanceRecord
                     {
                         AttendanceCode = GenerateRandomAttendanceCode(),
                         Date = DateOnly.FromDateTime(DateTime.Now),
-                        StartTime = TimeOnly.FromDateTime(DateTime.Now),
-                        EndTime = TimeOnly.FromDateTime(DateTime.Now.AddSeconds(requestDto.DurationInSeconds)),
+                        StartTime = TimeOnly.FromDateTime(localTime),
+                        EndTime = TimeOnly.FromDateTime(localTime.AddSeconds(requestDto.DurationInSeconds)),
                         CourseId = requestDto.CourseId,
                         IsLecture = requestDto.IsLecture,
                         TutorialId = requestDto.IsLecture ? null : requestDto.TutorialId
@@ -332,9 +337,10 @@ namespace attendance1.Application.Services
 
         public async Task<Result<bool>> SubmitAttendanceAsync(SubmitAttendanceRequestDto requestDto)
         {
+            var timeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kuala_Lumpur");
             var submittedTime = DateTime.UtcNow;
-            var submittedTimeLocal = DateTime.Now;
-            
+            var submittedTimeLocal = TimeZoneInfo.ConvertTime(DateTime.Now, timeZone);
+
             return await ExecuteAsync(async () =>
             {
                 if (!await _validateService.ValidateStudentAsync(requestDto.StudentId))

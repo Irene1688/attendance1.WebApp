@@ -24,31 +24,49 @@ const CodePage = () => {
   const { loading, markAbsentForUnattendedStudents } = useAttendanceManagement();
   const { showSuccessMessage } = useMessageContext();
   const [countdownStarted, setCountdownStarted] = useState(false);
-  console.log(attendanceCode);
-  // calculate the total time and remaining time
+
+  //#region server
   const calculateTimes = () => {
     if (!attendanceCode) return { totalTime: 0, remainingTime: 0 };
 
     const now = new Date();
-    const endTime = new Date(`${new Date().toDateString()} ${attendanceCode.endTime}`);
-    const startTime = new Date(`${new Date().toDateString()} ${attendanceCode.startTime}`);
-    
-    const totalTime = endTime - startTime;
-    const remainingTime = endTime - now;
+    // Function to correctly interpret time in local timezone
+    const parseLocalTime = (timeStr) => {
+        const [hours, minutes, seconds] = timeStr.split(':').map(Number);
+        const localDate = new Date();
+
+        // Set time manually and prevent UTC conversion
+        localDate.setHours(hours, minutes, seconds, 0);
+
+        return localDate;
+    };
+
+    // Correctly parse times
+    const endTime = parseLocalTime(attendanceCode.endTime);
+    const startTime = parseLocalTime(attendanceCode.startTime);
+
+    const totalTime = endTime.getTime() - startTime.getTime();
+    const remainingTime = endTime.getTime() - now.getTime();
 
     return {
-      totalTime,
-      remainingTime: Math.max(0, remainingTime)
+        totalTime,
+        remainingTime: Math.max(0, remainingTime)
     };
   };
+
 
   // initialize the time left and progress
   useEffect(() => {
     if (!attendanceCode) navigate('/lecturer/take-attendance');
 
     const { remainingTime } = calculateTimes();
-    setTimeLeft(Math.ceil(remainingTime / 1000)); // convert to seconds
+    
+    // Prevent incorrect calculations from affecting UI
+    const safeRemainingTime = Math.max(0, Math.ceil(remainingTime / 1000)); // Convert to seconds
+
+    setTimeLeft(safeRemainingTime);
   }, [attendanceCode, navigate]);
+  //#endregion
 
   // countdown effect
   useEffect(() => {
