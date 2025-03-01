@@ -76,5 +76,19 @@ namespace attendance1.WebApi.Controllers
             var result = await _attendanceService.DeleteAttendanceRecordAsync(requestDto);
             return StatusCode((int)result.StatusCode, result);
         }
+
+        [HttpPost("getExistedAttendanceCodes")]
+        public async Task<ActionResult<List<GetAttendanceRecordByStudentIdResponseDto>>> GetExistedAttendaceCode([FromBody] DataIdRequestDto requestDto)
+        {
+            var result = await _attendanceService.GetExistedAttendanceCodeByCourseIdAsync(requestDto);
+            return StatusCode((int)result.StatusCode, result);
+        }
+
+        [HttpPost("revalidAttendanceCode")]
+        public async Task<ActionResult<bool>> RevalidAttendanceCode([FromBody] RevalidAttendanceCodeRequestDto requestDto)
+        {
+            var result = await _attendanceService.RevalidAttendanceCodeAsync(requestDto);
+            return StatusCode((int)result.StatusCode, result);
+        }
     }
 }

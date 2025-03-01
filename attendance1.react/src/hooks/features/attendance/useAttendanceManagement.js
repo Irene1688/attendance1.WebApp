@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { useSelector } from 'react-redux';
 import { attendanceApi } from '../../../api/attendance';
 import { useApiExecutor } from '../../common';
 import { id } from 'date-fns/locale';
@@ -7,11 +8,13 @@ export const useAttendanceManagement = () => {
     // states
     const [attendanceRecords, setAttendanceRecords] = useState([]);
     const [attendanceCode, setAttendanceCode] = useState(null);
+    const [existedAttendanceCodes, setExistedAttendanceCodes] = useState([]);
     const [studentAttendanceRecords, setStudentAttendanceRecords] = useState([]);
     const [openGenerateNewAttendanceSessionDialog, setOpenGenerateNewAttendanceSessionDialog] = useState(false);
 
     // hooks
     const { loading, handleApiCall } = useApiExecutor();
+    const user = useSelector(state => state.auth.user);
 
     // CRUD operations
     // fetch attendance records without student info
@@ -139,11 +142,41 @@ export const useAttendanceManagement = () => {
       );
     }, [handleApiCall]);
 
+    // fetch existed attendance codes of a lecturer
+    const fetchExistedAttendanceCodes = useCallback(async (courseId) => {
+      if (!user) return false;
+      var requestDto = {
+        idInInteger: Number(courseId)
+      }
+      return await handleApiCall(
+        () => attendanceApi.getExistedAttendanceCodes(requestDto),
+        (response) => {
+          setExistedAttendanceCodes(response);
+          return response;
+        }
+      );
+    }, [handleApiCall]);
+
+    const revalidAttendanceCode = useCallback(async (recordId, duration) => {
+      const requestDto = {
+        recordId: Number(recordId),
+        durationInSeconds: Number(duration)
+      }
+      return await handleApiCall(
+        () => attendanceApi.revalidAttendanceCode(requestDto),
+        (response) => {
+          setAttendanceCode(response);
+          return response;
+        }
+      );
+    }, [handleApiCall]);
+
     return {
         loading,
         openGenerateNewAttendanceSessionDialog,
         attendanceRecords,
         attendanceCode,
+        existedAttendanceCodes,
         studentAttendanceRecords,
         setOpenGenerateNewAttendanceSessionDialog,
         fetchAttendanceRecords,
@@ -154,7 +187,9 @@ export const useAttendanceManagement = () => {
         updateStudentAttendanceStatus,
         fetchAttendanceOfStudent,
         submitAttendance,
-        deleteAttendanceRecord
+        deleteAttendanceRecord,
+        fetchExistedAttendanceCodes,
+        revalidAttendanceCode
     }
     
 }

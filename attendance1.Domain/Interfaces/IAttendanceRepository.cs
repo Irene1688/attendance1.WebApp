@@ -6,7 +6,7 @@ namespace attendance1.Domain.Interfaces
     {
         #region validate
         Task<bool> HasAttendanceCodeExistedByIdAsync(int attendanceCodeId);
-        Task<bool> HasAttendanceRecordExistedAsync(string studentId, int attendanceCodeId);
+        Task<(bool, bool)> HasAttendanceRecordExistedAsync(string studentId, int attendanceCodeId);
         #endregion
 
         # region attendance rate
@@ -20,6 +20,7 @@ namespace attendance1.Domain.Interfaces
         
         #region lecturer: attendace CRUD
         Task<bool> CreateAttendanceCodeAsync(AttendanceRecord attendanceRecord);
+        Task<AttendanceRecord> RevalidAttendanceCodeAsync(int attendanceRecordId, DateOnly lastUsedDate, TimeOnly startTime, TimeOnly endTime);
         Task<bool> DeleteAttendanceRecordAsync(int attendanceRecordId);
         Task<List<StudentAttendance>> GetAttendanceDataByCourseIdAsync(int courseId);
         Task<List<StudentAttendance>> GetAttendanceDataByAttendanceCodeIdAsync(int attendanceRecordId);
@@ -27,6 +28,7 @@ namespace attendance1.Domain.Interfaces
         Task<bool> UpdateStudentAttendanceStatusAsync(int courseId, int attendanceCodeId, string studentId, bool isPresent);
         Task<bool> InsertStudentPastAttendanceAsync(int courseId, List<AttendanceRecord> attendanceCodes, bool isPresent, List<string> studentIds);
         Task<bool> ChangeAttendanceDataAsync(IEnumerable<StudentAttendance> newAttendanceData);
+        Task<List<AttendanceRecord>> GetExistedAttendanceCodeByCourseIdAsync(int courseId);
         #endregion
         
         #region student: view attendance

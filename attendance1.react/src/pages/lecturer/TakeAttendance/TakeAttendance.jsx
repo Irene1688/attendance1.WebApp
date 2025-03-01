@@ -1,13 +1,14 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Box, 
   Typography, 
   Grid,
+  Dialog,
 } from '@mui/material';
 import MoodIcon from '@mui/icons-material/Mood';
 import { useOutletContext } from 'react-router-dom';
-import { Loader, EmptyState } from '../../../components/Common';
+import { Loader } from '../../../components/Common';
 import { CourseCard } from '../../../components/Lecturer';
 import { useCourseById } from '../../../hooks/features';
 import { useAttendanceManagement } from '../../../hooks/features';
@@ -15,12 +16,11 @@ import { isTodayOnClass } from '../../../constants/courseConstant';
 import PromptMessage from '../../../components/Common/PromptMessage/PromptMessage';
 import { useMessageContext } from '../../../contexts/MessageContext';
 
-
 const TakeAttendance = () => {
   const { setPageTitle } = useOutletContext();
   const navigate = useNavigate();
   const { activeCourses, loading, fetchActiveCoursesByLecturerId } = useCourseById();
-  const { generateAttendanceCode } = useAttendanceManagement();
+  const { generateAttendanceCode, revalidAttendanceCode } = useAttendanceManagement();
   const { message, hideMessage } = useMessageContext();
 
   useEffect(() => {
@@ -49,6 +49,17 @@ const TakeAttendance = () => {
     return acc;
   }, { todayClasses: [], otherClasses: [] }) || { todayClasses: [], otherClasses: [] };
 
+  // render course card
+  const renderCourseCard = (course) => (
+    <Grid item xs={12} sm={4} md={3} key={course.courseId}>
+      <CourseCard
+        course={course}
+        onTakeAttendance={handleTakeAttendance}
+        onSelectExistedCode={handleSelectExistedCode}
+      />
+    </Grid>
+  );
+
   const handleTakeAttendance = async (duration, selectedTutorialId, courseInfo) => {
     const requestDto = {
       courseId: courseInfo.courseId,
@@ -56,8 +67,15 @@ const TakeAttendance = () => {
       tutorialId: selectedTutorialId
     };
     const attendanceCode = await generateAttendanceCode(requestDto);
-    if (attendanceCode) navigate(`/lecturer/codePage`, { state: { attendanceCode, courseInfo } });
+    if (attendanceCode) navigate(`/lecturer/codePage`, { state: { attendanceCode, courseInfo, mode: 'new' } });
   };
+
+  const handleSelectExistedCode = async (recordId, duration, courseInfo) => {
+    const attendanceCode = await revalidAttendanceCode(recordId, duration);
+    if (attendanceCode) navigate(`/lecturer/codePage`, { state: { attendanceCode, courseInfo, mode: 'reuse' } });
+  };
+
+  
 
   if (loading) return <Loader />;
 
@@ -75,28 +93,17 @@ const TakeAttendance = () => {
       )}
 
       {/* Today's Classes */}
-      <Box sx={{ mb: 1 }}>
-        <Typography variant="overline" sx={{ fontWeight: 'bold' }}>
-            Today's Classes
-        </Typography>
-      </Box>
-      {todayClasses.length > 0 ? (
-        <Grid container spacing={3} sx={{ mb: 4 }}>
-          {todayClasses.map((course) => (
-            <Grid item xs={12} sm={4} md={3} key={course.courseId}>
-              <CourseCard
-                course={course}
-                onTakeAttendance={handleTakeAttendance}
-              />
-            </Grid>
-          ))}
-        </Grid>
-      ) : (
-        <EmptyState
-          title="No Classes Today"
-          message="You don't have any classes scheduled for today."
-          icon={MoodIcon}
-        />
+      {todayClasses.length > 0 && (
+        <>
+          <Box sx={{ mb: 1 }}>
+            <Typography variant="overline" sx={{ fontWeight: 'bold' }}>
+              Today's Classes
+            </Typography>
+          </Box>
+          <Grid container spacing={3}>
+            {todayClasses.map(renderCourseCard)}
+          </Grid>
+        </>
       )}
 
       {/* Other Classes */}
@@ -108,17 +115,10 @@ const TakeAttendance = () => {
             </Typography>
           </Box>
           <Grid container spacing={3}>
-            {otherClasses.map((course) => (
-              <Grid item xs={12} sm={4} md={3} key={course.courseId}>
-                <CourseCard
-                  course={course}
-                  onTakeAttendance={handleTakeAttendance}
-                />
-              </Grid>
-            ))}
+            {otherClasses.map(renderCourseCard)}
           </Grid>
         </>
-      )}
+      )}     
     </Box>
   );
 };

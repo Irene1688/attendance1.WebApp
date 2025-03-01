@@ -11,6 +11,8 @@ public partial class AttendanceRecord
 
     public DateOnly Date { get; set; }
 
+    public DateOnly LastUsedDate { get; set; }
+
     public TimeOnly? StartTime { get; set; }
 
     public TimeOnly? EndTime { get; set; }

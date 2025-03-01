@@ -47,5 +47,15 @@ namespace attendance1.Application.Interfaces
         /// Delete an attendance code by id and delete the related attendance records of students
         /// </summary>
         Task<Result<bool>> DeleteAttendanceRecordAsync(DeleteRequestDto requestDto);
+
+        /// <summary>
+        /// Get the existed attendance code by course id
+        /// </summary>
+        Task<Result<List<GetExistedAttendanceCodeByCourseIdResponseDto>>> GetExistedAttendanceCodeByCourseIdAsync(DataIdRequestDto requestDto);
+
+        /// <summary>
+        /// Revalidate the attendance code by record id and duration in seconds
+        /// </summary>
+        Task<Result<GetAttendanceCodeResponseDto>> RevalidAttendanceCodeAsync(RevalidAttendanceCodeRequestDto requestDto);
     }
 }

@@ -124,6 +124,7 @@ namespace attendance1.Application.Services
                     {
                         AttendanceCode = GenerateRandomAttendanceCode(),
                         Date = DateOnly.FromDateTime(DateTime.Now),
+                        LastUsedDate = DateOnly.FromDateTime(DateTime.Now),
                         StartTime = TimeOnly.FromDateTime(localTime),
                         EndTime = TimeOnly.FromDateTime(localTime.AddSeconds(requestDto.DurationInSeconds)),
                         CourseId = requestDto.CourseId,
@@ -249,6 +250,7 @@ namespace attendance1.Application.Services
                 {
                     AttendanceCode = GenerateRandomAttendanceCode(),
                     Date = requestDto.AttendanceDate,
+                    LastUsedDate = requestDto.AttendanceDate,
                     StartTime = requestDto.StartTime,
                     EndTime = requestDto.StartTime.AddMinutes(1),
                     CourseId = requestDto.CourseId,
@@ -384,9 +386,19 @@ namespace attendance1.Application.Services
                         throw new InvalidOperationException("You are not enrolled in this tutorial");
                 }
 
-                var isStudentDuplicated = await _attendanceRepository.HasAttendanceRecordExistedAsync(requestDto.StudentId, attendanceCodeDetails.RecordId);
-                if (isStudentDuplicated)
+                var (isStudentDuplicated, isPresent) = await _attendanceRepository.HasAttendanceRecordExistedAsync(requestDto.StudentId, attendanceCodeDetails.RecordId);
+                if (isStudentDuplicated && isPresent)
                     throw new InvalidOperationException("You have already submitted attendance");
+
+                if (isStudentDuplicated && !isPresent) 
+                {
+                    return await _attendanceRepository.UpdateStudentAttendanceStatusAsync(
+                        attendanceCodeDetails.CourseId,
+                        attendanceCodeDetails.RecordId,
+                        requestDto.StudentId,
+                        true
+                    );
+                }
 
                 var attendanceData = new StudentAttendance
                 {
@@ -415,6 +427,60 @@ namespace attendance1.Application.Services
                 return await _attendanceRepository.DeleteAttendanceRecordAsync(requestDto.Id);
             }, "Failed to delete attendance record");
         }
-    
+
+        public async Task<Result<List<GetExistedAttendanceCodeByCourseIdResponseDto>>> GetExistedAttendanceCodeByCourseIdAsync(DataIdRequestDto requestDto)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                if (!await _validateService.HasPermissionToAccessCourseAsync(requestDto.IdInInteger ?? 0))
+                    throw new UnauthorizedAccessException("You are not permitted to access this class");
+
+                var attendanceCodes = await _attendanceRepository.GetExistedAttendanceCodeByCourseIdAsync(requestDto.IdInInteger ?? 0);
+                return attendanceCodes
+                    .Where(c => 
+                        c.IsDeleted == false &&
+                        (c.IsLecture || c.Tutorial?.IsDeleted == false)
+                    )
+                    .Select(c => new GetExistedAttendanceCodeByCourseIdResponseDto
+                    {
+                        RecordId = c.RecordId,
+                        LastUsedDate = c.LastUsedDate != DateOnly.MinValue ? c.LastUsedDate : c.Date,
+                        StartTime = c.StartTime?.ToString("HH:mm:ss") ?? "00:00:00",
+                        EndTime = c.EndTime?.ToString("HH:mm:ss") ?? "00:00:00",
+                        IsLecture = c.IsLecture,
+                        TutorialName = c.Tutorial?.TutorialName ?? string.Empty,
+                        AttendanceCode = c.AttendanceCode,
+                    }).ToList();
+            }, "Failed to get existed attendance code of the class");
+        }
+
+        public async Task<Result<GetAttendanceCodeResponseDto>> RevalidAttendanceCodeAsync(RevalidAttendanceCodeRequestDto requestDto)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                if (!await _validateService.ValidateAttendanceCodeAsync(requestDto.RecordId))
+                    throw new KeyNotFoundException("Attendance code not found");
+
+                var timeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kuala_Lumpur"); 
+                var localTime = TimeZoneInfo.ConvertTime(DateTime.Now, timeZone);
+
+                var lastUsedDate = DateOnly.FromDateTime(DateTime.Now);
+                var startTime = TimeOnly.FromDateTime(localTime);
+                var endTime = TimeOnly.FromDateTime(localTime.AddSeconds(requestDto.DurationInSeconds));
+
+                var attendanceCodeDetails = await _attendanceRepository.RevalidAttendanceCodeAsync(requestDto.RecordId, lastUsedDate, startTime, endTime);
+                if (attendanceCodeDetails == null)
+                    throw new KeyNotFoundException("Attendance code not found");
+
+                return new GetAttendanceCodeResponseDto
+                {
+                    CodeId = attendanceCodeDetails.RecordId,
+                    AttendanceCode = attendanceCodeDetails.AttendanceCode,
+                    StartTime = attendanceCodeDetails.StartTime ?? TimeOnly.MinValue,
+                    EndTime = attendanceCodeDetails.EndTime ?? TimeOnly.MinValue,
+                    TutorialId = attendanceCodeDetails.TutorialId ?? 0
+                };
+            }, "Failed to revalidate attendance code");
+        }
     }
 }

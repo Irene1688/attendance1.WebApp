@@ -53,14 +53,24 @@ namespace attendance1.Infrastructure.Persistence.Repositories
             return isAttendanceCodeExisted;
         }
 
-        public async Task<bool> HasAttendanceRecordExistedAsync(string studentId, int attendanceCodeId)
+        public async Task<(bool, bool)> HasAttendanceRecordExistedAsync(string studentId, int attendanceCodeId)
         {
+            var isPresent = false;
             var isAttendanceRecordExisted = await _database.StudentAttendances
-                .AnyAsync(a => a.StudentId == studentId 
-                    && a.RecordId == attendanceCodeId 
-                    && a.IsPresent == true
-                    && a.IsDeleted == false);
-            return isAttendanceRecordExisted;
+                .AnyAsync(a => 
+                    a.StudentId == studentId &&
+                    a.RecordId == attendanceCodeId &&
+                    a.IsDeleted == false);
+            if (isAttendanceRecordExisted)
+            {
+                isPresent = await _database.StudentAttendances
+                    .Where(a => a.StudentId == studentId &&
+                        a.RecordId == attendanceCodeId &&
+                        a.IsDeleted == false)
+                    .Select(a => a.IsPresent)
+                    .FirstOrDefaultAsync();
+            }
+            return (isAttendanceRecordExisted, isPresent);
         }
         #endregion
 
@@ -128,6 +138,26 @@ namespace attendance1.Infrastructure.Persistence.Repositories
             });
         }
 
+        public async Task<AttendanceRecord> RevalidAttendanceCodeAsync(int attendanceRecordId, DateOnly lastUsedDate, TimeOnly startTime, TimeOnly endTime)
+        {
+            return await ExecuteWithTransactionAsync(async () =>
+            {
+                var attendanceCode = await _database.AttendanceRecords
+                    .FirstOrDefaultAsync(a => 
+                        a.RecordId == attendanceRecordId && 
+                        a.IsDeleted == false);
+                if (attendanceCode == null)
+                    throw new KeyNotFoundException("Attendance code not found");
+
+                attendanceCode.LastUsedDate = lastUsedDate;
+                attendanceCode.StartTime = startTime;
+                attendanceCode.EndTime = endTime;
+                _database.AttendanceRecords.Update(attendanceCode);
+                await _database.SaveChangesAsync();
+                return attendanceCode;
+            });
+        }
+
         public async Task<bool> DeleteAttendanceRecordAsync(int attendanceRecordId)
         {
             return await ExecuteWithTransactionAsync(async () =>
@@ -151,6 +181,21 @@ namespace attendance1.Infrastructure.Persistence.Repositories
 
                 await _database.SaveChangesAsync();
                 return true;
+            });
+        }
+
+        public async Task<List<AttendanceRecord>> GetExistedAttendanceCodeByCourseIdAsync(int courseId)
+        {
+            return await ExecuteGetAsync(async () => 
+            {
+                var attendanceCodes = await _database.AttendanceRecords
+                    .Where(a => 
+                        a.CourseId == courseId && 
+                        a.IsDeleted == false)
+                    .Include(a => a.Tutorial)
+                    .AsNoTracking()
+                    .ToListAsync();
+                return attendanceCodes;
             });
         }
 

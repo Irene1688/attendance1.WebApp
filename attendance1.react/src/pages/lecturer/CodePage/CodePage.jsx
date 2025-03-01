@@ -19,6 +19,7 @@ const CodePage = () => {
   const location = useLocation();
   const attendanceCode = location?.state?.attendanceCode;
   const courseInfo = location?.state?.courseInfo;
+  const mode = location?.state?.mode;
   const [timeLeft, setTimeLeft] = useState(0);
   const [progress, setProgress] = useState(100);
   const { loading, markAbsentForUnattendedStudents } = useAttendanceManagement();
@@ -70,7 +71,6 @@ const CodePage = () => {
 
   // countdown effect
   useEffect(() => {
-    console.log('timeLeft',timeLeft);
     if (!timeLeft || !attendanceCode) return;
 
     const { totalTime } = calculateTimes();
@@ -120,6 +120,7 @@ const CodePage = () => {
   // handle countdown complete, insert attendance records for unattended students
   const handleCountdownComplete = useCallback(async () => {
     if (!attendanceCode) return;
+    if (mode === 'reuse') return;
     // mark absent for unattended students
     const success = await markAbsentForUnattendedStudents(courseInfo.courseId, attendanceCode.codeId, attendanceCode.tutorialId);
     if (success) {

@@ -12,32 +12,34 @@ import {
   Radio,
   RadioGroup,
   Box,
-  useTheme
+  useTheme,
+  Menu,
+  MenuItem,
 } from '@mui/material';
 import { TextButton } from '../../Common';
+import { GenerateCodeForm, ExistedAttendanceCodeList } from '../';
 import { styles } from './CourseCard.styles';
 import { DURATION_OPTIONS } from '../../../constants/attendanceCodeDuration';
 
-const CourseCard = ({ course, onTakeAttendance }) => {
-  const [open, setOpen] = useState(false);
-  const [duration, setDuration] = useState('');
-  const [selectedTutorialId, setSelectedTutorialId] = useState('');
+const CourseCard = ({ course, onTakeAttendance, onSelectExistedCode }) => {
   const theme = useTheme();
   const themedStyles = styles(theme);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [generateCodeDialogOpen, setGenerateCodeDialogOpen] = useState(false);
+  const [existedCodeDialogOpen, setExistedCodeDialogOpen] = useState(false);
 
-  const handleClick = () => {
-    setOpen(true);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  
+  const handleTakeAttendance = () => {
+    setAnchorEl(null);
+    setGenerateCodeDialogOpen(true);
   };
 
-  const handleClose = () => {
-    setOpen(false);
-    setDuration('');
-    setSelectedTutorialId('');
-  };
-
-  const handleConfirm = () => {
-    onTakeAttendance(parseInt(duration), selectedTutorialId, course);
-    handleClose();
+  const handleSelectExistedCode = () => {
+    setAnchorEl(null);
+    setExistedCodeDialogOpen(true);
   };
 
   return (
@@ -56,108 +58,37 @@ const CourseCard = ({ course, onTakeAttendance }) => {
         </CardContent>
       </Card>
 
-      <Dialog open={open} onClose={handleClose}>
-        <Box sx={themedStyles.dialogHeader}>
-          <Typography variant="body1" sx={themedStyles.dialogHeaderText}>
-            {course.courseCode} - {course.courseName}
-          </Typography>
-        </Box>
-        <DialogTitle sx={{ textAlign: 'center' }}>Generate Attendance Code</DialogTitle>
-        <DialogContent>
-            {/* <Box>
-                <Typography variant="body1" color="textSecondary" sx={{ mb: 2 }}>
-                Code valid time:
-            </Typography>
-            <FormControl component="fieldset">
-                <RadioGroup
-                row
-                value={duration}
-                onChange={(e) => setDuration(e.target.value)}
-                >
-                {DURATION_OPTIONS.map((option) => (
-                    <FormControlLabel
-                    key={option.value}
-                    value={option.value.toString()}
-                    control={<Radio />}
-                    label={option.label}
-                    sx={themedStyles.radioLabel}
-                    />
-                ))}
-                </RadioGroup>
-            </FormControl>
-            </Box> */}
-  <Box>
-    {/* Code valid time selection */}
-    <Typography variant="body1" color="textSecondary" sx={{ mb: 2 }}>
-      Code valid time:
-    </Typography>
-    <FormControl component="fieldset">
-      <RadioGroup
-        row
-        value={duration}
-        onChange={(e) => setDuration(e.target.value)}
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={() => setAnchorEl(null)}
       >
-        
-        {DURATION_OPTIONS.map((option) => (
-          <FormControlLabel
-            key={option.value}
-            value={option.value.toString()}
-            control={<Radio />}
-            label={option.label}
-            sx={themedStyles.radioLabel}
-          />
-        ))}
-      </RadioGroup>
-    </FormControl>
+        <MenuItem onClick={handleTakeAttendance}>
+          Generate New Code
+        </MenuItem>
+        <MenuItem onClick={handleSelectExistedCode}>
+          Use Existing Code
+        </MenuItem>
+      </Menu>
 
-    {/* Lecture or Tutorial Selection */}
-    <Typography variant="body1" color="textSecondary" sx={{ mt: 4, mb: 2 }}>
-      For which class: 
-    </Typography>
-    <FormControl component="fieldset">
-      <RadioGroup
-        row
-        value={selectedTutorialId} // State to manage selection (lecture or tutorial)
-        onChange={(e) => setSelectedTutorialId(e.target.value)} // Update state on change
-      >
-        <FormControlLabel
-            key="lecture"
-            value="0"
-            control={<Radio />}
-            label="Lecture"
-            sx={themedStyles.radioLabel}
-          />
-        {course.tutorials.map((tutorial) => (
-          <FormControlLabel
-            key={tutorial.tutorialId}
-            value={tutorial.tutorialId.toString()}
-            control={<Radio />}
-            label={tutorial.tutorialName}
-            sx={themedStyles.radioLabel}
-          />
-        ))}
-      </RadioGroup>
-    </FormControl>
-  </Box>
+      {generateCodeDialogOpen && (
+        <GenerateCodeForm
+          course={course}
+          open={generateCodeDialogOpen}
+          onClose={() => setGenerateCodeDialogOpen(false)}
+          onTakeAttendance={onTakeAttendance}
+        />
+      )}
 
-        </DialogContent>
-        <DialogActions>
-          <TextButton
-            onClick={handleClose}
-            variant="text"
-            color="cancel"
-          >
-            Cancel
-          </TextButton>
-          <TextButton
-            onClick={handleConfirm}
-            variant="contained"
-            disabled={!duration || !selectedTutorialId}
-          >
-            Generate
-          </TextButton>
-        </DialogActions>
-      </Dialog>
+      {existedCodeDialogOpen && (
+        <ExistedAttendanceCodeList
+          course={course}
+          open={existedCodeDialogOpen}
+          onClose={() => setExistedCodeDialogOpen(false)}
+          onSelectExistedCode={onSelectExistedCode}
+        />
+      )}
+
     </>
   );
 };

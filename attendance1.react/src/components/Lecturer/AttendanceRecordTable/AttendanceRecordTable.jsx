@@ -603,17 +603,6 @@ const AttendanceRecordTable = ({
   };
 
   return (
-    // <Box>     
-    //   <Tabs
-    //     value={selectedTab}
-    //     onChange={(e, newValue) => setSelectedTab(newValue)}
-    //     sx={themedStyles.tabs}
-    //   >
-    //     <Tab label="Lecture" />
-    //     {safeTutorials.map((tutorial, index) => (
-    //       <Tab key={tutorial.tutorialId} label={tutorial.tutorialName} />
-    //     ))}
-    //   </Tabs>
     <Box sx={themedStyles.root}>
       <Box sx={themedStyles.header}>
         <Box sx={themedStyles.tabsContainer}>
