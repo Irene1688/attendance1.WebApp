@@ -375,3 +375,4 @@ FodyWeavers.xsd
 /backup.bat
 /backup.sh
 /run_backup.ps1
+/backup.ps1
