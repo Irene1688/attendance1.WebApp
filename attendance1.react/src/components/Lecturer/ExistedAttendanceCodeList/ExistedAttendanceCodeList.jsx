@@ -136,9 +136,7 @@ const ExistedAttendanceCodeList = ({ course, open, onClose, onSelectExistedCode 
                     </Typography>
                   </Box>
                   <Typography variant="body1" sx={themedStyles.codeInfo}>
-                    Last used: {format(new Date(record.lastUsedDate), 'dd MMM yyyy')}, 
-                    {format(new Date(`1970-01-01T${record.startTime}`), 'hh:mm:ss a')} - 
-                    {format(new Date(`1970-01-01T${record.endTime}`), 'hh:mm:ss a')}
+                    Last used: {format(new Date(record.lastUsedDate), 'dd MMM yyyy')}, {format(new Date(`1970-01-01T${record.startTime}`), 'hh:mm:ss a')} - {format(new Date(`1970-01-01T${record.endTime}`), 'hh:mm:ss a')}
                   </Typography>
                 </Box>
                 <TextButton

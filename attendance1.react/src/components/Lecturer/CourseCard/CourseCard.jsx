@@ -3,23 +3,15 @@ import {
   Card, 
   CardContent, 
   Typography, 
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  FormControl,
-  FormControlLabel,
-  Radio,
-  RadioGroup,
   Box,
   useTheme,
   Menu,
   MenuItem,
+  IconButton
 } from '@mui/material';
-import { TextButton } from '../../Common';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { GenerateCodeForm, ExistedAttendanceCodeList } from '../';
 import { styles } from './CourseCard.styles';
-import { DURATION_OPTIONS } from '../../../constants/attendanceCodeDuration';
 
 const CourseCard = ({ course, onTakeAttendance, onSelectExistedCode }) => {
   const theme = useTheme();
@@ -56,12 +48,34 @@ const CourseCard = ({ course, onTakeAttendance, onSelectExistedCode }) => {
             {course.courseSession}
           </Typography>
         </CardContent>
+        <Box className="actionWrapper" sx={themedStyles.actionWrapper}>
+        <Typography variant="caption" sx={themedStyles.actionText}>
+          Select
+        </Typography>
+        <IconButton 
+          onClick={handleClick}
+          sx={themedStyles.actionButton}
+          aria-label={`Take attendance for ${course.courseName}`}
+        >
+          <ArrowForwardIcon />
+        </IconButton>
+      </Box>
       </Card>
+
+      
 
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         onClose={() => setAnchorEl(null)}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
       >
         <MenuItem onClick={handleTakeAttendance}>
           Generate New Code

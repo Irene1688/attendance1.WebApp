@@ -1,3 +1,5 @@
+import { alpha } from '@mui/material/styles';
+
 export const styles = (theme) => ({
   card: {
     cursor: 'pointer',
@@ -9,7 +11,11 @@ export const styles = (theme) => ({
     px: theme.spacing(1),
     '&:hover': {
       transform: 'translateY(-4px)',
-      boxShadow: theme.shadows[4]
+      boxShadow: theme.shadows[4],
+      '& .actionWrapper': {
+        opacity: 1,
+        transform: 'translate(0, -50%)',
+      }
     }
   },
   courseCode: {
@@ -21,17 +27,34 @@ export const styles = (theme) => ({
     marginBottom: theme.spacing(3),
     color: theme.palette.grey[600]
   },
-  dialogHeader: {
-    backgroundColor: theme.palette.primary.light,
-    px: theme.spacing(3),
-    py: theme.spacing(1.5),
+  actionWrapper: {
+    display: 'flex',
+    alignItems: 'center',
+    position: 'absolute',
+    right: 8,
+    bottom: '0%',
+    transform: 'translate(100%, -50%)',
+    opacity: 0,
+    transition: 'all 0.3s ease-in-out',
+    className: 'actionWrapper'
   },
-  dialogHeaderText: {
-    color: theme.palette.white.dark,
-    fontWeight: 600
+  actionText: {
+    marginRight: 1,
+    fontWeight: 500,
+    color: theme.palette.secondary.main,
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+    fontSize: '0.75rem'
   },
-  radioLabel: {
-    color: theme.palette.grey[600],
-    marginRight: theme.spacing(8)
+  actionButton: {
+    padding: 1,
+    backgroundColor: alpha(theme.palette.secondary.main, 0.1),
+    color: theme.palette.secondary.main,
+    '& .MuiSvgIcon-root': {
+        fontSize: '1rem'
+    },
+    '&:hover': {
+      backgroundColor: alpha(theme.palette.secondary.main, 0.2),
+    }
   }
 }); 
