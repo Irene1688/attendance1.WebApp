@@ -10,7 +10,7 @@ const AttendanceRecordList = (
         title = "Attendance Records",
         isLoading,
         records = [],
-        emptyMessage = "No attendance records"
+        emptyMessage = "No attendance record"
     }
 ) => {
     const theme = useTheme();

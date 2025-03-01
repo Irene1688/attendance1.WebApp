@@ -48,7 +48,7 @@ const StudentHome = () => {
   // filter attendance records by selected date
   const filteredAttendance = useMemo(() => {
     return recentAttendance.filter(record => 
-      isSameDay(new Date(record.date), selectedDate)
+      isSameDay(new Date(record.date), selectedDate) && record.isPresent === true
     );
   }, [recentAttendance, selectedDate]);
 
@@ -113,7 +113,7 @@ const StudentHome = () => {
         title={`Attendance Records (${format(selectedDate, 'dd MMM yyyy')})`}
         isLoading={attendanceLoading}
         records={filteredAttendance}
-        emptyMessage="No attendance records for this date"
+        emptyMessage="No attendance record for this date"
       />
     </Box>
   );

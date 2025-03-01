@@ -109,7 +109,7 @@ namespace attendance1.Application.Services
             // 1. 规范化设备信息
             var normalizedInfo = new
             {
-                Fingerprint = deviceInfo.Fingerprint,
+                //Fingerprint = deviceInfo.Fingerprint,
                 StudentId = studentId,
                 UserAgent = NormalizeUserAgent(deviceInfo.UserAgent),
                 Platform = deviceInfo.Platform.ToUpperInvariant(),

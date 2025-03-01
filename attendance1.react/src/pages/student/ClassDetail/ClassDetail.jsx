@@ -83,14 +83,16 @@ const ClassDetail = () => {
 
   const filteredAttendanceRecords = useMemo(() => {
     if (!studentAttendanceRecords) return [];
-    if (selectedTab === 'all') return studentAttendanceRecords.sort((a, b) => new Date(b.attendanceTime) - new Date(a.attendanceTime));
+    if (selectedTab === 'all') return studentAttendanceRecords
+      .filter(record => record.isPresent === true)
+      .sort((a, b) => new Date(b.attendanceTime) - new Date(a.attendanceTime));
     if (selectedTab === 'lecture') {
       return studentAttendanceRecords.filter(record => 
-        record.sessionName.toLowerCase() === 'lecture'
+        record.sessionName.toLowerCase() === 'lecture' && record.isPresent === true
       ).sort((a, b) => new Date(b.attendanceTime) - new Date(a.attendanceTime));
     }
     return studentAttendanceRecords.filter(record => 
-      record.sessionName.toLowerCase() !== 'lecture'
+      record.sessionName.toLowerCase() !== 'lecture' && record.isPresent === true
     ).sort((a, b) => new Date(b.attendanceTime) - new Date(a.attendanceTime));
   }, [studentAttendanceRecords, selectedTab]);
 

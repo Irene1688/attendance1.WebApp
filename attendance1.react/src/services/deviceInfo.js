@@ -9,7 +9,7 @@ export const getVisitorInfo = async () => {
     const fp = await fpPromise
     const result = await fp.get()
     return {
-      fingerprint: result.visitorId,
+      //fingerprint: result.visitorId,
       userAgent: navigator.userAgent,
       platform: navigator.userAgentData?.platform,
       language: navigator.language,
@@ -20,7 +20,7 @@ export const getVisitorInfo = async () => {
     console.error('Error getting device info:', error);
     // 返回基本设备信息作为备选
     return {
-      fingerprint: '',
+      //fingerprint: '',
       userAgent: navigator.userAgent,
       platform: navigator.userAgentData?.platform,
       language: navigator.language,
@@ -31,7 +31,6 @@ export const getVisitorInfo = async () => {
 } 
 
 export const getDeviceType = async () => {
-    console.log(navigator)
   if (navigator.userAgentData?.mobile) {
     return "Mobile";
   }
