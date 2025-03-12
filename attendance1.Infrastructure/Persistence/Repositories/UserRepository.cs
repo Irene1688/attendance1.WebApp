@@ -557,6 +557,23 @@ namespace attendance1.Infrastructure.Persistence.Repositories
             });
         }
 
+        public async Task<bool> UpdateFingerprintOfStudent(string newFingerprintHash, string studentId)
+        {
+            return await ExecuteWithTransactionAsync(async () =>
+            {
+                var existingDevice = await _database.StudentDevices
+                    .FirstOrDefaultAsync(d => d.StudentId == studentId && d.IsActive == true);
+
+                if (existingDevice == null) 
+                    throw new Exception("No bound device found");
+
+                existingDevice.FingerprintHash = newFingerprintHash;
+
+                await _database.SaveChangesAsync();
+                return true;
+            });
+        }
+
         public async Task<StudentDevice> GetDeviceByFingerprintHashAsync(string fingerprintHash)
         {
             return await ExecuteGetAsync(async () => {

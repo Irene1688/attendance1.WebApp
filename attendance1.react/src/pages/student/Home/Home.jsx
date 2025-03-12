@@ -66,7 +66,6 @@ const StudentHome = () => {
       studentId: user.campusId,
       attendanceCode: attendanceCode
     };
-    console.log(requestDto);
     const success = await submitAttendance(requestDto);
     if (success) {
       loadRecentAttendance();

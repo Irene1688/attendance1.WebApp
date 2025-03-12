@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+
 namespace attendance1.Application.Services
 {
     public class AuthService : BaseService, IAuthService
@@ -103,6 +105,23 @@ namespace attendance1.Application.Services
         {
             return ((value + factor / 2) / factor) * factor;
         }
+
+        private int CalculateHammingDistance(string hash1, string hash2)
+        {
+            if (hash1.Length != hash2.Length)
+            return -1;
+
+            int distance = 0;
+            for (int i = 0; i < hash1.Length; i++)
+            {
+                if (hash1[i] != hash2[i])
+                {
+                    distance++;
+                }
+            }
+            return distance;
+        }
+
         
         public string GenerateFingerprintHash(DeviceInfoDto deviceInfo, string studentId)
         {
@@ -132,10 +151,15 @@ namespace attendance1.Application.Services
             return Convert.ToBase64String(hash);
         }
 
-        private bool ValidateFingerprint(string storedHash, DeviceInfoDto newDeviceInfo, string studentId)
+        private async Task<bool> ValidateFingerprint(string storedHash, DeviceInfoDto newDeviceInfo, string studentId)
         {
             var newHash = GenerateFingerprintHash(newDeviceInfo, studentId);
-            return storedHash == newHash;
+            if (storedHash == newHash) return true;
+            int differences = CalculateHammingDistance(storedHash, newHash);
+            if (differences <= 2 && differences != -1)
+                return await _userRepository.UpdateFingerprintOfStudent(newHash, studentId);
+            
+            return false;
         }
         #endregion
 
@@ -177,7 +201,7 @@ namespace attendance1.Application.Services
                         throw new Exception($"Failed to bind your device to {user.StudentId} account, please try again later");
                 }
 
-                if (!isFirstLogin && !ValidateFingerprint(fingerprint.FingerprintHash, requestDto.DeviceInfo, user.StudentId ?? string.Empty))
+                if (!isFirstLogin && !await ValidateFingerprint(fingerprint.FingerprintHash, requestDto.DeviceInfo, user.StudentId ?? string.Empty))
                     throw new UnauthorizedAccessException($"Login for {user.StudentId} failed. This account can only be accessed from your first-login device");
 
                 var (accessToken, refreshToken) = await HandleTokenGeneration(user);
