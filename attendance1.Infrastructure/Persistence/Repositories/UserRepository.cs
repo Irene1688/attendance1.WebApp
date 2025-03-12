@@ -524,6 +524,39 @@ namespace attendance1.Infrastructure.Persistence.Repositories
             });
         }
 
+        public async Task<bool> MultipleResetFingerprintOfStudentAsync(List<int> userIds) 
+        {
+            return await ExecuteWithTransactionAsync(async () =>
+            {
+                var studentIds = await _database.UserDetails
+                    .Where(u => 
+                        userIds.Contains(u.UserId) && 
+                        u.AccRole == AccRoleEnum.Student.ToString() &&
+                        u.IsDeleted == false)
+                    .Select(u => u.StudentId)
+                    .ToListAsync();
+                if (studentIds.Count == 0)
+                    throw new Exception("No student found");
+
+                var fingerprints = await _database.StudentDevices
+                   .Where(d =>
+                       studentIds.Contains(d.StudentId) &&
+                       d.IsActive == true)
+                   .ToListAsync();
+
+                if (fingerprints.Count == 0)
+                    throw new Exception("No bound device found");
+                
+                foreach (var fingerprint in fingerprints)
+                {
+                    fingerprint.IsActive = false;
+                }
+
+                await _database.SaveChangesAsync();
+                return true;
+            });
+        }
+
         public async Task<StudentDevice> GetDeviceByFingerprintHashAsync(string fingerprintHash)
         {
             return await ExecuteGetAsync(async () => {

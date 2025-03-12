@@ -11,4 +11,5 @@ export const accountApi = {
     MultipleDeleteUser: (data) => api.post('Account/multipleDeleteUser', data),
     resetPassword: (data) => api.post('Account/resetPassword', data),
     rebindStudentDevice: (data) => api.post('Account/rebindStudentDevice', data),
+    multipleRebindStudentDevice: (data) => api.post('Account/multipleRebindStudentDevice', data),
 };

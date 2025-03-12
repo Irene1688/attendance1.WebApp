@@ -31,6 +31,7 @@ export const useAuth = () => {
         }
 
         const deviceInfo = await getVisitorInfo();
+        console.log('deviceInfo', deviceInfo);
         
         // 将指纹信息添加到登录请求
         const loginData = {

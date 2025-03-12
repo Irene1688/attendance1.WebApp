@@ -26,6 +26,10 @@ export const useUserManagement = () => {
         open: false,
         user: null
     });
+    const [ confirmMultipleRebindDialog, setConfirmMultipleRebindDialog ]= useState({
+        open: false,
+        userIds: []
+    }) 
 
     // hooks
     const { loading, handleApiCall } = useApiExecutor();
@@ -168,6 +172,21 @@ export const useUserManagement = () => {
         );
     }, [handleApiCall]);
 
+    const bulkRebindStudentDevice = useCallback(async (userIds) => {
+        if (!userIds?.length) {
+          throw new Error('No stduent selected for unbind device');
+        }
+    
+        const requestDto = userIds.map(id => ({
+          idInInteger: id
+        }));
+    
+        return await handleApiCall(
+          () => accountApi.multipleRebindStudentDevice(requestDto),
+          () => true
+        );
+      }, [handleApiCall]);
+
     return {
         // states
         lecturers,
@@ -176,6 +195,7 @@ export const useUserManagement = () => {
         selectedUser,
         openDialog,
         confirmRebindDialog,
+        confirmMultipleRebindDialog,
         confirmDeleteDialog,
         confirmMultipleDeleteDialog,
         confirmResetDialog,
@@ -188,6 +208,7 @@ export const useUserManagement = () => {
         setSelectedUser,
         setOpenDialog,
         setConfirmRebindDialog,
+        setConfirmMultipleRebindDialog,
         setConfirmDeleteDialog,
         setConfirmMultipleDeleteDialog,
         setConfirmResetDialog,
@@ -201,6 +222,7 @@ export const useUserManagement = () => {
         deleteUser,
         resetPassword,
         bulkDeleteUsers,
-        rebindStudentDevice
+        rebindStudentDevice,
+        bulkRebindStudentDevice
     };
 };

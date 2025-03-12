@@ -24,6 +24,7 @@ const StudentManagement = () => {
     selectedUser,
     openDialog,
     confirmRebindDialog,
+    confirmMultipleRebindDialog,
     confirmDeleteDialog,
     confirmMultipleDeleteDialog,
     confirmResetDialog,
@@ -31,6 +32,7 @@ const StudentManagement = () => {
     setSelectedUser,
     setOpenDialog,
     setConfirmRebindDialog,
+    setConfirmMultipleRebindDialog,
     setConfirmDeleteDialog,
     setConfirmMultipleDeleteDialog,
     setConfirmResetDialog,
@@ -40,7 +42,8 @@ const StudentManagement = () => {
     deleteUser,
     bulkDeleteUsers,
     resetPassword,
-    rebindStudentDevice
+    rebindStudentDevice,
+    bulkRebindStudentDevice
   } = useUserManagement();
   const { programmeSelection, fetchProgrammeSelection } = useProgrammeManagement();
   const { message, showSuccessMessage, hideMessage } = useMessageContext();
@@ -164,6 +167,19 @@ const StudentManagement = () => {
     }
   };
 
+  const handleBulkRebindConfirm = async () => {
+    if (!confirmMultipleRebindDialog.userIds?.length) {
+      return; 
+    }
+
+    const success = await bulkRebindStudentDevice(confirmMultipleRebindDialog.userIds);
+    if (success) {
+      setConfirmMultipleRebindDialog({ open: false, userIds: [] });
+      await loadData();
+      showSuccessMessage('Selected students unbound devices successfully');
+    }
+  };
+
   return (
     <Box sx={{ pl: 3, pr: 3 }}>
       {loading && <Loader />}
@@ -218,6 +234,12 @@ const StudentManagement = () => {
             user
           });
         }}
+        onBulkRebindDevice={(userIds) => {
+          setConfirmMultipleRebindDialog({
+            open: true,
+            userIds
+          });
+        }}
         onDelete={(user) => {
           setConfirmDeleteDialog({
             open: true,
@@ -269,6 +291,17 @@ const StudentManagement = () => {
         content={`Are you sure you want to unbind the device for ${confirmRebindDialog.user?.name}?`}
         onConfirm={handleRebindConfirm}
         onCancel={() => setConfirmRebindDialog({ open: false, user: null })}
+        confirmText="Unbind"
+        cancelText="Cancel"
+        type="primary"
+      />
+
+      <ConfirmDialog
+        open={confirmMultipleRebindDialog.open}
+        title="Unbind Students Devices"
+        content={`Are you sure you want to unbind the device for ${confirmMultipleRebindDialog.userIds?.length} students? This action cannot be undone.`}
+        onConfirm={handleBulkRebindConfirm}
+        onCancel={() => setConfirmMultipleRebindDialog({ open: false, userIds: [] })}
         confirmText="Unbind"
         cancelText="Cancel"
         type="primary"

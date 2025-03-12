@@ -14,6 +14,7 @@ import LockResetIcon from '@mui/icons-material/LockReset';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import { PaginatedTable, IconButton } from '../../Common';
 import { styles } from './StudentTable.styles';
+import { set } from 'date-fns';
 
 const StudentTable = ({
   students,
@@ -27,6 +28,7 @@ const StudentTable = ({
   onSort,
   onEdit,
   onRebindDevice,
+  onBulkRebindDevice,
   onDelete,
   onResetPassword,
   onBulkDelete,
@@ -65,6 +67,12 @@ const StudentTable = ({
   // 处理批量删除
   const handleBulkDelete = () => {
     onBulkDelete(selected);
+    setSelected([]);
+  };
+
+  // 处理批量解绑设备
+  const handleBulkRebind = () => {
+    onBulkRebindDevice(selected);
     setSelected([]);
   };
 
@@ -195,6 +203,12 @@ const StudentTable = ({
             label={`${selected.length} selected`}
             onDelete={() => setSelected([])}
             color="primary"
+          />
+          <Chip
+            label="Unbound Device Selected"
+            onClick={handleBulkRebind}
+            color="info"
+            variant="outlined"
           />
           <Chip
             label="Delete Selected"

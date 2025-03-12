@@ -66,6 +66,7 @@ namespace attendance1.Domain.Interfaces
         Task<StudentDevice> GetDeviceByFingerprintHashAsync(string fingerprintHash);
         Task<bool> SaveFingerprintOfStudentAsync(StudentDevice fingerprint);
         Task<bool> ResetFingerprintOfStudentAsync(string studentId);
+        Task<bool> MultipleResetFingerprintOfStudentAsync(List<int> userIds);
         #endregion
     }
 }

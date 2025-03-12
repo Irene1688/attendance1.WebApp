@@ -48,6 +48,11 @@ namespace attendance1.Application.Interfaces
         /// For admin to reset student reset/unbound student device
         /// </summary>
         Task<Result<bool>> ResetFingerprintOfStudentAsync(DataIdRequestDto requestDto);
+
+        /// <summary>
+        /// For admun to reset student reset/unbound student devices batchly
+        /// </summary>
+        Task<Result<bool>> MultipleResetFingerprintOfStudentAsync(List<DataIdRequestDto> requestDto);
         
         /// <summary>
         /// For lecturer to create student accounts when adding multiple students

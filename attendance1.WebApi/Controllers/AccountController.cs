@@ -66,6 +66,13 @@ namespace attendance1.WebApi.Controllers
             return StatusCode((int)result.StatusCode, result);
         }
 
+        [HttpPost("multiplerebindStudentDevice")]
+        public async Task<ActionResult<bool>> MultiplerebindStudentDevice([FromBody] List<DataIdRequestDto> requestDto)
+        {
+            var result = await _accountService.MultipleResetFingerprintOfStudentAsync(requestDto);
+            return StatusCode((int)result.StatusCode, result);
+        }
+
         [HttpPost("deleteUser")]
         public async Task<ActionResult<bool>> DeleteUser([FromBody] DeleteRequestDto requestDto)
         {

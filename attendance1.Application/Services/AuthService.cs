@@ -111,11 +111,15 @@ namespace attendance1.Application.Services
             {
                 //Fingerprint = deviceInfo.Fingerprint,
                 StudentId = studentId,
-                UserAgent = NormalizeUserAgent(deviceInfo.UserAgent),
+                //UserAgent = NormalizeUserAgent(deviceInfo.UserAgent),
                 Platform = deviceInfo.Platform.ToUpperInvariant(),
                 Resolution = NormalizeResolution(deviceInfo.ScreenResolution),
                 Language = deviceInfo.Language.ToLowerInvariant(),
-                Timezone = deviceInfo.Timezone
+                Timezone = deviceInfo.Timezone,
+                HardwareConcurrency = deviceInfo.HardwareConcurrency,
+                DeviceMemory = deviceInfo.DeviceMemory,
+                MaxTouchPoints = deviceInfo.MaxTouchPoints,
+                CanvaHash = deviceInfo.CanvasHash
             };
 
             var fingerprintData = JsonSerializer.Serialize(normalizedInfo);
@@ -170,11 +174,11 @@ namespace attendance1.Application.Services
                     };
                     var success = await _userRepository.SaveFingerprintOfStudentAsync(fingerprint);
                     if (!success)
-                        throw new Exception("Failed to bind your device to your account, please try again later");
+                        throw new Exception($"Failed to bind your device to {user.StudentId} account, please try again later");
                 }
 
                 if (!isFirstLogin && !ValidateFingerprint(fingerprint.FingerprintHash, requestDto.DeviceInfo, user.StudentId ?? string.Empty))
-                    throw new UnauthorizedAccessException("This account can only be accessed from your first-login device");
+                    throw new UnauthorizedAccessException($"Login for {user.StudentId} failed. This account can only be accessed from your first-login device");
 
                 var (accessToken, refreshToken) = await HandleTokenGeneration(user);
                 
@@ -226,8 +230,11 @@ namespace attendance1.Application.Services
             {
                 var refreshToken = requestDto.RefreshToken;
                 var user = await _userRepository.GetUserByRefreshTokenAsync(refreshToken);
-                if (user == null || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+                if (user == null)
                     throw new InvalidOperationException("Invalid or expired refresh token");
+
+                if (user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+                    throw new InvalidOperationException($"Invalid or expired refresh token for {user.StudentId ?? "the account"}");
 
                 // check if need to rotate refresh token, if the expiry time is less than half of the refresh token expiry time
                 var shouldRotateRefreshToken = user.RefreshTokenExpiryTime <=

@@ -347,9 +347,31 @@ namespace attendance1.Application.Services
                     throw new KeyNotFoundException("Student not found");
                 return await _userRepository.ResetFingerprintOfStudentAsync(requestDto.IdInString ?? string.Empty);
             },
-            $"Failed to cancel device binding");
+            $"Failed to reset device binding");
         }
-    
+
+        public async Task<Result<bool>> MultipleResetFingerprintOfStudentAsync(List<DataIdRequestDto> requestDto)
+        {
+            return await ExecuteAsync(async () =>
+            {
+                if (!_validateService.HasAdminPermissionAsync())
+                    throw new UnauthorizedAccessException("You don't have permission to perform this action");
+
+                //var userIds = requestDto.Select(r => r.IdInInteger).ToList();
+                var userIds = requestDto
+                    .Select(r => r.IdInInteger)
+                    .Where(id => id.HasValue) // 过滤掉 null 值
+                    .Select(id => id.Value) // 转换为 int
+                    .ToList();
+                    
+                if (userIds.Count == 0)
+                    throw new InvalidOperationException("No user IDs provided");
+                if (userIds.Any(id => id <= 0))
+                    throw new InvalidOperationException("Invalid user ID found");
+                return await _userRepository.MultipleResetFingerprintOfStudentAsync(userIds);
+            },
+            $"Failed to unbind devices of students");
+        }
         public async Task<Result<bool>> CreateSingleStudentAccountAsync(CreateAccountRequestDto requestDto)
         {
             return await ExecuteAsync(
