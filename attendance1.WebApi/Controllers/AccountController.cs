@@ -66,7 +66,7 @@ namespace attendance1.WebApi.Controllers
             return StatusCode((int)result.StatusCode, result);
         }
 
-        [HttpPost("multiplerebindStudentDevice")]
+        [HttpPost("multipleRebindStudentDevice")]
         public async Task<ActionResult<bool>> MultiplerebindStudentDevice([FromBody] List<DataIdRequestDto> requestDto)
         {
             var result = await _accountService.MultipleResetFingerprintOfStudentAsync(requestDto);
