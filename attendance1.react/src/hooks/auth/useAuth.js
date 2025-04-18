@@ -23,21 +23,20 @@ export const useAuth = () => {
         // memorize the login role
         localStorage.setItem('lastLoginRole', 'student');
 
-        // 获取访客信息
-        const deviceType = await getDeviceType();
-        if (deviceType === 'Desktop') {
-          showErrorMessage('You should login with your mobile device');
-          return;
-        }
+        // // 获取访客信息
+        // const deviceType = await getDeviceType();
+        // if (deviceType === 'Desktop') {
+        //   showErrorMessage('You should login with your mobile device');
+        //   return;
+        // }
 
-        const deviceInfo = await getVisitorInfo();
-        console.log('deviceInfo', deviceInfo);
+        // const deviceInfo = await getVisitorInfo();
         
         // 将指纹信息添加到登录请求
         const loginData = {
           email: values.email.toLowerCase(),
           password: values.password,
-          deviceInfo
+          //deviceInfo
         };
 
         await handleApiCall(

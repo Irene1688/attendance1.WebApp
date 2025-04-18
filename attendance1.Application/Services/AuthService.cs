@@ -83,84 +83,84 @@ namespace attendance1.Application.Services
         #endregion
 
         #region fingerprint generation
-        private static string NormalizeUserAgent(string userAgent)
-        {
-            var pattern = @"\/\d+(\.\d+)*|\s+";
-            return Regex.Replace(userAgent, pattern, "").ToLowerInvariant();
-        }
+        // private static string NormalizeUserAgent(string userAgent)
+        // {
+        //     var pattern = @"\/\d+(\.\d+)*|\s+";
+        //     return Regex.Replace(userAgent, pattern, "").ToLowerInvariant();
+        // }
 
-        private static string NormalizeResolution(string resolution)
-        {
-            // 处理分辨率,允许小范围变化
-            var parts = resolution.Split('x');
-            if(parts.Length == 2 && int.TryParse(parts[0], out int width) && int.TryParse(parts[1], out int height))
-            {
-                // 将分辨率归类到最接近的标准分辨率
-                return $"{RoundToNearest(width, 50)}x{RoundToNearest(height, 50)}";
-            }
-            return resolution;
-        }
+        // private static string NormalizeResolution(string resolution)
+        // {
+        //     // 处理分辨率,允许小范围变化
+        //     var parts = resolution.Split('x');
+        //     if(parts.Length == 2 && int.TryParse(parts[0], out int width) && int.TryParse(parts[1], out int height))
+        //     {
+        //         // 将分辨率归类到最接近的标准分辨率
+        //         return $"{RoundToNearest(width, 50)}x{RoundToNearest(height, 50)}";
+        //     }
+        //     return resolution;
+        // }
 
-        private static int RoundToNearest(int value, int factor)
-        {
-            return ((value + factor / 2) / factor) * factor;
-        }
+        // private static int RoundToNearest(int value, int factor)
+        // {
+        //     return ((value + factor / 2) / factor) * factor;
+        // }
 
-        private int CalculateHammingDistance(string hash1, string hash2)
-        {
-            if (hash1.Length != hash2.Length)
-            return -1;
+        // private int CalculateHammingDistance(string hash1, string hash2)
+        // {
+        //     if (hash1.Length != hash2.Length)
+        //     return -1;
 
-            int distance = 0;
-            for (int i = 0; i < hash1.Length; i++)
-            {
-                if (hash1[i] != hash2[i])
-                {
-                    distance++;
-                }
-            }
-            return distance;
-        }
+        //     int distance = 0;
+        //     for (int i = 0; i < hash1.Length; i++)
+        //     {
+        //         if (hash1[i] != hash2[i])
+        //         {
+        //             distance++;
+        //         }
+        //     }
+        //     return distance;
+        // }
 
         
-        public string GenerateFingerprintHash(DeviceInfoDto deviceInfo, string studentId)
-        {
-            // 1. 规范化设备信息
-            var normalizedInfo = new
-            {
-                //Fingerprint = deviceInfo.Fingerprint,
-                StudentId = studentId,
-                //UserAgent = NormalizeUserAgent(deviceInfo.UserAgent),
-                Platform = deviceInfo.Platform.ToUpperInvariant(),
-                Resolution = NormalizeResolution(deviceInfo.ScreenResolution),
-                Language = deviceInfo.Language.ToLowerInvariant(),
-                Timezone = deviceInfo.Timezone,
-                HardwareConcurrency = deviceInfo.HardwareConcurrency,
-                DeviceMemory = deviceInfo.DeviceMemory,
-                MaxTouchPoints = deviceInfo.MaxTouchPoints,
-                CanvaHash = deviceInfo.CanvasHash
-            };
+        // public string GenerateFingerprintHash(DeviceInfoDto deviceInfo, string studentId)
+        // {
+        //     // 1. 规范化设备信息
+        //     var normalizedInfo = new
+        //     {
+        //         //Fingerprint = deviceInfo.Fingerprint,
+        //         StudentId = studentId,
+        //         //UserAgent = NormalizeUserAgent(deviceInfo.UserAgent),
+        //         Platform = deviceInfo.Platform.ToUpperInvariant(),
+        //         Resolution = NormalizeResolution(deviceInfo.ScreenResolution),
+        //         Language = deviceInfo.Language.ToLowerInvariant(),
+        //         Timezone = deviceInfo.Timezone,
+        //         HardwareConcurrency = deviceInfo.HardwareConcurrency,
+        //         DeviceMemory = deviceInfo.DeviceMemory,
+        //         MaxTouchPoints = deviceInfo.MaxTouchPoints,
+        //         CanvaHash = deviceInfo.CanvasHash
+        //     };
 
-            var fingerprintData = JsonSerializer.Serialize(normalizedInfo);
-            var salt = _configuration["Fingerprint:Salt"];
-            var dataWithSalt = $"{fingerprintData}|{salt}";
+        //     var fingerprintData = JsonSerializer.Serialize(normalizedInfo);
+        //     var salt = _configuration["Fingerprint:Salt"];
+        //     var dataWithSalt = $"{fingerprintData}|{salt}";
             
-            using var sha256 = SHA256.Create();
-            var bytes = Encoding.UTF8.GetBytes(dataWithSalt);
-            var hash = sha256.ComputeHash(bytes);
-            return Convert.ToBase64String(hash);
-        }
+        //     using var sha256 = SHA256.Create();
+        //     var bytes = Encoding.UTF8.GetBytes(dataWithSalt);
+        //     var hash = sha256.ComputeHash(bytes);
+        //     return Convert.ToBase64String(hash);
+        // }
 
-        private async Task<bool> ValidateFingerprint(string storedHash, DeviceInfoDto newDeviceInfo, string studentId)
-        {
-            var newHash = GenerateFingerprintHash(newDeviceInfo, studentId);
-            if (storedHash == newHash) return true;
-            int differences = CalculateHammingDistance(storedHash, newHash);
-            if (differences <= 2 && differences != -1)
-                return await _userRepository.UpdateFingerprintOfStudent(newHash, studentId);
+        // private async Task<bool> ValidateFingerprint(string storedHash, DeviceInfoDto newDeviceInfo, string studentId)
+        // {
+        //     var newHash = GenerateFingerprintHash(newDeviceInfo, studentId);
+        //     if (storedHash == newHash) return true;
+        //     int differences = CalculateHammingDistance(storedHash, newHash);
+        //     if (differences <= 2 && differences != -1)
+        //         return await _userRepository.UpdateFingerprintOfStudent(newHash, studentId);
             
-            return false;
-        }
+        //     return false;
+        // }
         #endregion
 
 
@@ -175,34 +175,34 @@ namespace attendance1.Application.Services
                 if (!BCrypt.Net.BCrypt.Verify(requestDto.Password, user.UserPassword)) 
                     throw new InvalidOperationException("Incorrect password");
 
-                var currentFingerprintHash = GenerateFingerprintHash(requestDto.DeviceInfo, user.StudentId ?? string.Empty);
+                // var currentFingerprintHash = GenerateFingerprintHash(requestDto.DeviceInfo, user.StudentId ?? string.Empty);
                 
-                // 1. check if the device is already bound to another account
-                var existingDevice = await _userRepository.GetDeviceByFingerprintHashAsync(currentFingerprintHash);
-                if (existingDevice.BindDate != DateOnly.MinValue && existingDevice.StudentId != user.StudentId)
-                    throw new UnauthorizedAccessException("This device is already bound to another account");
+                // // 1. check if the device is already bound to another account
+                // var existingDevice = await _userRepository.GetDeviceByFingerprintHashAsync(currentFingerprintHash);
+                // if (existingDevice.BindDate != DateOnly.MinValue && existingDevice.StudentId != user.StudentId)
+                //     throw new UnauthorizedAccessException("This device is already bound to another account");
 
-                // 2. check if the current user has already bound to a device
-                var fingerprint = await _userRepository.GetFingerprintByStudentIdAsync(user.StudentId ?? string.Empty);
-                bool isFirstLogin = false;
-                if (fingerprint.BindDate == DateOnly.MinValue || string.IsNullOrEmpty(fingerprint.StudentId))
-                {
-                    isFirstLogin = true;
-                    fingerprint = new StudentDevice
-                    {
-                        UserId = user.UserId,
-                        StudentId = user.StudentId ?? string.Empty,
-                        FingerprintHash = currentFingerprintHash,
-                        BindDate = DateOnly.FromDateTime(DateTime.Now),
-                        IsActive = true
-                    };
-                    var success = await _userRepository.SaveFingerprintOfStudentAsync(fingerprint);
-                    if (!success)
-                        throw new Exception($"Failed to bind your device to {user.StudentId} account, please try again later");
-                }
+                // // 2. check if the current user has already bound to a device
+                // var fingerprint = await _userRepository.GetFingerprintByStudentIdAsync(user.StudentId ?? string.Empty);
+                // bool isFirstLogin = false;
+                // if (fingerprint.BindDate == DateOnly.MinValue || string.IsNullOrEmpty(fingerprint.StudentId))
+                // {
+                //     isFirstLogin = true;
+                //     fingerprint = new StudentDevice
+                //     {
+                //         UserId = user.UserId,
+                //         StudentId = user.StudentId ?? string.Empty,
+                //         FingerprintHash = currentFingerprintHash,
+                //         BindDate = DateOnly.FromDateTime(DateTime.Now),
+                //         IsActive = true
+                //     };
+                //     var success = await _userRepository.SaveFingerprintOfStudentAsync(fingerprint);
+                //     if (!success)
+                //         throw new Exception($"Failed to bind your device to {user.StudentId} account, please try again later");
+                // }
 
-                if (!isFirstLogin && !await ValidateFingerprint(fingerprint.FingerprintHash, requestDto.DeviceInfo, user.StudentId ?? string.Empty))
-                    throw new UnauthorizedAccessException($"Login for {user.StudentId} failed. This account can only be accessed from your first-login device");
+                // if (!isFirstLogin && !await ValidateFingerprint(fingerprint.FingerprintHash, requestDto.DeviceInfo, user.StudentId ?? string.Empty))
+                //     throw new UnauthorizedAccessException($"Login for {user.StudentId} failed. This account can only be accessed from your first-login device");
 
                 var (accessToken, refreshToken) = await HandleTokenGeneration(user);
                 
