@@ -108,16 +108,16 @@ const StudentTable = ({
       label: 'Programme',
       sortable: true
     },
-    {
-      id: 'hasDevice',
-      label: 'Has Device',
-      sortable: false
-    },
-    {
-      id: 'deviceBindDate',
-      label: 'Device Bind Date',
-      sortable: false
-    },
+    // {
+    //   id: 'hasDevice',
+    //   label: 'Has Device',
+    //   sortable: false
+    // },
+    // {
+    //   id: 'deviceBindDate',
+    //   label: 'Device Bind Date',
+    //   sortable: false
+    // },
     {
       id: 'classes',
       label: 'Classes',
@@ -142,7 +142,7 @@ const StudentTable = ({
       <TableCell>{student.name}</TableCell>
       <TableCell>{student.email}</TableCell>
       <TableCell>{student.programmeName}</TableCell>
-      <TableCell>{student.hasDevice ? 'Yes' : 'No'}</TableCell>
+      {/* <TableCell>{student.hasDevice ? 'Yes' : 'No'}</TableCell>
       <TableCell sx={{textAlign: 'center'}}>
         { 
           (() => {
@@ -150,7 +150,7 @@ const StudentTable = ({
             return date !== "1/1/1" ? date : '-';
           })()
         }
-      </TableCell>
+      </TableCell> */}
       <TableCell>{student.enrolledCourses?.length || 0}</TableCell>
       <TableCell>
         <Box sx={themedStyles.actionButton}>
@@ -163,7 +163,7 @@ const StudentTable = ({
               />
             </Box>
           </Tooltip>
-          <Tooltip title="Rebind Device">
+          {/* <Tooltip title="Rebind Device">
             <Box component="span">
               <IconButton 
                 Icon={<RestartAltIcon />} 
@@ -171,7 +171,7 @@ const StudentTable = ({
                 color="primary" 
               />
             </Box>
-          </Tooltip>
+          </Tooltip> */}
           <Tooltip title="Reset Password">
             <Box component="span">
               <IconButton 

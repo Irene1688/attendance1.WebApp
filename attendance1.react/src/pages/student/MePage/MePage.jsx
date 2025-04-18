@@ -112,6 +112,7 @@ const MePage = () => {
             }))}
             renderItem={renderMenu}
             emptyMessage="No archived classes"
+            sx={{ mb: 2 }}
           />
         )
       }
