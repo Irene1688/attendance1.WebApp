@@ -391,10 +391,12 @@ namespace attendance1.Infrastructure.Persistence.Repositories
                     };
                     await _database.StudentAttendances.AddAsync(attendance);
                 }
-
-                attendance.IsPresent = isPresent;
-                _database.StudentAttendances.Update(attendance);
-
+                else
+                {
+                    attendance.IsPresent = isPresent;
+                    _database.StudentAttendances.Update(attendance);
+                }
+                
                 await _database.SaveChangesAsync();
                 return true;
             });
