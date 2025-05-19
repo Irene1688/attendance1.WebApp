@@ -36,11 +36,17 @@ const ExistedAttendanceCodeList = ({ course, open, onClose, onSelectExistedCode 
 
   const [message, setMessage] = useState(null);
 
+  // useEffect(() => {
+  //   if (course?.courseId) {
+  //     fetchExistedAttendanceCodes(course?.courseId);
+  //   }
+  // }, [course]);
+
   useEffect(() => {
-    if (course?.courseId) {
-      fetchExistedAttendanceCodes(course?.courseId);
+    if (open && course?.courseId) {
+      fetchExistedAttendanceCodes(course.courseId);
     }
-  }, [course]);
+  }, [open, course?.courseId]);
 
   useEffect(() => {
     if (duration) {
